@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomKit - Multi-Channel Conversation Framework for Python | SMS, Email, Voice, AI, WebSocket</title>
+    <meta name="description" content="Open-source Python library for building multi-channel conversation systems. Unify SMS, Email, WhatsApp, Teams, Messenger, Voice, AI, and WebSocket into room-based experiences. Async-first, type-safe, with pluggable backends.">
+    <meta name="keywords" content="python conversation framework, multi-channel messaging, SMS API, chatbot framework, async python, pydantic, AI chatbot, websocket chat, python chat library, MCP server, microsoft teams bot, whatsapp api, facebook messenger">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="RoomKit - Multi-Channel Conversation Framework for Python">
+    <meta property="og:description" content="Build sophisticated conversation systems with SMS, Email, WhatsApp, Teams, Messenger, Voice, AI, and more. Open-source, async-first, type-safe.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="RoomKit">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RoomKit - Multi-Channel Conversation Framework">
+    <meta name="twitter:description" content="Python library for multi-channel conversations. SMS, Email, WhatsApp, Teams, Messenger, Voice, AI unified.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "RoomKit",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Cross-platform",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "description": "Open-source Python framework for multi-channel conversations. Unify SMS, Email, WhatsApp, Teams, Messenger, Voice, AI, and WebSocket into room-based experiences.",
+        "url": "https://www.roomkit.live/",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "programmingLanguage": "Python",
+        "codeRepository": "https://github.com/sboily/roomkit",
+        "license": "https://opensource.org/licenses/MIT"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="https://github.com/sboily/roomkit" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge">Pure Python</span>
+                    <span class="badge">Async-First</span>
+                    <span class="badge">Type-Safe</span>
+                    <span class="badge badge-mcp">MCP Ready</span>
+                </div>
+                <h1 class="hero-title">
+                    Multi-Channel Conversations,<br>
+                    <span class="gradient-text">Simplified.</span>
+                </h1>
+                <p class="hero-description">
+                    The missing layer between your channels and your logic.
+                    Primitives for multi-channel conversations — not a platform, a foundation.
+                </p>
+                <div class="hero-actions">
+                    <a href="/docs/" class="btn btn-primary btn-lg">
+                        <span>Get Started</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a href="https://github.com/sboily/roomkit" class="btn btn-secondary btn-lg" target="_blank" rel="noopener">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0110 4.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C17.137 18.163 20 14.418 20 10c0-5.523-4.477-10-10-10z"/>
+                        </svg>
+                        <span>View on GitHub</span>
+                    </a>
+                </div>
+                <div class="hero-install">
+                    <code>pip install roomkit</code>
+                    <button class="copy-btn" data-copy="pip install roomkit" aria-label="Copy to clipboard">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <rect x="5" y="5" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M11 5V3C11 2.44772 10.5523 2 10 2H3C2.44772 2 2 2.44772 2 3V10C2 10.5523 2.44772 11 3 11H5" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="hero-code">
+                <div class="code-window">
+                    <div class="code-header">
+                        <div class="code-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <span class="code-filename">example.py</span>
+                    </div>
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, SMSChannel, AIChannel
+
+kit = RoomKit()
+
+<span class="cm"># Register channels</span>
+kit.register_channel(SMSChannel(<span class="st">"sms"</span>, provider))
+kit.register_channel(AIChannel(<span class="st">"ai"</span>, ai_provider))
+
+<span class="cm"># Create a room and attach channels</span>
+room = <span class="kw">await</span> kit.create_room()
+<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"sms"</span>)
+<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"ai"</span>)
+
+<span class="cm"># Process inbound messages</span>
+result = <span class="kw">await</span> kit.process_inbound(message)
+
+<span class="cm"># Messages flow through hooks, get stored,</span>
+<span class="cm"># and broadcast to all attached channels</span></code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why RoomKit Section -->
+    <section class="why-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why RoomKit?</h2>
+                <p class="section-description">
+                    Building conversation systems today is harder than it should be.
+                </p>
+            </div>
+            <div class="why-grid">
+                <div class="why-column problems">
+                    <h3>The Multi-Channel Nightmare</h3>
+                    <div class="why-item problem">
+                        <span class="why-icon">✗</span>
+                        <div>
+                            <strong>Fragmented codebases</strong>
+                            <p>Separate integrations for SMS, Email, WhatsApp, chat widgets. Each with its own SDK, webhooks, and quirks.</p>
+                        </div>
+                    </div>
+                    <div class="why-item problem">
+                        <span class="why-icon">✗</span>
+                        <div>
+                            <strong>Lost context</strong>
+                            <p>Customer starts on SMS, continues on email, finishes on chat. Your system treats these as 3 strangers.</p>
+                        </div>
+                    </div>
+                    <div class="why-item problem">
+                        <span class="why-icon">✗</span>
+                        <div>
+                            <strong>No unified history</strong>
+                            <p>"What did they say last week?" requires querying 5 different APIs.</p>
+                        </div>
+                    </div>
+                    <div class="why-item problem">
+                        <span class="why-icon">✗</span>
+                        <div>
+                            <strong>Identity hell</strong>
+                            <p>+1-555-1234 on SMS is john@example.com on email is "John D." on chat. Connecting these is your problem.</p>
+                        </div>
+                    </div>
+                    <div class="why-item problem">
+                        <span class="why-icon">✗</span>
+                        <div>
+                            <strong>Vendor lock-in</strong>
+                            <p>Switching from Twilio to Telnyx means rewriting everything.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="why-column solutions">
+                    <h3>How RoomKit Fixes This</h3>
+                    <div class="why-item solution">
+                        <span class="why-icon">✓</span>
+                        <div>
+                            <strong>One conversation, any channel</strong>
+                            <p>Messages flow into rooms, not silos. Switch channels mid-conversation without losing context.</p>
+                        </div>
+                    </div>
+                    <div class="why-item solution">
+                        <span class="why-icon">✓</span>
+                        <div>
+                            <strong>Pluggable adapters</strong>
+                            <p>Swap providers without changing application logic. Twilio today, Telnyx tomorrow.</p>
+                        </div>
+                    </div>
+                    <div class="why-item solution">
+                        <span class="why-icon">✓</span>
+                        <div>
+                            <strong>Built-in identity resolution</strong>
+                            <p>Resolve unknown senders, handle ambiguity with hooks, merge identities across channels.</p>
+                        </div>
+                    </div>
+                    <div class="why-item solution">
+                        <span class="why-icon">✓</span>
+                        <div>
+                            <strong>Powerful hook system</strong>
+                            <p>Intercept, route, moderate, or transform messages at any point. One place for all your logic.</p>
+                        </div>
+                    </div>
+                    <div class="why-item solution">
+                        <span class="why-icon">✓</span>
+                        <div>
+                            <strong>Unified history</strong>
+                            <p>Query conversations, not channels. Full context regardless of how customers reached you.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How RoomKit Compares</h2>
+                <p class="section-description">
+                    There are many tools in this space. Here's where RoomKit fits.
+                </p>
+            </div>
+            <div class="comparison-cards">
+                <div class="comparison-card">
+                    <h4>Message Brokers</h4>
+                    <span class="comparison-examples">Kombu, Celery, RabbitMQ</span>
+                    <p>Move bytes between services. No concept of conversations or participants.</p>
+                    <div class="comparison-verdict">
+                        <strong>Use RoomKit when:</strong> You need to manage actual human conversations.
+                    </div>
+                </div>
+                <div class="comparison-card">
+                    <h4>Chatbot Frameworks</h4>
+                    <span class="comparison-examples">Rasa, Dialogflow, ChatterBot</span>
+                    <p>Focus on NLP, intent detection, and response generation.</p>
+                    <div class="comparison-verdict">
+                        <strong>Use RoomKit when:</strong> You need to route messages to AI (or humans) across channels.
+                    </div>
+                </div>
+                <div class="comparison-card">
+                    <h4>Full Platforms</h4>
+                    <span class="comparison-examples">Chatwoot, Rocket.Chat, Intercom</span>
+                    <p>Complete applications with UI, dashboards, and hosted infrastructure.</p>
+                    <div class="comparison-verdict">
+                        <strong>Use RoomKit when:</strong> You're building your own product and need the primitives.
+                    </div>
+                </div>
+                <div class="comparison-card">
+                    <h4>Unified APIs</h4>
+                    <span class="comparison-examples">Twilio, SuprSend, Courier</span>
+                    <p>SaaS services that abstract multiple channels behind one API.</p>
+                    <div class="comparison-verdict">
+                        <strong>Use RoomKit when:</strong> You want self-hosted, open source, no vendor lock-in.
+                    </div>
+                </div>
+            </div>
+            <div class="comparison-table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>RoomKit</th>
+                            <th>Chatwoot</th>
+                            <th>Twilio</th>
+                            <th>Kombu</th>
+                            <th>Rasa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Open source</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Self-hosted</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Python library</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Multi-channel</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                        </tr>
+                        <tr>
+                            <td>Room-based</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                        </tr>
+                        <tr>
+                            <td>Identity resolution</td>
+                            <td class="yes">✓</td>
+                            <td class="partial">~</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                        </tr>
+                        <tr>
+                            <td>Hook system</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                        </tr>
+                        <tr>
+                            <td>Async-first</td>
+                            <td class="yes">✓</td>
+                            <td class="partial">N/A</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                        </tr>
+                        <tr>
+                            <td>No per-message fees</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="yes">✓</td>
+                            <td class="yes">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Real-time voice</td>
+                            <td class="yes">&#10003;</td>
+                            <td class="no">&#10007;</td>
+                            <td class="yes">&#10003;</td>
+                            <td class="no">&#10007;</td>
+                            <td class="no">&#10007;</td>
+                        </tr>
+                        <tr>
+                            <td>AI-ready (llms.txt)</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Everything You Need</h2>
+                <p class="section-description">
+                    A complete framework for building conversation systems at any scale.
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M9 9h6v6H9z"/>
+                        </svg>
+                    </div>
+                    <h3>Room-Based Architecture</h3>
+                    <p>Organize conversations into rooms with participants, events, and channel bindings. Each room is a self-contained conversation context.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h3>Multi-Channel Support</h3>
+                    <p>SMS, Email, WhatsApp, Teams, Messenger, Voice, WebSocket, AI, and more. Messages flow seamlessly between channels with automatic transcoding.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3>Async-First Design</h3>
+                    <p>Built on Python's asyncio from the ground up. Handle thousands of concurrent conversations without blocking.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                        </svg>
+                    </div>
+                    <h3>Powerful Hook System</h3>
+                    <p>Intercept, modify, or block events at any point. Build content moderation, analytics, AI routing, and more with sync and async hooks.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <h3>Identity Resolution</h3>
+                    <p>Resolve unknown senders to known identities. Handle ambiguous cases with hooks for challenges, verification, or manual resolution.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                            <path d="M12 2a10 10 0 0 1 10 10"/>
+                            <circle cx="12" cy="12" r="6"/>
+                        </svg>
+                    </div>
+                    <h3>Pluggable Backends</h3>
+                    <p>In-memory defaults for development, plug in Redis, PostgreSQL, or custom implementations for production. Storage, locks, and realtime all pluggable.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                    </div>
+                    <h3>Real-Time Voice</h3>
+                    <p>Two voice modes: STT/TTS pipeline with FastRTC, or speech-to-speech AI via Gemini Live and OpenAI Realtime. Tool calling, text injection, and auto-reconnect built in.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <h3>Event-Driven Sources</h3>
+                    <p>Connect persistent message sources like WebSocket, NATS, or SSE. Auto-restart with exponential backoff, health monitoring, and backpressure control built-in.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3>Production Resilience</h3>
+                    <p>Circuit breakers isolate failing providers. Rate limiting with token buckets. Retry with exponential backoff. Chain depth limits prevent infinite loops.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Channels Section -->
+    <section class="channels">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Connect Any Channel</h2>
+                <p class="section-description">
+                    Built-in support for popular communication channels with easy extensibility.
+                </p>
+            </div>
+            <div class="channels-grid">
+                <div class="channel-card">
+                    <div class="channel-icon sms">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
+                    </div>
+                    <strong class="channel-name">SMS</strong>
+                    <span>Twilio, Telnyx, Sinch, VoiceMeUp</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon rcs">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M9 10l2 2 4-4"/></svg>
+                    </div>
+                    <strong class="channel-name">RCS</strong>
+                    <span>Twilio, Telnyx</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon email">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <strong class="channel-name">Email</strong>
+                    <span>ElasticEmail, SMTP</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon whatsapp">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    </div>
+                    <strong class="channel-name">WhatsApp</strong>
+                    <span>Business & Personal</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon messenger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><path d="M9.5 13.5L12 11l2.5 2.5"/></svg>
+                    </div>
+                    <strong class="channel-name">Messenger</strong>
+                    <span>Facebook</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon teams">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <strong class="channel-name">Teams</strong>
+                    <span>Bot Framework</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon ws">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+                    </div>
+                    <strong class="channel-name">WebSocket</strong>
+                    <span>Real-time bidirectional</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon http">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <strong class="channel-name">HTTP</strong>
+                    <span>Generic webhooks</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon ai">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg>
+                    </div>
+                    <strong class="channel-name">AI</strong>
+                    <span>Anthropic, OpenAI, Gemini</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon voice">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    </div>
+                    <strong class="channel-name">Voice</strong>
+                    <span>Deepgram, ElevenLabs, FastRTC</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon voice">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h2l3-9 4 18 4-18 3 9h2"/><circle cx="19" cy="12" r="2"/></svg>
+                    </div>
+                    <strong class="channel-name">Realtime Voice</strong>
+                    <span>Gemini Live, OpenAI Realtime</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon custom">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <strong class="channel-name">Custom</strong>
+                    <span>Build your own</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section class="examples">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Expressive API</h2>
+                <p class="section-description">
+                    Clean, intuitive APIs that make complex operations simple.
+                </p>
+            </div>
+            <div class="examples-tabs">
+                <button class="tab active" data-tab="hooks">Hooks</button>
+                <button class="tab" data-tab="identity">Identity</button>
+                <button class="tab" data-tab="realtime">Realtime</button>
+                <button class="tab" data-tab="voice">Voice</button>
+                <button class="tab" data-tab="realtime-voice">Realtime Voice</button>
+                <button class="tab" data-tab="sources">Event Sources</button>
+            </div>
+            <div class="examples-content">
+                <div class="example-panel active" id="hooks">
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, HookTrigger, HookResult
+
+kit = RoomKit()
+
+<span class="cm"># Content moderation hook</span>
+<span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_BROADCAST)
+<span class="kw">async def</span> <span class="fn">moderate_content</span>(event, ctx):
+    <span class="kw">if</span> contains_profanity(event.content.body):
+        <span class="kw">return</span> HookResult.block(<span class="st">"Content policy violation"</span>)
+    <span class="kw">return</span> HookResult.allow()
+
+<span class="cm"># AI routing hook</span>
+<span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_BROADCAST)
+<span class="kw">async def</span> <span class="fn">route_to_ai</span>(event, ctx):
+    <span class="kw">if</span> needs_ai_response(event, ctx):
+        <span class="kw">return</span> HookResult.inject_to([<span class="st">"ai-channel"</span>])
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+                </div>
+                <div class="example-panel" id="identity">
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, HookTrigger, IdentityHookResult
+
+kit = RoomKit(identity_resolver=my_resolver)
+
+<span class="cm"># Handle ambiguous identity (multiple matches)</span>
+<span class="decorator">@kit.identity_hook</span>(HookTrigger.ON_IDENTITY_AMBIGUOUS)
+<span class="kw">async def</span> <span class="fn">resolve_ambiguous</span>(event, ctx, id_result):
+    <span class="cm"># Access sender info directly</span>
+    sender = id_result.address  <span class="cm"># e.g., "+14185551234"</span>
+
+    <span class="kw">if</span> sender <span class="kw">in</span> known_senders:
+        identity = get_identity(known_senders[sender])
+        <span class="kw">return</span> IdentityHookResult.resolved(identity)
+
+    <span class="cm"># Ask user to identify themselves</span>
+    <span class="kw">return</span> IdentityHookResult.pending(
+        display_name=<span class="st">f"Unknown ({sender})"</span>,
+        candidates=id_result.candidates
+    )</code></pre>
+                </div>
+                <div class="example-panel" id="realtime">
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, EphemeralEventType
+
+kit = RoomKit()
+
+<span class="cm"># Subscribe to typing indicators and presence</span>
+<span class="kw">async def</span> <span class="fn">on_realtime</span>(event):
+    <span class="kw">if</span> event.type == EphemeralEventType.TYPING_START:
+        print(<span class="st">f"</span>{event.user_id}<span class="st"> is typing..."</span>)
+    <span class="kw">elif</span> event.type == EphemeralEventType.PRESENCE_ONLINE:
+        print(<span class="st">f"</span>{event.user_id}<span class="st"> came online"</span>)
+
+sub_id = <span class="kw">await</span> kit.subscribe_room(<span class="st">"room-123"</span>, on_realtime)
+
+<span class="cm"># Publish typing indicator</span>
+<span class="kw">await</span> kit.publish_typing(<span class="st">"room-123"</span>, <span class="st">"user-456"</span>)
+
+<span class="cm"># Publish read receipt</span>
+<span class="kw">await</span> kit.publish_read_receipt(<span class="st">"room-123"</span>, <span class="st">"user-456"</span>, <span class="st">"event-789"</span>)</code></pre>
+                </div>
+                <div class="example-panel" id="voice">
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, VoiceChannel
+<span class="kw">from</span> roomkit.voice.stt.deepgram <span class="kw">import</span> DeepgramSTTProvider
+<span class="kw">from</span> roomkit.voice.tts.elevenlabs <span class="kw">import</span> ElevenLabsTTSProvider
+<span class="kw">from</span> roomkit.voice.backends.fastrtc <span class="kw">import</span> FastRTCVoiceBackend
+
+<span class="cm"># Configure voice providers</span>
+stt = DeepgramSTTProvider(api_key=<span class="st">"..."</span>)
+tts = ElevenLabsTTSProvider(api_key=<span class="st">"..."</span>, voice_id=<span class="st">"..."</span>)
+backend = FastRTCVoiceBackend(stt=stt, tts=tts)
+
+<span class="cm"># Register the voice channel</span>
+kit = RoomKit()
+kit.register_channel(VoiceChannel(<span class="st">"voice"</span>, backend=backend))
+
+<span class="cm"># Attach to a room — voice joins the same conversation</span>
+<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"voice"</span>)
+
+<span class="cm"># Transcriptions flow through hooks like any message</span></code></pre>
+                </div>
+                <div class="example-panel" id="realtime-voice">
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, RealtimeVoiceChannel
+<span class="kw">from</span> roomkit.providers.gemini.realtime <span class="kw">import</span> GeminiLiveProvider
+<span class="kw">from</span> roomkit.voice.realtime.ws_transport <span class="kw">import</span> WebSocketRealtimeTransport
+
+<span class="cm"># Speech-to-speech AI — no STT/TTS pipeline needed</span>
+provider = GeminiLiveProvider(api_key=<span class="st">"..."</span>)
+transport = WebSocketRealtimeTransport()
+
+kit = RoomKit()
+kit.register_channel(RealtimeVoiceChannel(
+    <span class="st">"realtime-voice"</span>,
+    provider=provider,
+    transport=transport,
+    system_prompt=<span class="st">"You are a helpful voice assistant."</span>,
+))
+
+<span class="cm"># Connect a participant — audio flows directly to/from Gemini</span>
+session = <span class="kw">await</span> channel.start_session(<span class="st">"room-1"</span>, <span class="st">"user-1"</span>, websocket)
+
+<span class="cm"># Transcriptions appear as RoomEvents in the room
+# Text from other channels is injected into the AI session</span></code></pre>
+                </div>
+                <div class="example-panel" id="sources">
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, BaseSourceProvider, SourceStatus
+
+<span class="kw">class</span> <span class="fn">NATSSource</span>(BaseSourceProvider):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, subject: str):
+        <span class="kw">super</span>().__init__()
+        self.subject = subject
+
+    <span class="decorator">@property</span>
+    <span class="kw">def</span> <span class="fn">name</span>(self) -> str:
+        <span class="kw">return</span> <span class="st">f"nats:</span>{self.subject}<span class="st">"</span>
+
+    <span class="kw">async def</span> <span class="fn">start</span>(self, emit):
+        self._set_status(SourceStatus.CONNECTED)
+        <span class="kw">async for</span> msg <span class="kw">in</span> self.subscribe():
+            <span class="kw">await</span> emit(parse_message(msg))
+            self._record_message()
+
+<span class="cm"># Attach with resilience options</span>
+<span class="kw">await</span> kit.attach_source(
+    <span class="st">"nats-events"</span>, NATSSource(<span class="st">"chat.>"</span>),
+    max_restart_attempts=<span class="nu">10</span>,   <span class="cm"># Give up after 10 failures</span>
+    max_concurrent_emits=<span class="nu">20</span>,   <span class="cm"># Backpressure control</span>
+)</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Section -->
+    <section class="ai-section">
+        <div class="container">
+            <div class="ai-content">
+                <div class="ai-text">
+                    <span class="badge">AI-Ready</span>
+                    <h2>Built for AI Assistants</h2>
+                    <p>
+                        RoomKit includes <code>llms.txt</code> and <code>AGENTS.md</code> files that help AI coding assistants understand your codebase and generate correct, idiomatic code.
+                    </p>
+                    <ul class="ai-features">
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>llms.txt for documentation discovery</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>AGENTS.md with coding patterns</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Programmatic access via <code>get_llms_txt()</code></span>
+                        </li>
+                    </ul>
+                    <a href="/docs/ai-integration/" class="btn btn-secondary">Learn More</a>
+                </div>
+                <div class="ai-code">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-dots"><span></span><span></span><span></span></div>
+                            <span class="code-filename">ai_context.py</span>
+                        </div>
+                        <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> get_llms_txt, get_agents_md
+
+<span class="cm"># Get documentation for LLM context</span>
+llms_content = get_llms_txt()
+
+<span class="cm"># Get coding guidelines for AI assistants</span>
+agents_content = get_agents_md()
+
+<span class="cm"># Use in your MCP server or AI tool</span>
+context = {
+    <span class="st">"documentation"</span>: llms_content,
+    <span class="st">"guidelines"</span>: agents_content
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MCP Section -->
+    <section class="mcp-section">
+        <div class="container">
+            <div class="mcp-content">
+                <div class="mcp-text">
+                    <span class="badge badge-mcp">Model Context Protocol</span>
+                    <h2>Native MCP Integration</h2>
+                    <p>
+                        RoomKit is designed for seamless integration with the Model Context Protocol (MCP).
+                        Build AI assistants that can manage conversations, send messages, and handle multi-channel
+                        communication through a standardized protocol.
+                    </p>
+                    <ul class="mcp-features">
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Room management tools (create, list, get)</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Message sending and history retrieval</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Channel attachment and management</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Participant and identity management</span>
+                        </li>
+                    </ul>
+                    <a href="/docs/mcp/" class="btn btn-primary">MCP Documentation</a>
+                </div>
+                <div class="mcp-demo">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-dots"><span></span><span></span><span></span></div>
+                            <span class="code-filename">Claude Desktop</span>
+                        </div>
+                        <div class="mcp-chat">
+                            <div class="mcp-message user">
+                                <span class="mcp-role">You</span>
+                                <p>Create a new support room and send a welcome message</p>
+                            </div>
+                            <div class="mcp-message assistant">
+                                <span class="mcp-role">Claude</span>
+                                <p>I'll create a support room and send a welcome message.</p>
+                                <div class="mcp-tool-call">
+                                    <span class="tool-label">roomkit_create_room</span>
+                                    <code>{"metadata": {"type": "support"}}</code>
+                                </div>
+                                <div class="mcp-tool-call">
+                                    <span class="tool-label">roomkit_send_message</span>
+                                    <code>{"room_id": "...", "body": "Welcome!"}</code>
+                                </div>
+                                <p>Done! Room created with ID <code>rm_abc123</code> and welcome message sent.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Build?</h2>
+            <p>Get started with RoomKit in minutes. Check out the documentation for guides, examples, and API reference.</p>
+            <div class="cta-actions">
+                <a href="/docs/" class="btn btn-primary btn-lg">Read the Docs</a>
+                <a href="/docs/api/" class="btn btn-secondary btn-lg">API Reference</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/sboily/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/sboily/roomkit">GitHub</a>
+                        <a href="https://github.com/sboily/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

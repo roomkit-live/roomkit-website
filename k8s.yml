@@ -1,0 +1,187 @@
+# =============================================================================
+# RoomKit Website - Kubernetes Deployment
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: roomkit
+---
+# -----------------------------------------------------------------------------
+# Caddy ConfigMap
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddy-config
+  namespace: roomkit
+data:
+  Caddyfile: |
+    {
+      admin off
+    }
+
+    :80 {
+      log {
+        output stdout
+        format console
+      }
+
+      # Health check endpoint
+      handle /health {
+        respond "OK" 200
+      }
+
+      # Proxy all requests to the website
+      handle {
+        reverse_proxy roomkit-web:80 {
+          header_up Host {host}
+          header_up X-Real-IP {remote_host}
+          header_up X-Forwarded-For {remote_host}
+          header_up X-Forwarded-Proto https
+        }
+      }
+    }
+---
+# -----------------------------------------------------------------------------
+# Caddy Service & Deployment
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy
+  namespace: roomkit
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: caddy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy
+  namespace: roomkit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: caddy
+  template:
+    metadata:
+      labels:
+        app: caddy
+    spec:
+      containers:
+        - name: caddy
+          image: caddy:2-alpine
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: config
+              mountPath: /etc/caddy/Caddyfile
+              subPath: Caddyfile
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: "128Mi"
+            requests:
+              cpu: "0.1"
+              memory: "64Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: caddy-config
+---
+# -----------------------------------------------------------------------------
+# Website Service & Deployment
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: roomkit-web
+  namespace: roomkit
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: roomkit-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roomkit-web
+  namespace: roomkit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: roomkit-web
+  template:
+    metadata:
+      labels:
+        app: roomkit-web
+    spec:
+      containers:
+        - name: web
+          image: quintana/roomkit-web:latest
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: "256Mi"
+            requests:
+              cpu: "0.1"
+              memory: "64Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+---
+# -----------------------------------------------------------------------------
+# Ingress - ngrok for HTTPS
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: roomkit-ingress
+  namespace: roomkit
+spec:
+  ingressClassName: ngrok
+  rules:
+    - host: www.roomkit.live
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: caddy
+                port:
+                  number: 80

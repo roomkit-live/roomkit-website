@@ -1,0 +1,82 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0f172a"/>
+
+  <!-- Gradient background effect -->
+  <ellipse cx="600" cy="100" rx="600" ry="300" fill="url(#gradient)" opacity="0.3"/>
+
+  <!-- Logo -->
+  <g transform="translate(100, 215)">
+    <rect x="2" y="2" width="56" height="56" rx="12" stroke="#6366f1" stroke-width="4" fill="none"/>
+    <rect x="12" y="12" width="16" height="16" rx="4" fill="#6366f1"/>
+    <rect x="32" y="12" width="16" height="16" rx="4" fill="#6366f1" opacity="0.6"/>
+    <rect x="12" y="32" width="16" height="16" rx="4" fill="#6366f1" opacity="0.6"/>
+    <rect x="32" y="32" width="16" height="16" rx="4" fill="#6366f1" opacity="0.3"/>
+  </g>
+
+  <!-- Title -->
+  <text x="180" y="260" font-family="Inter, system-ui, sans-serif" font-size="64" font-weight="700" fill="#f1f5f9">RoomKit</text>
+
+  <!-- Subtitle -->
+  <text x="100" y="340" font-family="Inter, system-ui, sans-serif" font-size="32" fill="#94a3b8">Multi-Channel Conversation Framework</text>
+  <text x="100" y="390" font-family="Inter, system-ui, sans-serif" font-size="32" fill="#94a3b8">for Python</text>
+
+  <!-- Tags -->
+  <g transform="translate(100, 440)">
+    <rect x="0" y="0" width="120" height="40" rx="8" fill="rgba(99, 102, 241, 0.15)" stroke="rgba(99, 102, 241, 0.25)"/>
+    <text x="60" y="26" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="500" fill="#818cf8" text-anchor="middle">Async-First</text>
+
+    <rect x="140" y="0" width="100" height="40" rx="8" fill="rgba(99, 102, 241, 0.15)" stroke="rgba(99, 102, 241, 0.25)"/>
+    <text x="190" y="26" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="500" fill="#818cf8" text-anchor="middle">Type-Safe</text>
+
+    <rect x="260" y="0" width="120" height="40" rx="8" fill="rgba(6, 182, 212, 0.15)" stroke="rgba(6, 182, 212, 0.25)"/>
+    <text x="320" y="26" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="500" fill="#06b6d4" text-anchor="middle">MCP Ready</text>
+  </g>
+
+  <!-- Channel icons on right side -->
+  <g transform="translate(750, 180)">
+    <rect x="0" y="0" width="80" height="80" rx="16" fill="url(#sms)"/>
+    <text x="40" y="50" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">SMS</text>
+
+    <rect x="100" y="0" width="80" height="80" rx="16" fill="url(#email)"/>
+    <text x="140" y="50" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700" fill="white" text-anchor="middle">Email</text>
+
+    <rect x="200" y="0" width="80" height="80" rx="16" fill="url(#ai)"/>
+    <text x="240" y="50" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">AI</text>
+
+    <rect x="50" y="100" width="80" height="80" rx="16" fill="url(#ws)"/>
+    <text x="90" y="150" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">WS</text>
+
+    <rect x="150" y="100" width="80" height="80" rx="16" fill="url(#rcs)"/>
+    <text x="190" y="150" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">RCS</text>
+  </g>
+
+  <!-- URL -->
+  <text x="100" y="560" font-family="JetBrains Mono, monospace" font-size="24" fill="#64748b">www.roomkit.live</text>
+
+  <defs>
+    <radialGradient id="gradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+    <linearGradient id="sms" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="email" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="ai" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="ws" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="rcs" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+</svg>

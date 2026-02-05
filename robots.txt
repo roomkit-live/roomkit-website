@@ -1,0 +1,6 @@
+# RoomKit robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.roomkit.live/sitemap.xml
