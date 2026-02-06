@@ -84,6 +84,13 @@ function initMobileNav() {
             nav.classList.toggle('nav-open');
         });
     }
+
+    // Close mobile nav when a link is clicked
+    document.querySelectorAll('.nav-links .nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            nav.classList.remove('nav-open');
+        });
+    });
 }
 
 // ========================================
