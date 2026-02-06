@@ -75,6 +75,7 @@ body {
     background: var(--color-bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
 a {
@@ -304,6 +305,11 @@ code {
     align-items: center;
 }
 
+.hero-content,
+.hero-code {
+    min-width: 0;
+}
+
 .hero-badge {
     display: flex;
     gap: var(--space-sm);
@@ -315,6 +321,8 @@ code {
     font-weight: 700;
     line-height: 1.1;
     margin-bottom: var(--space-lg);
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .gradient-text {
@@ -345,6 +353,7 @@ code {
     background: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    max-width: 100%;
 }
 
 .hero-install code {
@@ -375,6 +384,8 @@ code {
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-xl), var(--shadow-glow);
+    min-width: 0;
+    max-width: 100%;
 }
 
 .code-header {
@@ -415,6 +426,7 @@ code {
     font-size: 0.875rem;
     line-height: 1.7;
     overflow-x: auto;
+    max-width: 100%;
 }
 
 .code-content code {
