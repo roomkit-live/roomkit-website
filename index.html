@@ -53,7 +53,7 @@
             "name": "Sylvain Boily"
         },
         "programmingLanguage": "Python",
-        "codeRepository": "https://github.com/sboily/roomkit",
+        "codeRepository": "https://github.com/roomkit-live/roomkit",
         "license": "https://opensource.org/licenses/MIT"
     }
     </script>
@@ -77,7 +77,7 @@
                 <a href="/docs/features/" class="nav-link">Features</a>
                 <a href="/docs/mcp/" class="nav-link">MCP</a>
                 <a href="/docs/api/" class="nav-link">API Reference</a>
-                <a href="https://github.com/sboily/roomkit" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
             </div>
             <div class="nav-actions">
                 <a href="/docs/" class="btn btn-primary">Get Started</a>
@@ -116,7 +116,7 @@
                             <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </a>
-                    <a href="https://github.com/sboily/roomkit" class="btn btn-secondary btn-lg" target="_blank" rel="noopener">
+                    <a href="https://github.com/roomkit-live/" class="btn btn-secondary btn-lg" target="_blank" rel="noopener">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0110 4.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C17.137 18.163 20 14.418 20 10c0-5.523-4.477-10-10-10z"/>
                         </svg>
@@ -141,18 +141,19 @@
                         </div>
                         <span class="code-filename">example.py</span>
                     </div>
-                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, SMSChannel, AIChannel
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, WebSocketChannel, ChannelCategory
+<span class="kw">from</span> roomkit.channels.ai <span class="kw">import</span> AIChannel
 
 kit = RoomKit()
 
 <span class="cm"># Register channels</span>
-kit.register_channel(SMSChannel(<span class="st">"sms"</span>, provider))
-kit.register_channel(AIChannel(<span class="st">"ai"</span>, ai_provider))
+kit.register_channel(WebSocketChannel(<span class="st">"web"</span>))
+kit.register_channel(AIChannel(<span class="st">"ai"</span>, provider=my_ai))
 
 <span class="cm"># Create a room and attach channels</span>
 room = <span class="kw">await</span> kit.create_room()
-<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"sms"</span>)
-<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"ai"</span>)
+<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"web"</span>)
+<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"ai"</span>, category=ChannelCategory.INTELLIGENCE)
 
 <span class="cm"># Process inbound messages</span>
 result = <span class="kw">await</span> kit.process_inbound(message)
@@ -910,14 +911,14 @@ context = {
                     <div class="footer-column">
                         <h4>Resources</h4>
                         <a href="/llms.txt">llms.txt</a>
-                        <a href="https://github.com/sboily/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
                         <a href="/docs/mcp/">MCP Integration</a>
                         <a href="/docs/roomkit-rfc/">RFC</a>
                     </div>
                     <div class="footer-column">
                         <h4>Community</h4>
-                        <a href="https://github.com/sboily/roomkit">GitHub</a>
-                        <a href="https://github.com/sboily/roomkit/issues">Issues</a>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
                         <a href="https://pypi.org/project/roomkit/">PyPI</a>
                     </div>
                 </div>
