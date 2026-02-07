@@ -154,7 +154,8 @@ kit.register_channel(AIChannel(<span class="st">"ai"</span>, provider=my_ai))
 <span class="cm"># Create a room and attach channels</span>
 room = <span class="kw">await</span> kit.create_room()
 <span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"web"</span>)
-<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"ai"</span>, category=ChannelCategory.INTELLIGENCE)
+<span class="kw">await</span> kit.attach_channel(
+    room.id, <span class="st">"ai"</span>, category=ChannelCategory.INTELLIGENCE)
 
 <span class="cm"># Process inbound messages</span>
 result = <span class="kw">await</span> kit.process_inbound(message)

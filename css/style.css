@@ -1544,7 +1544,8 @@ code {
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
     background: var(--code-bg);
-    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .blog-article pre .code-content {
@@ -1552,6 +1553,8 @@ code {
     font-size: 0.875rem;
     line-height: 1.7;
     margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .blog-article code {
@@ -1626,8 +1629,8 @@ code {
     background: var(--code-bg);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    overflow-x: auto;
-    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 

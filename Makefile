@@ -18,7 +18,7 @@ K8S_HOST   := root@192.168.50.6
 NAMESPACE  := roomkit
 BUILD_DIR  := .build
 
-WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg robots.txt sitemap.xml css js
+WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg robots.txt sitemap.xml css js blog
 
 .PHONY: gather build deploy full clean status logs
 
@@ -26,6 +26,12 @@ WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg robots.txt sitemap
 # gather — assemble .build/ from sibling repos + local static files
 # ---------------------------------------------------------------------------
 gather:
+	@echo "==> Pulling latest from all sibling repos…"
+	git -C ../roomkit      pull --ff-only
+	git -C ../roomkit-docs pull --ff-only
+	git -C ../roomkit-specs pull --ff-only
+	git pull --ff-only
+
 	@echo "==> Gathering build context into $(BUILD_DIR)/"
 	rm -rf $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/website $(BUILD_DIR)/docs
