@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Built a Multi-Channel Conversation Framework in Python. Here's Why. - RoomKit Blog</title>
+    <meta name="description" content="After 20 years in telecom, I extracted the pattern of routing messages between channels into an open-source Python library called RoomKit.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/i-built-a-multi-channel-conversation-framework/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="I Built a Multi-Channel Conversation Framework in Python. Here's Why.">
+    <meta property="og:description" content="After 20 years in telecom, I extracted the pattern of routing messages between channels into an open-source Python library called RoomKit.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/i-built-a-multi-channel-conversation-framework/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-02-07">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="I Built a Multi-Channel Conversation Framework in Python. Here's Why.">
+    <meta name="twitter:description" content="After 20 years in telecom, I extracted the pattern of routing messages between channels into an open-source Python library called RoomKit.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "I Built a Multi-Channel Conversation Framework in Python. Here's Why.",
+        "description": "After 20 years in telecom, I extracted the pattern of routing messages between channels into an open-source Python library called RoomKit.",
+        "datePublished": "2026-02-07",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/i-built-a-multi-channel-conversation-framework/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/i-built-a-multi-channel-conversation-framework/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>I Built a Multi-Channel Conversation Framework in Python. Here's Why.</h1>
+            <div class="blog-meta">
+                <span>February 7, 2026</span>
+                <span>&middot;</span>
+                <span>12 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p>If you've ever integrated SMS, email, voice, and chat into the same app, you know the pain. Each channel has its own SDK, its own webhooks, its own quirks. A customer starts on SMS, continues on email, finishes on chat — and your system treats them as three strangers.</p>
+
+            <p>I spent 20 years building telecom infrastructure. After the third time rebuilding the same "route messages between channels" plumbing, I extracted the pattern into a library.</p>
+
+            <p>It's called <a href="https://www.roomkit.live">RoomKit</a>.</p>
+
+            <hr>
+
+            <h2>The Problem</h2>
+
+            <p>Every conversation system I've worked on had the same architecture smell: channel-specific code scattered everywhere, identity stitched together with duct tape, and zero shared context between channels.</p>
+
+            <p>The typical approach looks like this:</p>
+
+            <pre><code class="code-content"><span class="cm"># The "just add another if-statement" pattern</span>
+<span class="kw">if</span> source == <span class="st">"sms"</span>:
+    handle_sms(message)
+<span class="kw">elif</span> source == <span class="st">"email"</span>:
+    handle_email(message)
+<span class="kw">elif</span> source == <span class="st">"whatsapp"</span>:
+    handle_whatsapp(message)
+<span class="cm"># ... repeat for every new channel</span></code></pre>
+
+            <p>Each handler has its own storage, its own user lookup, its own response logic. Switching from Twilio to Telnyx means rewriting half the codebase. Adding AI to the conversation means threading it through every handler.</p>
+
+            <h2>The Idea: Rooms, Not Channels</h2>
+
+            <p>RoomKit introduces a single abstraction: the <strong>room</strong>. A room is a conversation. Channels attach to rooms. Messages flow in, get processed through hooks, and broadcast to all attached channels.</p>
+
+            <div class="ascii-diagram">[SMS] ──┐
+[Email] ─┤──→ Room ──→ Hooks ──→ Broadcast ──→ [All Channels]
+[AI]  ───┘</div>
+
+            <p>The channel doesn't matter. The room is the conversation.</p>
+
+            <h2>Show Me the Code</h2>
+
+            <p>Install:</p>
+
+            <pre><code class="code-content">pip install roomkit</code></pre>
+
+            <p>Here's a working example — a support room where a customer on WebSocket talks to an AI assistant:</p>
+
+            <pre><code class="code-content"><span class="kw">import</span> asyncio
+<span class="kw">from</span> roomkit <span class="kw">import</span> (
+    RoomKit, WebSocketChannel, AIChannel, MockAIProvider,
+    ChannelCategory, InboundMessage, TextContent,
+)
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    kit = RoomKit()
+
+    <span class="cm"># Register channels</span>
+    kit.register_channel(WebSocketChannel(<span class="st">"customer-ws"</span>))
+    kit.register_channel(AIChannel(<span class="st">"assistant"</span>, provider=MockAIProvider(
+        responses=[<span class="st">"I found your order — it shipped yesterday."</span>]
+    )))
+
+    <span class="cm"># Create room and attach channels</span>
+    <span class="kw">await</span> kit.create_room(room_id=<span class="st">"support-42"</span>)
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"support-42"</span>, <span class="st">"customer-ws"</span>)
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"support-42"</span>, <span class="st">"assistant"</span>,
+                              category=ChannelCategory.INTELLIGENCE)
+
+    <span class="cm"># Process an inbound message</span>
+    <span class="kw">await</span> kit.process_inbound(InboundMessage(
+        channel_id=<span class="st">"customer-ws"</span>,
+        sender_id=<span class="st">"customer-1"</span>,
+        content=TextContent(body=<span class="st">"Where is my order?"</span>),
+    ))
+
+    <span class="cm"># Check the conversation timeline</span>
+    <span class="kw">for</span> event <span class="kw">in await</span> kit.store.list_events(<span class="st">"support-42"</span>):
+        print(<span class="st">f"[{event.source.channel_id}] {event.content.body}"</span>)
+
+asyncio.run(main())</code></pre>
+
+            <p>Output:</p>
+
+            <pre><code class="code-content">[customer-ws] Where is my order?
+[assistant] I found your order — it shipped yesterday.</code></pre>
+
+            <p>That's it. The customer's message enters the room, the AI channel picks it up, responds, and everything is stored in a unified timeline. Replace <code>MockAIProvider</code> with <code>AnthropicAIProvider</code> or <code>OpenAIAIProvider</code> for production.</p>
+
+            <h2>Hooks: Where Your Logic Lives</h2>
+
+            <p>The hook system is where RoomKit gets interesting. Instead of scattering logic across handlers, you intercept events at well-defined points:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HookTrigger, HookResult
+
+<span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_BROADCAST)
+<span class="kw">async def</span> <span class="fn">moderate_content</span>(event, ctx):
+    <span class="kw">if</span> contains_profanity(event.content.body):
+        <span class="kw">return</span> HookResult.block(<span class="st">"Content policy violation"</span>)
+    <span class="kw">return</span> HookResult.allow()
+
+<span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_BROADCAST)
+<span class="kw">async def</span> <span class="fn">route_to_ai</span>(event, ctx):
+    <span class="kw">if</span> needs_ai_response(event, ctx):
+        <span class="kw">return</span> HookResult.inject_to([<span class="st">"ai-channel"</span>])
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>Content moderation, AI routing, analytics, transformations — all in one place, applied uniformly regardless of which channel the message came from.</p>
+
+            <h2>What RoomKit Is (and Isn't)</h2>
+
+            <p>RoomKit is <strong>not</strong> a platform. There's no dashboard, no hosted infrastructure, no per-message fees. It's a Python library — primitives you compose into your own system.</p>
+
+            <p>Think of it as the missing layer between your channels and your logic:</p>
+
+            <ul>
+                <li><strong>vs. Twilio/Telnyx</strong>: RoomKit doesn't send messages. It orchestrates them. Use Twilio as a <em>provider</em> inside RoomKit.</li>
+                <li><strong>vs. Chatwoot/Intercom</strong>: Those are full applications. RoomKit is what you'd use to build one.</li>
+                <li><strong>vs. Rasa/Dialogflow</strong>: Those focus on NLP. RoomKit focuses on routing messages to AI (or humans) across channels.</li>
+                <li><strong>vs. LiveKit</strong>: LiveKit is WebRTC infrastructure for real-time media. RoomKit is conversation orchestration for any channel.</li>
+            </ul>
+
+            <h2>The Channel Matrix</h2>
+
+            <p>Built-in channel types with pluggable providers:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Channel</th>
+                        <th>Providers</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SMS</td>
+                        <td>Twilio, Telnyx, Sinch, VoiceMeUp</td>
+                    </tr>
+                    <tr>
+                        <td>RCS</td>
+                        <td>Twilio, Telnyx</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>ElasticEmail, SMTP</td>
+                    </tr>
+                    <tr>
+                        <td>WhatsApp</td>
+                        <td>Business & Personal</td>
+                    </tr>
+                    <tr>
+                        <td>Messenger</td>
+                        <td>Facebook</td>
+                    </tr>
+                    <tr>
+                        <td>Teams</td>
+                        <td>Bot Framework</td>
+                    </tr>
+                    <tr>
+                        <td>Voice</td>
+                        <td>Deepgram STT, ElevenLabs TTS, FastRTC</td>
+                    </tr>
+                    <tr>
+                        <td>Realtime Voice</td>
+                        <td>Gemini Live, OpenAI Realtime</td>
+                    </tr>
+                    <tr>
+                        <td>WebSocket</td>
+                        <td>Built-in</td>
+                    </tr>
+                    <tr>
+                        <td>AI</td>
+                        <td>Anthropic, OpenAI, Gemini</td>
+                    </tr>
+                    <tr>
+                        <td>HTTP</td>
+                        <td>Generic webhooks</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Swap providers without touching application logic. Twilio today, Telnyx tomorrow — your hooks don't change.</p>
+
+            <h2>Production-Ready Patterns</h2>
+
+            <p>RoomKit ships with the resilience patterns you'd eventually build yourself:</p>
+
+            <ul>
+                <li><strong>Pluggable storage</strong>: In-memory for dev, Redis/PostgreSQL for production</li>
+                <li><strong>Circuit breakers</strong> to isolate failing providers</li>
+                <li><strong>Rate limiting</strong> with token buckets</li>
+                <li><strong>Retry with exponential backoff</strong></li>
+                <li><strong>Identity resolution</strong> across channels (the same person on SMS and email becomes one participant)</li>
+                <li><strong>Event sources</strong> with auto-restart, health monitoring, and backpressure</li>
+            </ul>
+
+            <h2>AI-Native</h2>
+
+            <p>This is 2026. Every conversation system needs AI integration. RoomKit was designed for it:</p>
+
+            <ul>
+                <li><strong>AI channels</strong> are first-class citizens, not bolted on</li>
+                <li><strong>Two voice modes</strong>: STT/TTS pipeline or speech-to-speech (Gemini Live, OpenAI Realtime)</li>
+                <li><strong><code>llms.txt</code></strong> and <strong><code>AGENTS.md</code></strong> built into the package so AI coding assistants understand the codebase</li>
+                <li><strong>MCP integration</strong> — use RoomKit as a tool in Claude, Cursor, or any MCP-compatible agent</li>
+                <li><strong>Programmatic AI context</strong>: <code>get_llms_txt()</code> and <code>get_agents_md()</code> for feeding documentation into LLM context windows</li>
+            </ul>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> get_llms_txt, get_agents_md
+
+<span class="cm"># Give your AI assistant full context on RoomKit</span>
+llms_content = get_llms_txt()
+agents_guidelines = get_agents_md()</code></pre>
+
+            <h2>Protocol-First: The RFC</h2>
+
+            <p>This is the part I'm most excited about. RoomKit isn't just a Python library — it's a <a href="https://github.com/roomkit-live/roomkit-specs">protocol</a>.</p>
+
+            <p>Early on, I made a deliberate choice: write the specification <em>before</em> locking in the implementation. The result is <code>roomkit-rfc.md</code> — a language-agnostic RFC that defines rooms, channels, hooks, identity resolution, event schemas, and the full message lifecycle. The Python library is the reference implementation, but the spec stands on its own.</p>
+
+            <p>Why does this matter? Because conversation orchestration shouldn't be a Python-only problem. The same room/channel/hook model makes sense in Go, Rust, TypeScript, Java — anywhere you're building multi-channel systems.</p>
+
+            <p><strong>This is where you come in.</strong> The spec is stable and ready for other language bindings. If you're building conversation systems in Go and want a RoomKit SDK, the RFC gives you everything you need to build one that's compatible with the Python implementation. Same concepts, same semantics, interoperable by design.</p>
+
+            <p>What's available today:</p>
+
+            <ul>
+                <li><strong><a href="https://github.com/roomkit-live/roomkit-specs">roomkit-specs</a></strong>: The protocol RFC — start here if you want to build a binding</li>
+                <li><strong><a href="https://github.com/roomkit-live/roomkit">roomkit</a></strong>: Python reference implementation</li>
+                <li><strong><a href="https://github.com/roomkit-live/roomkit-docs">roomkit-docs</a></strong>: Documentation site</li>
+                <li><strong><a href="https://github.com/roomkit-live/roomkit-website">roomkit-website</a></strong>: Landing page</li>
+            </ul>
+
+            <p>I'd love to see a <code>roomkit-go</code>, <code>roomkit-ts</code>, or <code>roomkit-rust</code> emerge from the community. The protocol is designed to make that possible — and I'm happy to support anyone who wants to take it on.</p>
+
+            <h2>Getting Started</h2>
+
+            <pre><code class="code-content"><span class="cm"># Core library (only dependency: Pydantic)</span>
+pip install roomkit
+
+<span class="cm"># With AI providers</span>
+pip install roomkit[anthropic]
+pip install roomkit[openai]
+
+<span class="cm"># Everything</span>
+pip install roomkit[all]</code></pre>
+
+            <p>The library is fully typed, async-first, and runs on Python 3.12+. The API is stable, the test suite is comprehensive, and the documentation covers everything from quickstart to production deployment.</p>
+
+            <ul>
+                <li><strong>Website</strong>: <a href="https://www.roomkit.live">roomkit.live</a></li>
+                <li><strong>GitHub</strong>: <a href="https://github.com/roomkit-live">github.com/roomkit-live</a></li>
+                <li><strong>PyPI</strong>: <a href="https://pypi.org/project/roomkit/">pypi.org/project/roomkit</a></li>
+                <li><strong>Docs</strong>: <a href="https://www.roomkit.live/docs/">roomkit.live/docs</a></li>
+            </ul>
+
+            <hr>
+
+            <p>RoomKit is open source, MIT licensed, and looking for early adopters. If you're building anything that involves conversations across multiple channels, I'd love to hear how it fits your use case.</p>
+
+            <p>Star the repo, try the quickstart, open an issue. Let's build this together.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

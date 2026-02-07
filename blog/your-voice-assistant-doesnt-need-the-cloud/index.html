@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Voice Assistant Doesn't Need the Cloud - RoomKit Blog</title>
+    <meta name="description" content="Build a fully local, open-source voice assistant in Python — no API keys, no subscriptions, no data leaving your machine. Using RoomKit, sherpa-onnx, and Ollama on a single GPU.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/your-voice-assistant-doesnt-need-the-cloud/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Your Voice Assistant Doesn't Need the Cloud">
+    <meta property="og:description" content="Build a fully local, open-source voice assistant in Python — no API keys, no subscriptions, no data leaving your machine.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/your-voice-assistant-doesnt-need-the-cloud/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-02-07">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Your Voice Assistant Doesn't Need the Cloud">
+    <meta name="twitter:description" content="Build a fully local, open-source voice assistant in Python — no API keys, no subscriptions, no data leaving your machine.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Your Voice Assistant Doesn't Need the Cloud",
+        "description": "Build a fully local, open-source voice assistant in Python — no API keys, no subscriptions, no data leaving your machine.",
+        "datePublished": "2026-02-07",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/your-voice-assistant-doesnt-need-the-cloud/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/your-voice-assistant-doesnt-need-the-cloud/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Your Voice Assistant Doesn't Need the Cloud</h1>
+            <div class="blog-meta">
+                <span>February 7, 2026</span>
+                <span>&middot;</span>
+                <span>14 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><strong>Build a fully local, open-source voice assistant in Python — no API keys, no subscriptions, no data leaving your machine.</strong></p>
+
+            <hr>
+
+            <p>If you've ever built a voice assistant, you know the drill: sign up for Deepgram, get an ElevenLabs API key, wire up OpenAI, watch the invoices stack up, and hope your users are comfortable sending their audio to three different cloud providers.</p>
+
+            <p>I wanted something different. A voice assistant that runs entirely on my machine — STT, LLM, TTS, everything — with zero cloud dependencies. And I wanted to build it with the same clean abstractions I'd use for a cloud-based setup.</p>
+
+            <p>Here's what I ended up with: a fully local voice pipeline running on a single NVIDIA 4070, responding in under 300ms after the initial warmup. Everything open source. Everything local.</p>
+
+            <p>I built it with <a href="https://roomkit.live">RoomKit</a>, an open-source Python framework I created for multi-channel conversation orchestration.</p>
+
+            <h2>The Stack</h2>
+
+            <p>No API keys. No cloud. Just models running on your GPU:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Tool</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>STT</strong></td>
+                        <td><a href="https://huggingface.co/Banafo/Kroko-ASR">Kroko ASR</a></td>
+                        <td>Speech-to-text (streaming Zipformer via sherpa-onnx)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LLM</strong></td>
+                        <td><a href="https://ollama.com/library/qwen2.5">Qwen 2.5 4B</a></td>
+                        <td>Language model via Ollama</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TTS</strong></td>
+                        <td><a href="https://github.com/rhasspy/piper">Piper</a> (fr_FR-siwis-medium)</td>
+                        <td>Text-to-speech (VITS via sherpa-onnx)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>VAD</strong></td>
+                        <td>TEN-VAD</td>
+                        <td>Voice activity detection (sherpa-onnx)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Orchestration</strong></td>
+                        <td><a href="https://roomkit.live">RoomKit</a></td>
+                        <td>Wires it all together</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>The entire audio pipeline looks like this:</p>
+
+            <div class="ascii-diagram">Mic → [Resampler] → [AEC] → [Denoiser] → VAD → STT → LLM → TTS → Speaker</div>
+
+            <p>Every component runs locally. The heaviest lift is the LLM at 4B parameters — small enough to leave plenty of VRAM for the ONNX models.</p>
+
+            <h2>Why sherpa-onnx?</h2>
+
+            <p>When I started building the local voice pipeline for RoomKit, I looked at the usual suspects: faster-whisper, whisper.cpp, Coqui TTS. All great projects. But sherpa-onnx stood out for one reason: <strong>it covers the entire audio stack</strong>.</p>
+
+            <p>One library gives you streaming STT (Zipformer, Whisper, Paraformer), TTS (VITS/Piper voices), neural VAD (TEN-VAD, Silero), speech enhancement (GTCRN denoiser), and even echo cancellation support. All through ONNX Runtime, which means you get CUDA acceleration without PyTorch overhead.</p>
+
+            <p>For RoomKit, this was ideal. I could build providers for STT, TTS, VAD, and denoising that all share the same runtime, the same model format, and the same deployment story.</p>
+
+            <h2>Show Me the Code</h2>
+
+            <p>Let's build this step by step, starting simple.</p>
+
+            <h3>Step 1: The providers</h3>
+
+            <p>Each piece of the pipeline is a RoomKit provider — a pluggable component you can swap without changing your application logic:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.voice.stt.sherpa_onnx <span class="kw">import</span> SherpaOnnxSTTProvider, SherpaOnnxSTTConfig
+<span class="kw">from</span> roomkit.voice.tts.sherpa_onnx <span class="kw">import</span> SherpaOnnxTTSProvider, SherpaOnnxTTSConfig
+<span class="kw">from</span> roomkit.voice.pipeline.vad.sherpa_onnx <span class="kw">import</span> SherpaOnnxVADProvider, SherpaOnnxVADConfig
+
+<span class="cm"># Speech-to-text: Kroko ASR (streaming Zipformer)</span>
+stt = SherpaOnnxSTTProvider(SherpaOnnxSTTConfig(
+    mode=<span class="st">"transducer"</span>,
+    encoder=<span class="st">"kroko-encoder.onnx"</span>,
+    decoder=<span class="st">"kroko-decoder.onnx"</span>,
+    joiner=<span class="st">"kroko-joiner.onnx"</span>,
+    tokens=<span class="st">"tokens.txt"</span>,
+    sample_rate=16000,
+    provider=<span class="st">"cuda"</span>,  <span class="cm"># or "cpu"</span>
+))
+
+<span class="cm"># Text-to-speech: Piper French voice</span>
+tts = SherpaOnnxTTSProvider(SherpaOnnxTTSConfig(
+    model=<span class="st">"fr_FR-siwis-medium.onnx"</span>,
+    tokens=<span class="st">"tokens.txt"</span>,
+    data_dir=<span class="st">"espeak-ng-data"</span>,
+    sample_rate=22050,
+    provider=<span class="st">"cuda"</span>,
+))
+
+<span class="cm"># Voice activity detection: TEN-VAD</span>
+vad = SherpaOnnxVADProvider(SherpaOnnxVADConfig(
+    model=<span class="st">"ten-vad.onnx"</span>,
+    model_type=<span class="st">"ten"</span>,
+    threshold=0.5,
+    silence_threshold_ms=600,
+    sample_rate=16000,
+    provider=<span class="st">"cpu"</span>,  <span class="cm"># VAD is tiny — CPU is actually faster</span>
+))</code></pre>
+
+            <p>Notice that VAD runs on CPU. The model is so small (runs every 20ms) that the GPU transfer overhead makes CUDA <em>slower</em> for it. RoomKit lets you mix providers — CUDA for the heavy models, CPU for the lightweight ones.</p>
+
+            <h3>Step 2: The audio pipeline</h3>
+
+            <p>RoomKit's <code>AudioPipelineConfig</code> chains the preprocessing stages together:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.voice.pipeline <span class="kw">import</span> AudioPipelineConfig
+
+pipeline = AudioPipelineConfig(
+    vad=vad,
+    <span class="cm"># Optional: add denoiser and echo cancellation</span>
+    <span class="cm"># denoiser=SherpaOnnxDenoiserProvider(config),</span>
+    <span class="cm"># aec=SpeexAECProvider(frame_size=320),</span>
+)</code></pre>
+
+            <p>Want to add noise reduction? Uncomment one line. Echo cancellation for a speaker setup? One more line. Each stage is optional and pluggable.</p>
+
+            <h3>Step 3: The LLM</h3>
+
+            <p>Any OpenAI-compatible server works — Ollama, vLLM, LM Studio:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> VLLMConfig, create_vllm_provider
+<span class="kw">from</span> roomkit.channels.ai <span class="kw">import</span> AIChannel
+
+ai_provider = create_vllm_provider(VLLMConfig(
+    model=<span class="st">"qwen2.5:4b"</span>,
+    base_url=<span class="st">"http://localhost:11434/v1"</span>,  <span class="cm"># Ollama</span>
+    max_tokens=256,
+))
+
+ai = AIChannel(<span class="st">"ai"</span>, provider=ai_provider, system_prompt=(
+    <span class="st">"You are a friendly voice assistant. Keep responses "</span>
+    <span class="st">"short and conversational — one or two sentences."</span>
+))</code></pre>
+
+            <h3>Step 4: Wire it all together</h3>
+
+            <p>This is where RoomKit shines. The room is the conversation — channels attach to it, messages flow through hooks:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, VoiceChannel, ChannelCategory
+<span class="kw">from</span> roomkit.voice.backends.local <span class="kw">import</span> LocalAudioBackend
+
+kit = RoomKit()
+
+<span class="cm"># Local mic + speakers</span>
+backend = LocalAudioBackend(
+    input_sample_rate=16000,
+    output_sample_rate=22050,
+    channels=1,
+    block_duration_ms=20,
+)
+
+<span class="cm"># Register channels</span>
+voice = VoiceChannel(<span class="st">"voice"</span>, stt=stt, tts=tts, backend=backend, pipeline=pipeline)
+kit.register_channel(voice)
+kit.register_channel(ai)
+
+<span class="cm"># Create a room and attach both channels</span>
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"local-voice"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"local-voice"</span>, <span class="st">"voice"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"local-voice"</span>, <span class="st">"ai"</span>, category=ChannelCategory.INTELLIGENCE)</code></pre>
+
+            <p>That's it. Speak into your mic, the audio flows through VAD → STT → LLM → TTS → speaker. No cloud. No API keys.</p>
+
+            <h3>Step 5: Add hooks for visibility</h3>
+
+            <p>RoomKit's hook system lets you intercept events at any point — logging, moderation, analytics, custom routing:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HookTrigger, HookResult, HookExecution
+
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_TRANSCRIPTION)
+<span class="kw">async def</span> <span class="fn">on_transcription</span>(text, ctx):
+    print(<span class="st">f"You said: {text}"</span>)
+    <span class="kw">return</span> HookResult.allow()
+
+<span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_TTS)
+<span class="kw">async def</span> <span class="fn">before_tts</span>(text, ctx):
+    print(<span class="st">f"Assistant: {text}"</span>)
+    <span class="kw">return</span> HookResult.allow()
+
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_SPEECH_START, execution=HookExecution.ASYNC)
+<span class="kw">async def</span> <span class="fn">on_speech_start</span>(session, ctx):
+    print(<span class="st">"Listening..."</span>)</code></pre>
+
+            <p>Hooks aren't just for logging. You can block messages, reroute them, transform text before TTS, or trigger external actions — all without touching the pipeline code.</p>
+
+            <h2>What It Looks Like in Practice</h2>
+
+            <p>Here's an actual conversation running on my machine (RTX 4070, Ollama with Qwen 2.5 4B, French models):</p>
+
+            <pre><code class="code-content">14:05:08 You said: Salut, comment ça va
+14:05:12 Assistant: Ça va bien, merci! Et toi?
+
+14:05:18 You said: Ouais, ça va plutôt pas mal
+14:05:18 Assistant: C'est cool! Fais-toi repos et profite du bon temps.
+
+14:05:28 You said: Qu'est-ce que tu sais faire en fait ?
+14:05:29 Assistant: Je peux répondre aux questions, donner des suggestions,
+          raconter des histoires et aider avec plein de choses!</code></pre>
+
+            <p>The first response takes ~4 seconds (Ollama cold start). After that, the LLM responds in <strong>~280ms</strong>. The full loop — end of speech to start of audio playback — is well under 2 seconds.</p>
+
+            <p>And yes, <strong>barge-in works</strong>. Start talking while the assistant is speaking and the TTS stops immediately:</p>
+
+            <pre><code class="code-content">14:05:34 TTS interrupted: reason=barge_in, position=4751ms
+14:05:34 Speech started (new utterance)</code></pre>
+
+            <p>This is the kind of thing that's painful to implement from scratch but comes built into RoomKit's voice pipeline.</p>
+
+            <h2>The Real Point: Swap Without Rewriting</h2>
+
+            <p>Here's what I find most interesting about this setup. The local voice pipeline uses the exact same RoomKit abstractions as the cloud-based one. If tomorrow you want to switch to Deepgram for STT and ElevenLabs for TTS, you swap the providers:</p>
+
+            <pre><code class="code-content"><span class="cm"># Local</span>
+stt = SherpaOnnxSTTProvider(config)
+tts = SherpaOnnxTTSProvider(config)
+
+<span class="cm"># Cloud (same interface, same hooks, same room)</span>
+stt = DeepgramSTTProvider(api_key=<span class="st">"..."</span>)
+tts = ElevenLabsTTSProvider(api_key=<span class="st">"..."</span>, voice_id=<span class="st">"..."</span>)</code></pre>
+
+            <p>Your hooks don't change. Your room logic doesn't change. Your recording, moderation, and routing code stays the same. That's the whole point of RoomKit — the channel and provider are implementation details; the conversation is the abstraction.</p>
+
+            <h2>Getting Started</h2>
+
+            <p><strong>Prerequisites:</strong></p>
+
+            <ul>
+                <li>Linux with NVIDIA GPU (tested on RTX 4070)</li>
+                <li><a href="https://ollama.com">Ollama</a> installed and running</li>
+                <li>Python 3.12+</li>
+            </ul>
+
+            <p><strong>Install:</strong></p>
+
+            <pre><code class="code-content">pip install roomkit[local-audio,openai,sherpa-onnx]
+ollama pull qwen2.5:4b</code></pre>
+
+            <p><strong>Download models</strong> (one time):</p>
+
+            <pre><code class="code-content"><span class="cm"># VAD</span>
+wget https://github.com/k2-fsa/sherpa-onnx/releases/download/vad-models/ten-vad.onnx
+
+<span class="cm"># STT - Kroko ASR</span>
+<span class="cm"># (download from https://huggingface.co/Banafo/Kroko-ASR)</span>
+
+<span class="cm"># TTS - Piper French voice</span>
+wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-fr_FR-siwis-medium.tar.bz2
+tar xf vits-piper-fr_FR-siwis-medium.tar.bz2</code></pre>
+
+            <p><strong>For GPU acceleration</strong> (optional but recommended):</p>
+
+            <pre><code class="code-content"><span class="cm"># Install cuDNN 9</span>
+sudo apt-get install cudnn9-cuda-12
+
+<span class="cm"># Install CUDA wheel for sherpa-onnx</span>
+pip install sherpa-onnx==1.12.23+cuda12.cudnn9 \
+    -f https://k2-fsa.github.io/sherpa/onnx/cuda.html
+
+export ONNX_PROVIDER=cuda</code></pre>
+
+            <p><strong>Run the full example:</strong></p>
+
+            <pre><code class="code-content">git clone https://github.com/roomkit-live/roomkit
+cd roomkit
+
+<span class="cm"># Set your model paths and run</span>
+LLM_MODEL=qwen2.5:4b \
+LLM_BASE_URL=http://localhost:11434/v1 \
+VAD_MODEL=ten-vad.onnx \
+STT_ENCODER=&lt;path-to-encoder&gt; \
+STT_DECODER=&lt;path-to-decoder&gt; \
+STT_JOINER=&lt;path-to-joiner&gt; \
+STT_TOKENS=&lt;path-to-tokens&gt; \
+TTS_MODEL=fr_FR-siwis-medium.onnx \
+TTS_TOKENS=tokens.txt \
+TTS_DATA_DIR=espeak-ng-data \
+ONNX_PROVIDER=cuda \
+python examples/voice_local_onnx_vllm.py</code></pre>
+
+            <p>The <a href="https://github.com/roomkit-live/roomkit/blob/main/examples/voice_local_onnx_vllm.py">full example on GitHub</a> includes everything: echo cancellation, noise reduction, WAV recording, debug taps, and graceful shutdown.</p>
+
+            <h2>What's Next</h2>
+
+            <p>This example is a starting point. RoomKit's architecture means you can extend it in any direction:</p>
+
+            <ul>
+                <li><strong>Add a WebSocket channel</strong> to the same room — now your voice assistant also handles text chat</li>
+                <li><strong>Plug in MCP tools</strong> — let the assistant search documents, query databases, or control devices</li>
+                <li><strong>Record and analyze</strong> — the built-in WAV recorder captures both sides of the conversation</li>
+                <li><strong>Switch languages</strong> — swap STT/TTS models for English, German, Spanish, or any language sherpa-onnx supports</li>
+            </ul>
+
+            <p>The full source is at <a href="https://github.com/roomkit-live/roomkit">github.com/roomkit-live/roomkit</a>. Star the repo, try the example, open an issue. The framework is MIT licensed and actively looking for contributors.</p>
+
+            <ul>
+                <li><strong>Website</strong>: <a href="https://roomkit.live">roomkit.live</a></li>
+                <li><strong>GitHub</strong>: <a href="https://github.com/roomkit-live">github.com/roomkit-live</a></li>
+                <li><strong>PyPI</strong>: <a href="https://pypi.org/project/roomkit">pypi.org/project/roomkit</a></li>
+            </ul>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
