@@ -14,6 +14,7 @@
 REGISTRY   := quintana
 IMAGE      := roomkit-web
 TAG        := latest
+PLATFORM   := linux/arm64
 K8S_HOST   := root@192.168.50.6
 NAMESPACE  := roomkit
 BUILD_DIR  := .build
@@ -60,10 +61,8 @@ gather:
 # build — build & push Docker image
 # ---------------------------------------------------------------------------
 build: gather
-	@echo "==> Building Docker image $(REGISTRY)/$(IMAGE):$(TAG)"
-	docker build -t $(REGISTRY)/$(IMAGE):$(TAG) $(BUILD_DIR)
-	@echo "==> Pushing image…"
-	docker push $(REGISTRY)/$(IMAGE):$(TAG)
+	@echo "==> Building Docker image $(REGISTRY)/$(IMAGE):$(TAG) for $(PLATFORM)"
+	docker buildx build --platform $(PLATFORM) -t $(REGISTRY)/$(IMAGE):$(TAG) --push $(BUILD_DIR)
 	@echo "==> Build complete."
 
 # ---------------------------------------------------------------------------
