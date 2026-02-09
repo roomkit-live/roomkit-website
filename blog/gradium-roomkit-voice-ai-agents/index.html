@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradium + RoomKit: Building Voice AI Agents with Ultra-Low Latency STT/TTS - RoomKit Blog</title>
+    <meta name="description" content="How I integrated Gradium's audio language models into RoomKit for multi-channel voice AI with semantic VAD, streaming STT/TTS, and natural turn-taking.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/gradium-roomkit-voice-ai-agents/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Gradium + RoomKit: Building Voice AI Agents with Ultra-Low Latency STT/TTS">
+    <meta property="og:description" content="How I integrated Gradium's audio language models into RoomKit for multi-channel voice AI with semantic VAD, streaming STT/TTS, and natural turn-taking.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/gradium-roomkit-voice-ai-agents/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-02-09">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gradium + RoomKit: Building Voice AI Agents with Ultra-Low Latency STT/TTS">
+    <meta name="twitter:description" content="How I integrated Gradium's audio language models into RoomKit for multi-channel voice AI with semantic VAD, streaming STT/TTS, and natural turn-taking.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Gradium + RoomKit: Building Voice AI Agents with Ultra-Low Latency STT/TTS",
+        "description": "How I integrated Gradium's audio language models into RoomKit for multi-channel voice AI with semantic VAD, streaming STT/TTS, and natural turn-taking.",
+        "datePublished": "2026-02-09",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/gradium-roomkit-voice-ai-agents/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/gradium-roomkit-voice-ai-agents/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Gradium + RoomKit: Building Voice AI Agents with Ultra-Low Latency STT/TTS</h1>
+            <div class="blog-meta">
+                <span>February 9, 2026</span>
+                <span>&middot;</span>
+                <span>15 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>How I integrated Gradium's audio language models into RoomKit for multi-channel voice AI</em></p>
+
+            <hr>
+
+            <p>This article shows how I integrated Gradium as an STT and TTS provider inside <a href="https://roomkit.live">RoomKit</a>, my open-source Python framework for multi-channel conversation orchestration. If you're building voice AI agents in Python and want top-tier voice quality with low latency, this is for you.</p>
+
+            <hr>
+
+            <h2>What is Gradium?</h2>
+
+            <p>Gradium builds <strong>Audio Language Models</strong> (ALMs), not just wrappers around existing speech models, but purpose-built neural architectures for voice. Their API exposes two main services:</p>
+
+            <ul>
+                <li><strong>Speech-to-Text (STT)</strong>: Streaming transcription via WebSocket at 24kHz, with a semantic Voice Activity Detection (VAD) that tells you <em>probabilistically</em> when the speaker is done talking. No more arbitrary silence thresholds.</li>
+                <li><strong>Text-to-Speech (TTS)</strong>: Streaming synthesis at 48kHz with sub-300ms time-to-first-token. Over 150 voices across English, French, German, Spanish, and Portuguese. Instant voice cloning from a 10-second sample.</li>
+            </ul>
+
+            <p>The key differentiator? Their VAD isn't a simple energy detector: it returns <code>inactivity_prob</code> values at multiple time horizons (0.5s, 1.0s, 2.0s), letting you make intelligent turn-taking decisions. This is something I hadn't seen elsewhere, and it maps beautifully to how real conversations work.</p>
+
+            <p>The Python SDK is async-native and straightforward:</p>
+
+            <pre><code class="code-content">pip install gradium</code></pre>
+
+            <pre><code class="code-content"><span class="kw">import</span> gradium
+
+client = gradium.client.GradiumClient()  <span class="cm"># uses GRADIUM_API_KEY env var</span>
+
+<span class="cm"># TTS - generate speech</span>
+audio = <span class="kw">await</span> client.tts(
+    setup={<span class="st">"voice_id"</span>: <span class="st">"axlOaUiFyOZhy4nv"</span>, <span class="st">"output_format"</span>: <span class="st">"pcm"</span>},
+    text=<span class="st">"Bonjour, comment puis-je vous aider?"</span>
+)
+
+<span class="cm"># TTS - streaming</span>
+stream = <span class="kw">await</span> client.tts_stream(
+    setup={<span class="st">"voice_id"</span>: <span class="st">"axlOaUiFyOZhy4nv"</span>, <span class="st">"output_format"</span>: <span class="st">"pcm"</span>},
+    text=my_async_text_generator()
+)
+<span class="kw">async for</span> chunk <span class="kw">in</span> stream.iter_bytes():
+    <span class="cm"># process audio chunks as they arrive</span>
+    <span class="kw">pass</span></code></pre>
+
+            <p>For STT, the API uses WebSocket streaming with base64-encoded audio:</p>
+
+            <pre><code class="code-content">stream = <span class="kw">await</span> client.stt_stream(
+    {<span class="st">"model_name"</span>: <span class="st">"default"</span>, <span class="st">"input_format"</span>: <span class="st">"pcm"</span>},
+    audio_generator(audio_data),
+)
+<span class="kw">async for</span> message <span class="kw">in</span> stream.iter_text():
+    print(message)  <span class="cm"># transcribed text, as it comes</span></code></pre>
+
+            <h2>What is RoomKit?</h2>
+
+            <p><a href="https://github.com/roomkit-live/roomkit">RoomKit</a> is a pure async Python library I built for multi-channel conversations. The core idea: a <strong>room</strong> is a conversation. <strong>Channels</strong> are how people and AI interact with that room: SMS, Email, WhatsApp, Voice, WebSocket, AI, and more.</p>
+
+            <pre class="ascii-diagram">Inbound ──► Hook pipeline ──► Store ──► Broadcast to all channels
+                                             │
+        ┌──────────┬──────────┬────────┬─────┼─────┐
+        ▼          ▼          ▼        ▼     ▼     ▼
+      SMS       WhatsApp    Email    Voice   WS     AI</pre>
+
+            <p>For voice, RoomKit has a <strong>pluggable provider system</strong>. The architecture separates concerns cleanly:</p>
+
+            <ul>
+                <li><strong>Voice Backends</strong> handle audio transport (WebRTC via FastRTC, RTP, local mic)</li>
+                <li><strong>STT Providers</strong> convert audio to text</li>
+                <li><strong>TTS Providers</strong> convert text to audio</li>
+                <li><strong>Audio Pipeline</strong> sits between them with VAD, echo cancellation, denoising, recording</li>
+            </ul>
+
+            <p>The voice channel's audio pipeline looks like this:</p>
+
+            <pre class="ascii-diagram">Inbound:  Backend → Resampler → Recorder → AEC → AGC → Denoiser → VAD → STT
+Outbound: TTS → PostProcessors → Recorder → AEC.feed_reference → Resampler → Backend</pre>
+
+            <p>RoomKit ships with providers for Deepgram (STT), ElevenLabs (TTS), and SherpaOnnx (local STT/TTS). Adding Gradium means implementing two interfaces: <code>BaseSTTProvider</code> and <code>BaseTTSProvider</code>.</p>
+
+            <hr>
+
+            <h2>Building the Gradium STT Provider</h2>
+
+            <p>RoomKit's STT provider interface is simple. You need to handle streaming audio in and emit transcription events. Here's the core of the Gradium STT integration:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.voice.stt.base <span class="kw">import</span> BaseSTTProvider, STTResult
+
+<span class="kw">class</span> <span class="fn">GradiumSTTProvider</span>(BaseSTTProvider):
+    <span class="st">"""Gradium Speech-to-Text provider for RoomKit."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(
+        self,
+        api_key: str | <span class="kw">None</span> = <span class="kw">None</span>,
+        model_name: str = <span class="st">"default"</span>,
+        language: str = <span class="st">"fr"</span>,
+        endpoint: str = <span class="st">"wss://eu.api.gradium.ai/api/speech/asr"</span>,
+        vad_threshold: float = 0.5,
+    ):
+        self.api_key = api_key <span class="kw">or</span> os.environ[<span class="st">"GRADIUM_API_KEY"</span>]
+        self.model_name = model_name
+        self.language = language
+        self.endpoint = endpoint
+        self.vad_threshold = vad_threshold
+        self._ws = <span class="kw">None</span>
+
+    <span class="kw">async def</span> <span class="fn">start</span>(self) -> <span class="kw">None</span>:
+        <span class="st">"""Open WebSocket and send setup message."""</span>
+        self._ws = <span class="kw">await</span> websockets.connect(
+            self.endpoint,
+            additional_headers={<span class="st">"x-api-key"</span>: self.api_key},
+        )
+        setup = {
+            <span class="st">"type"</span>: <span class="st">"setup"</span>,
+            <span class="st">"model_name"</span>: self.model_name,
+            <span class="st">"input_format"</span>: <span class="st">"pcm"</span>,
+            <span class="st">"json_config"</span>: {<span class="st">"language"</span>: self.language},
+        }
+        <span class="kw">await</span> self._ws.send(json.dumps(setup))
+        ready = json.loads(<span class="kw">await</span> self._ws.recv())
+        <span class="kw">assert</span> ready[<span class="st">"type"</span>] == <span class="st">"ready"</span>
+        self._sample_rate = ready.get(<span class="st">"sample_rate"</span>, 24000)
+        self._frame_size = ready.get(<span class="st">"frame_size"</span>, 1920)
+
+    <span class="kw">async def</span> <span class="fn">process_audio</span>(self, audio_chunk: bytes) -> list[STTResult]:
+        <span class="st">"""Send audio and collect transcription results."""</span>
+        results = []
+
+        <span class="cm"># Send audio frame</span>
+        audio_b64 = base64.b64encode(audio_chunk).decode()
+        <span class="kw">await</span> self._ws.send(json.dumps({
+            <span class="st">"type"</span>: <span class="st">"audio"</span>,
+            <span class="st">"audio"</span>: audio_b64,
+        }))
+
+        <span class="cm"># Non-blocking receive of any pending messages</span>
+        <span class="kw">while</span> <span class="kw">True</span>:
+            <span class="kw">try</span>:
+                msg = json.loads(<span class="kw">await</span> asyncio.wait_for(
+                    self._ws.recv(), timeout=0.01
+                ))
+            <span class="kw">except</span> asyncio.TimeoutError:
+                <span class="kw">break</span>
+
+            <span class="kw">if</span> msg[<span class="st">"type"</span>] == <span class="st">"text"</span>:
+                results.append(STTResult(
+                    text=msg[<span class="st">"text"</span>],
+                    is_final=<span class="kw">False</span>,
+                    start_time=msg.get(<span class="st">"start_s"</span>),
+                ))
+            <span class="kw">elif</span> msg[<span class="st">"type"</span>] == <span class="st">"step"</span>:
+                <span class="cm"># Gradium's semantic VAD</span>
+                vad_probs = msg.get(<span class="st">"vad"</span>, [])
+                <span class="kw">if</span> len(vad_probs) >= 3:
+                    inactivity = vad_probs[2].get(<span class="st">"inactivity_prob"</span>, 0)
+                    <span class="kw">if</span> inactivity > self.vad_threshold:
+                        results.append(STTResult(
+                            text=<span class="st">""</span>,
+                            is_final=<span class="kw">True</span>,
+                            metadata={<span class="st">"vad_inactivity"</span>: inactivity},
+                        ))
+
+        <span class="kw">return</span> results
+
+    <span class="kw">async def</span> <span class="fn">stop</span>(self) -> <span class="kw">None</span>:
+        <span class="kw">if</span> self._ws:
+            <span class="kw">await</span> self._ws.send(json.dumps({<span class="st">"type"</span>: <span class="st">"end_of_stream"</span>}))
+            <span class="kw">await</span> self._ws.close()</code></pre>
+
+            <p>The magic here is the VAD integration. Gradium sends <code>step</code> messages every 80ms with inactivity probabilities at 0.5s, 1.0s, and 2.0s horizons. When the 2-second horizon probability crosses the threshold, we emit a <code>is_final=True</code> result, which RoomKit's voice channel interprets as "the user is done speaking, send the accumulated text to the AI."</p>
+
+            <p>This is <em>far</em> more natural than the typical approach of "wait for N milliseconds of silence."</p>
+
+            <hr>
+
+            <h2>Building the Gradium TTS Provider</h2>
+
+            <p>The TTS provider needs to accept text and return audio chunks. Gradium's streaming TTS fits perfectly:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.voice.tts.base <span class="kw">import</span> BaseTTSProvider, TTSResult
+
+<span class="kw">class</span> <span class="fn">GradiumTTSProvider</span>(BaseTTSProvider):
+    <span class="st">"""Gradium Text-to-Speech provider for RoomKit."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(
+        self,
+        api_key: str | <span class="kw">None</span> = <span class="kw">None</span>,
+        voice_id: str = <span class="st">"axlOaUiFyOZhy4nv"</span>,  <span class="cm"># Leo - French male</span>
+        model_name: str = <span class="st">"default"</span>,
+        endpoint: str = <span class="st">"wss://eu.api.gradium.ai/api/speech/tts"</span>,
+        output_format: str = <span class="st">"pcm"</span>,
+        speed: float = 0.0,
+    ):
+        self.api_key = api_key <span class="kw">or</span> os.environ[<span class="st">"GRADIUM_API_KEY"</span>]
+        self.voice_id = voice_id
+        self.model_name = model_name
+        self.endpoint = endpoint
+        self.output_format = output_format
+        self.speed = speed
+
+    <span class="decorator">@property</span>
+    <span class="kw">def</span> <span class="fn">sample_rate</span>(self) -> int:
+        <span class="kw">return</span> 48000  <span class="cm"># Gradium outputs at 48kHz</span>
+
+    <span class="kw">async def</span> <span class="fn">synthesize</span>(self, text: str) -> AsyncIterator[bytes]:
+        <span class="st">"""Stream TTS audio chunks."""</span>
+        <span class="kw">async with</span> websockets.connect(
+            self.endpoint,
+            additional_headers={<span class="st">"x-api-key"</span>: self.api_key},
+        ) <span class="kw">as</span> ws:
+            <span class="cm"># Setup</span>
+            setup = {
+                <span class="st">"type"</span>: <span class="st">"setup"</span>,
+                <span class="st">"model_name"</span>: self.model_name,
+                <span class="st">"voice_id"</span>: self.voice_id,
+                <span class="st">"output_format"</span>: self.output_format,
+            }
+            <span class="kw">if</span> self.speed != 0.0:
+                setup[<span class="st">"json_config"</span>] = {<span class="st">"padding_bonus"</span>: self.speed}
+
+            <span class="kw">await</span> ws.send(json.dumps(setup))
+            ready = json.loads(<span class="kw">await</span> ws.recv())
+            <span class="kw">assert</span> ready[<span class="st">"type"</span>] == <span class="st">"ready"</span>
+
+            <span class="cm"># Send text</span>
+            <span class="kw">await</span> ws.send(json.dumps({<span class="st">"type"</span>: <span class="st">"text"</span>, <span class="st">"text"</span>: text}))
+            <span class="kw">await</span> ws.send(json.dumps({<span class="st">"type"</span>: <span class="st">"end_of_stream"</span>}))
+
+            <span class="cm"># Stream audio</span>
+            <span class="kw">async for</span> msg_raw <span class="kw">in</span> ws:
+                msg = json.loads(msg_raw)
+                <span class="kw">if</span> msg[<span class="st">"type"</span>] == <span class="st">"audio"</span>:
+                    <span class="kw">yield</span> base64.b64decode(msg[<span class="st">"audio"</span>])
+                <span class="kw">elif</span> msg[<span class="st">"type"</span>] == <span class="st">"end_of_stream"</span>:
+                    <span class="kw">break</span></code></pre>
+
+            <p>Two things worth noting:</p>
+
+            <p>1. <strong>48kHz output</strong>: Gradium produces high-quality 48kHz audio. RoomKit's audio pipeline has a built-in resampler, so if your voice backend expects 16kHz or 8kHz (common for telephony), it's handled automatically.</p>
+
+            <p>2. <strong>Streaming input</strong>: For LLM-powered agents, the text comes in token by token. Instead of waiting for the full response, you can feed Gradium's TTS with an async generator. The <code>&lt;flush&gt;</code> tag forces audio generation for buffered text:</p>
+
+            <pre><code class="code-content"><span class="kw">async def</span> <span class="fn">stream_llm_to_tts</span>(llm_stream):
+    <span class="st">"""Feed LLM tokens directly into Gradium TTS."""</span>
+    buffer = <span class="st">""</span>
+    <span class="kw">async for</span> token <span class="kw">in</span> llm_stream:
+        buffer += token
+        <span class="cm"># Flush on sentence boundaries for natural pacing</span>
+        <span class="kw">if</span> token.rstrip().endswith((<span class="st">"."</span>, <span class="st">"!"</span>, <span class="st">"?"</span>, <span class="st">":"</span>)):
+            <span class="kw">yield</span> buffer + <span class="st">" &lt;flush&gt; "</span>
+            buffer = <span class="st">""</span>
+    <span class="kw">if</span> buffer:
+        <span class="kw">yield</span> buffer</code></pre>
+
+            <hr>
+
+            <h2>Wiring It All Together</h2>
+
+            <p>Here's a complete example: a French-speaking voice AI agent using Gradium for STT/TTS, Claude for intelligence, accessible via WebRTC, all in under 50 lines of application code:</p>
+
+            <pre><code class="code-content"><span class="kw">import</span> asyncio
+<span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, ChannelCategory
+<span class="kw">from</span> roomkit.channels.voice <span class="kw">import</span> VoiceChannel
+<span class="kw">from</span> roomkit.channels.ai <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.providers.ai <span class="kw">import</span> AnthropicAIProvider
+
+<span class="cm"># Import our Gradium providers</span>
+<span class="kw">from</span> my_providers <span class="kw">import</span> GradiumSTTProvider, GradiumTTSProvider
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    kit = RoomKit()
+
+    <span class="cm"># Configure Gradium</span>
+    stt = GradiumSTTProvider(
+        language=<span class="st">"fr"</span>,
+        endpoint=<span class="st">"wss://eu.api.gradium.ai/api/speech/asr"</span>,
+    )
+    tts = GradiumTTSProvider(
+        voice_id=<span class="st">"axlOaUiFyOZhy4nv"</span>,  <span class="cm"># Leo - French male voice</span>
+        endpoint=<span class="st">"wss://eu.api.gradium.ai/api/speech/tts"</span>,
+    )
+
+    <span class="cm"># Create channels</span>
+    voice = VoiceChannel(<span class="st">"phone"</span>, stt_provider=stt, tts_provider=tts)
+    ai = AIChannel(<span class="st">"claude"</span>, provider=AnthropicAIProvider(
+        model=<span class="st">"claude-sonnet-4-20250514"</span>,
+        system_prompt=<span class="st">"Tu es un assistant francophone. R&eacute;ponds en fran&ccedil;ais."</span>,
+    ))
+
+    kit.register_channel(voice)
+    kit.register_channel(ai)
+
+    <span class="cm"># Create room and wire everything</span>
+    <span class="kw">await</span> kit.create_room(room_id=<span class="st">"conversation-1"</span>)
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"conversation-1"</span>, <span class="st">"phone"</span>)
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"conversation-1"</span>, <span class="st">"claude"</span>,
+                             category=ChannelCategory.INTELLIGENCE)
+
+    <span class="cm"># The voice channel handles the rest:</span>
+    <span class="cm"># Audio in → STT (Gradium) → Text → AI (Claude) → Text → TTS (Gradium) → Audio out</span>
+    print(<span class="st">"Voice agent ready. Listening..."</span>)
+    <span class="kw">await</span> asyncio.Event().wait()
+
+asyncio.run(main())</code></pre>
+
+            <p>That's it. The audio flows through Gradium's STT, the transcribed text goes to Claude, Claude's response goes through Gradium's TTS, and the audio goes back to the caller. RoomKit handles the orchestration, the audio pipeline (VAD, echo cancellation, denoising), and the event lifecycle.</p>
+
+            <p>And because this is RoomKit, you can add SMS or WhatsApp to the same room. If the call drops, the conversation continues on another channel:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.channels.sms <span class="kw">import</span> SMSChannel
+<span class="kw">from</span> roomkit.providers.sms <span class="kw">import</span> TwilioSMSProvider
+
+sms = SMSChannel(<span class="st">"sms-fallback"</span>, provider=TwilioSMSProvider(...))
+kit.register_channel(sms)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"conversation-1"</span>, <span class="st">"sms-fallback"</span>)</code></pre>
+
+            <hr>
+
+            <h2>Why Gradium Stands Out</h2>
+
+            <p>After testing several STT/TTS providers for voice AI, here's what makes Gradium different:</p>
+
+            <p><strong>The semantic VAD is a game-changer.</strong> Most STT services give you raw transcripts and leave turn detection to you. Gradium's VAD returns probability-based inactivity predictions at multiple horizons. This means your agent doesn't cut people off mid-sentence, and it doesn't wait awkwardly after they've clearly finished speaking. In my testing, the <code>inactivity_prob &gt; 0.5</code> threshold on the 2-second horizon gives remarkably natural turn-taking, better than anything I've achieved with Silero VAD + arbitrary silence timeouts.</p>
+
+            <p><strong>Multilingual quality is native, not bolted on.</strong> Gradium supports English, French, German, Spanish, and Portuguese out of the box, with 150+ voices. For my use case, the French voices, including Canadian French variants, are noticeably better than competitors in terms of pronunciation and natural flow. But the same quality applies across all supported languages.</p>
+
+            <p><strong>The streaming architecture is right.</strong> WebSocket-based streaming for both STT and TTS means you can pipeline everything. Audio comes in, gets transcribed as it arrives, the LLM starts generating while the user is still finishing their sentence, and TTS starts producing audio from the first tokens. The result is perceived latency that's dramatically lower than batch-process approaches.</p>
+
+            <p><strong>Production-ready controls.</strong> The <code>padding_bonus</code> parameter for speed (-4.0 to +4.0), the <code>temp</code> parameter for vocal variety, and the rewrite rules for language-specific number/date/URL pronunciation are small things that make a big difference in production. When your voice agent reads back a phone number with proper locale-specific grouping instead of digit-by-digit, it sounds professional.</p>
+
+            <hr>
+
+            <h2>Practical Tips</h2>
+
+            <p>A few lessons learned from the integration:</p>
+
+            <p>1. <strong>Sample rate management</strong>: Gradium STT expects 24kHz input, TTS outputs 48kHz. If your voice backend runs at 16kHz (common for telephony), configure RoomKit's resampler in the audio pipeline. The framework handles this, but be explicit about it.</p>
+
+            <p>2. <strong>Connection pooling</strong>: Gradium's WebSocket sessions last up to 300 seconds. For long conversations, implement reconnection logic. RoomKit's circuit breaker pattern helps here: if the WebSocket drops, the circuit opens, messages are queued, and reconnection happens with exponential backoff.</p>
+
+            <p>3. <strong>EU vs US endpoints</strong>: Gradium has servers in both Europe (<code>eu.api.gradium.ai</code>) and the US (<code>us.api.gradium.ai</code>). Choose based on your users' location for lowest latency. The EU endpoint also helps with data residency compliance if that matters for your industry.</p>
+
+            <p>4. <strong>Voice cloning for brand identity</strong>: Gradium's instant voice cloning (10-second sample) lets you create a branded voice for your agent. Combined with RoomKit's per-room AI configuration, you can have different agents with different voices in different rooms.</p>
+
+            <p>5. <strong>The <code>&lt;flush&gt;</code> tag</strong>: When streaming LLM output to TTS, use <code>&lt;flush&gt;</code> at natural sentence boundaries. The model buffers text for context before generating audio, so flushing at the right moments keeps latency low while maintaining natural prosody.</p>
+
+            <hr>
+
+            <h2>What's Next</h2>
+
+            <p>RoomKit is open source (MIT licensed) and actively looking for contributors. The Gradium provider integration is a great example of how the pluggable architecture works, and I'd love to see the community build providers for other services.</p>
+
+            <p>If you're building voice AI in Python, here are the links:</p>
+
+            <ul>
+                <li><strong>RoomKit</strong>: <a href="https://github.com/roomkit-live/roomkit">github.com/roomkit-live/roomkit</a> | <a href="https://roomkit.live">roomkit.live</a></li>
+                <li><strong>Gradium</strong>: <a href="https://gradium.ai">gradium.ai</a> | <a href="https://gradium.ai/api_docs.html">API Docs</a></li>
+                <li><strong>Gradium Python SDK</strong>: <code>pip install gradium</code></li>
+            </ul>
+
+            <p>Star the repos, try the quickstart, open an issue. The voice AI space is moving fast, and having providers with native multilingual support and solid streaming APIs makes the developer experience <em>significantly</em> better.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
