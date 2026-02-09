@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomKit, Pipecat, TEN Framework, LiveKit Agents: Choosing the Right Conversational AI Framework - RoomKit Blog</title>
+    <meta name="description" content="A fair comparison of four open-source conversational AI frameworks — RoomKit, Pipecat, TEN Framework, and LiveKit Agents — their philosophies, strengths, and ideal use cases.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/choosing-the-right-conversational-ai-framework/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="RoomKit, Pipecat, TEN Framework, LiveKit Agents: Choosing the Right Conversational AI Framework">
+    <meta property="og:description" content="A fair comparison of four open-source conversational AI frameworks — their philosophies, strengths, and ideal use cases.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/choosing-the-right-conversational-ai-framework/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-02-09">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RoomKit, Pipecat, TEN Framework, LiveKit Agents: Choosing the Right Conversational AI Framework">
+    <meta name="twitter:description" content="A fair comparison of four open-source conversational AI frameworks — their philosophies, strengths, and ideal use cases.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "RoomKit, Pipecat, TEN Framework, LiveKit Agents: Choosing the Right Conversational AI Framework",
+        "description": "A fair comparison of four open-source conversational AI frameworks — their philosophies, strengths, and ideal use cases.",
+        "datePublished": "2026-02-09",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/choosing-the-right-conversational-ai-framework/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/choosing-the-right-conversational-ai-framework/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>RoomKit, Pipecat, TEN Framework, LiveKit Agents: Choosing the Right Conversational AI Framework</h1>
+            <div class="blog-meta">
+                <span>February 9, 2026</span>
+                <span>&middot;</span>
+                <span>18 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p>The conversational AI space is booming. Whether you're building a voice assistant, a customer support system, or a multi-channel communication platform, there's no shortage of open-source frameworks to choose from. But with so many options, picking the right one can be overwhelming.</p>
+
+            <p>In this article, I compare four open-source frameworks that developers frequently encounter when building conversational AI systems: <strong>RoomKit</strong>, <strong>Pipecat</strong>, <strong>TEN Framework</strong>, and <strong>LiveKit Agents</strong>. Each takes a fundamentally different approach to the same problem space, and understanding their philosophies will save you weeks of going down the wrong path.</p>
+
+            <p><strong>Full disclosure</strong>: I'm the creator of RoomKit. I'll do my best to keep this comparison fair and focused on helping you choose the right tool for <em>your</em> use case &mdash; including cases where RoomKit is not the right answer.</p>
+
+            <hr>
+
+            <h2>The Four Philosophies in 30 Seconds</h2>
+
+            <p>Before diving into code, let's understand what makes each framework tick:</p>
+
+            <ul>
+                <li><strong>RoomKit</strong> thinks in <em>rooms and channels</em>. A conversation is a room. SMS, Email, WhatsApp, Voice, AI &mdash; they're all channels in that room.</li>
+                <li><strong>Pipecat</strong> thinks in <em>pipelines and frames</em>. Data (audio, text, images) flows as frames through a linear chain of processors.</li>
+                <li><strong>TEN Framework</strong> thinks in <em>graphs and extensions</em>. Extensions are nodes in a directed graph, connected via typed messages in a JSON configuration.</li>
+                <li><strong>LiveKit Agents</strong> thinks in <em>sessions and agents</em>. An agent joins a WebRTC room as a participant, just like a human would.</li>
+            </ul>
+
+            <p>These aren't just implementation details &mdash; they're design philosophies that determine what's easy, what's possible, and what's painful with each framework.</p>
+
+            <hr>
+
+            <h2>Show Me the Code</h2>
+
+            <p>The best way to understand a framework is to see it in action. Here's what a minimal voice AI setup looks like with each one.</p>
+
+            <h3>RoomKit &mdash; Voice Pipeline Meets Multi-Channel Rooms</h3>
+
+            <pre><code class="code-content"><span class="kw">import</span> asyncio
+<span class="kw">from</span> roomkit <span class="kw">import</span> (
+    RoomKit, VoiceChannel, ChannelCategory,
+    HookTrigger, HookResult, HookExecution, create_vllm_provider, VLLMConfig,
+)
+<span class="kw">from</span> roomkit.channels.ai <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.voice.backends.local <span class="kw">import</span> LocalAudioBackend
+<span class="kw">from</span> roomkit.voice.pipeline <span class="kw">import</span> AudioPipelineConfig, RecordingConfig, WavFileRecorder
+<span class="kw">from</span> roomkit.voice.pipeline.vad.sherpa_onnx <span class="kw">import</span> SherpaOnnxVADProvider, SherpaOnnxVADConfig
+<span class="kw">from</span> roomkit.voice.stt.sherpa_onnx <span class="kw">import</span> SherpaOnnxSTTProvider, SherpaOnnxSTTConfig
+<span class="kw">from</span> roomkit.voice.tts.sherpa_onnx <span class="kw">import</span> SherpaOnnxTTSProvider, SherpaOnnxTTSConfig
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    kit = RoomKit()
+
+    <span class="cm"># --- Full audio pipeline: Mic → AEC → Denoiser → VAD → STT → LLM → TTS → Speaker ---</span>
+    backend = LocalAudioBackend(input_sample_rate=16000, output_sample_rate=22050)
+
+    vad = SherpaOnnxVADProvider(SherpaOnnxVADConfig(
+        model=<span class="st">"ten-vad.onnx"</span>, model_type=<span class="st">"ten"</span>,  <span class="cm"># or "silero"</span>
+        threshold=0.5, silence_threshold_ms=600,
+    ))
+    stt = SherpaOnnxSTTProvider(SherpaOnnxSTTConfig(
+        mode=<span class="st">"transducer"</span>, encoder=<span class="st">"encoder.onnx"</span>, decoder=<span class="st">"decoder.onnx"</span>,
+        joiner=<span class="st">"joiner.onnx"</span>, tokens=<span class="st">"tokens.txt"</span>,
+    ))
+    tts = SherpaOnnxTTSProvider(SherpaOnnxTTSConfig(
+        model=<span class="st">"en_US-amy-low.onnx"</span>, tokens=<span class="st">"tokens.txt"</span>,
+        data_dir=<span class="st">"espeak-ng-data"</span>,
+    ))
+    pipeline = AudioPipelineConfig(
+        vad=vad,
+        recorder=WavFileRecorder(),
+        recording_config=RecordingConfig(storage=<span class="st">"./recordings"</span>),
+    )
+
+    <span class="cm"># Voice is a channel — same abstraction as SMS or Email</span>
+    voice = VoiceChannel(<span class="st">"voice"</span>, stt=stt, tts=tts, backend=backend, pipeline=pipeline)
+    ai = AIChannel(<span class="st">"ai"</span>, provider=create_vllm_provider(
+        VLLMConfig(model=<span class="st">"qwen3:8b"</span>, base_url=<span class="st">"http://localhost:11434/v1"</span>)
+    ), system_prompt=<span class="st">"You are a helpful voice assistant."</span>)
+
+    kit.register_channel(voice)
+    kit.register_channel(ai)
+
+    <span class="kw">await</span> kit.create_room(room_id=<span class="st">"support-call"</span>)
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"support-call"</span>, <span class="st">"voice"</span>)
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"support-call"</span>, <span class="st">"ai"</span>, category=ChannelCategory.INTELLIGENCE)
+
+    <span class="cm"># Hooks intercept pipeline events — the same hook system used by all channels</span>
+    <span class="decorator">@kit.hook</span>(HookTrigger.ON_TRANSCRIPTION)
+    <span class="kw">async def</span> <span class="fn">on_stt</span>(text, ctx):
+        print(<span class="st">f"User said: {text}"</span>)
+        <span class="kw">return</span> HookResult.allow()
+
+    <span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_TTS)
+    <span class="kw">async def</span> <span class="fn">before_tts</span>(text, ctx):
+        print(<span class="st">f"Assistant: {text}"</span>)
+        <span class="kw">return</span> HookResult.allow()
+
+asyncio.run(main())</code></pre>
+
+            <p>What stands out: RoomKit has a full audio pipeline (VAD &rarr; STT &rarr; LLM &rarr; TTS) with optional AEC, denoiser, and WAV recording &mdash; but it's still a <em>channel</em> in a <em>room</em>. The same hook system that filters SMS spam can intercept speech events (<code>ON_SPEECH_START</code>, <code>ON_TURN_COMPLETE</code>, <code>ON_VAD_SILENCE</code>, etc.). You could add an SMS or WhatsApp channel to this same room and every message would flow across all channels automatically.</p>
+
+            <p>The audio backend is pluggable: <code>LocalAudioBackend</code> (microphone), <code>FastRTCVoiceBackend</code> (WebRTC), or <code>RTPVoiceBackend</code> (for SIP/telephony integration &mdash; RTP is already supported, with a SIP module in progress). VAD supports both TEN-VAD and Silero models via sherpa-onnx, and semantic turn detection is built into the pipeline.</p>
+
+            <h3>Pipecat &mdash; A Linear Pipeline of Processors</h3>
+
+            <pre><code class="code-content"><span class="kw">from</span> pipecat.pipeline.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> pipecat.pipeline.runner <span class="kw">import</span> PipelineRunner
+<span class="kw">from</span> pipecat.pipeline.task <span class="kw">import</span> PipelineTask
+<span class="kw">from</span> pipecat.services.deepgram.stt <span class="kw">import</span> DeepgramSTTService
+<span class="kw">from</span> pipecat.services.openai.llm <span class="kw">import</span> OpenAILLMService
+<span class="kw">from</span> pipecat.services.cartesia.tts <span class="kw">import</span> CartesiaTTSService
+<span class="kw">from</span> pipecat.transports.daily.transport <span class="kw">import</span> DailyTransport, DailyParams
+<span class="kw">from</span> pipecat.audio.vad.silero <span class="kw">import</span> SileroVADAnalyzer
+<span class="kw">from</span> pipecat.processors.aggregators.openai_llm_context <span class="kw">import</span> OpenAILLMContext
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    transport = DailyTransport(
+        room_url=<span class="st">"https://your-domain.daily.co/room"</span>,
+        params=DailyParams(vad_analyzer=SileroVADAnalyzer()),
+    )
+    stt = DeepgramSTTService(api_key=<span class="st">"..."</span>)
+    llm = OpenAILLMService(api_key=<span class="st">"..."</span>, model=<span class="st">"gpt-4o"</span>)
+    tts = CartesiaTTSService(api_key=<span class="st">"..."</span>, voice_id=<span class="st">"..."</span>)
+
+    context = OpenAILLMContext([{<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"You are a helpful assistant."</span>}])
+    context_aggregator = llm.create_context_aggregator(context)
+
+    <span class="cm"># The pipeline: data flows left to right as "frames"</span>
+    pipeline = Pipeline([
+        transport.input(),          <span class="cm"># Audio from user</span>
+        stt,                        <span class="cm"># Speech → Text</span>
+        context_aggregator.user(),  <span class="cm"># Collect user turn</span>
+        llm,                        <span class="cm"># Generate response</span>
+        tts,                        <span class="cm"># Text → Speech</span>
+        transport.output(),         <span class="cm"># Audio back to user</span>
+        context_aggregator.assistant(),
+    ])
+
+    task = PipelineTask(pipeline)
+    runner = PipelineRunner()
+    <span class="kw">await</span> runner.run(task)</code></pre>
+
+            <p>What stands out: the pipeline metaphor is immediately intuitive. Audio goes in, gets transcribed, processed by an LLM, synthesized back to speech, and sent out. Each processor in the chain does one thing. Swapping Deepgram for Whisper or Cartesia for ElevenLabs is a one-line change.</p>
+
+            <h3>TEN Framework &mdash; A Graph of Extensions in JSON</h3>
+
+            <pre><code class="code-content">{
+  <span class="st">"ten"</span>: {
+    <span class="st">"predefined_graphs"</span>: [{
+      <span class="st">"name"</span>: <span class="st">"voice_assistant"</span>,
+      <span class="st">"nodes"</span>: [
+        {
+          <span class="st">"name"</span>: <span class="st">"agora_rtc"</span>,
+          <span class="st">"addon"</span>: <span class="st">"agora_rtc"</span>,
+          <span class="st">"extension_group"</span>: <span class="st">"default"</span>,
+          <span class="st">"property"</span>: { <span class="st">"app_id"</span>: <span class="st">"${env:AGORA_APP_ID}"</span> }
+        },
+        {
+          <span class="st">"name"</span>: <span class="st">"stt"</span>,
+          <span class="st">"addon"</span>: <span class="st">"deepgram_asr_python"</span>,
+          <span class="st">"extension_group"</span>: <span class="st">"default"</span>,
+          <span class="st">"property"</span>: { <span class="st">"api_key"</span>: <span class="st">"${env:DEEPGRAM_API_KEY}"</span> }
+        },
+        {
+          <span class="st">"name"</span>: <span class="st">"llm"</span>,
+          <span class="st">"addon"</span>: <span class="st">"openai_chatgpt_python"</span>,
+          <span class="st">"extension_group"</span>: <span class="st">"default"</span>,
+          <span class="st">"property"</span>: { <span class="st">"api_key"</span>: <span class="st">"${env:OPENAI_API_KEY}"</span>, <span class="st">"model"</span>: <span class="st">"gpt-4o"</span> }
+        },
+        {
+          <span class="st">"name"</span>: <span class="st">"tts"</span>,
+          <span class="st">"addon"</span>: <span class="st">"elevenlabs_tts_python"</span>,
+          <span class="st">"extension_group"</span>: <span class="st">"default"</span>,
+          <span class="st">"property"</span>: { <span class="st">"api_key"</span>: <span class="st">"${env:ELEVENLABS_TTS_KEY}"</span> }
+        }
+      ],
+      <span class="st">"connections"</span>: [
+        {
+          <span class="st">"extension"</span>: <span class="st">"agora_rtc"</span>,
+          <span class="st">"audio_frame"</span>: [{ <span class="st">"name"</span>: <span class="st">"pcm_frame"</span>, <span class="st">"dest"</span>: [{ <span class="st">"extension"</span>: <span class="st">"stt"</span> }] }]
+        },
+        {
+          <span class="st">"extension"</span>: <span class="st">"stt"</span>,
+          <span class="st">"data"</span>: [{ <span class="st">"name"</span>: <span class="st">"text_data"</span>, <span class="st">"dest"</span>: [{ <span class="st">"extension"</span>: <span class="st">"llm"</span> }] }]
+        },
+        {
+          <span class="st">"extension"</span>: <span class="st">"llm"</span>,
+          <span class="st">"data"</span>: [{ <span class="st">"name"</span>: <span class="st">"text_data"</span>, <span class="st">"dest"</span>: [{ <span class="st">"extension"</span>: <span class="st">"tts"</span> }] }]
+        },
+        {
+          <span class="st">"extension"</span>: <span class="st">"tts"</span>,
+          <span class="st">"audio_frame"</span>: [{ <span class="st">"name"</span>: <span class="st">"pcm_frame"</span>, <span class="st">"dest"</span>: [{ <span class="st">"extension"</span>: <span class="st">"agora_rtc"</span> }] }]
+        }
+      ]
+    }]
+  }
+}</code></pre>
+
+            <p>What stands out: there's no Python to write for a standard setup. You define your agent as a graph of extensions connected by typed messages (audio frames, text data, commands). The visual TMAN Designer lets you drag-and-drop these nodes. Extensions can be written in C++, Go, or Python, and they all run in the same process.</p>
+
+            <h3>LiveKit Agents &mdash; An Agent Joins the Room</h3>
+
+            <pre><code class="code-content"><span class="kw">from</span> livekit.agents <span class="kw">import</span> Agent, AgentSession, JobContext, cli, WorkerOptions
+<span class="kw">from</span> livekit.plugins <span class="kw">import</span> silero, deepgram, openai, cartesia
+
+<span class="kw">async def</span> <span class="fn">entrypoint</span>(ctx: JobContext):
+    <span class="kw">await</span> ctx.connect()
+
+    session = AgentSession(
+        vad=silero.VAD.load(),
+        stt=deepgram.STT(model=<span class="st">"nova-3"</span>),
+        llm=openai.LLM(model=<span class="st">"gpt-4.1-mini"</span>),
+        tts=cartesia.TTS(voice=<span class="st">"9626c31c-..."</span>),
+    )
+
+    <span class="kw">await</span> session.start(
+        agent=Agent(instructions=<span class="st">"You are a helpful voice assistant."</span>),
+        room=ctx.room,
+    )
+
+    <span class="kw">await</span> session.generate_reply(
+        instructions=<span class="st">"Greet the user and offer your assistance."</span>
+    )
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))</code></pre>
+
+            <p>What stands out: the code is remarkably concise. The <code>AgentSession</code> handles the entire voice pipeline (VAD &rarr; STT &rarr; LLM &rarr; TTS) internally. The agent joins a LiveKit room as a regular participant, which means you get all of LiveKit's WebRTC infrastructure for free &mdash; noise cancellation, SIP telephony, multi-participant rooms.</p>
+
+            <hr>
+
+            <h2>Comparing on Voice (Apples to Apples)</h2>
+
+            <p>All four frameworks can power a voice AI agent, so let's compare them where they overlap.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Capability</th>
+                        <th>RoomKit</th>
+                        <th>Pipecat</th>
+                        <th>TEN Framework</th>
+                        <th>LiveKit Agents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pipeline model</strong></td>
+                        <td>Full audio pipeline + hook intercepts</td>
+                        <td>Linear frame chain</td>
+                        <td>Directed graph (JSON)</td>
+                        <td>Session-managed pipeline</td>
+                    </tr>
+                    <tr>
+                        <td><strong>STT/TTS</strong></td>
+                        <td>Pluggable (Deepgram, ElevenLabs, SherpaOnnx local)</td>
+                        <td>40+ services</td>
+                        <td>Deepgram, Azure, Whisper, etc.</td>
+                        <td>Deepgram, OpenAI, Cartesia, etc.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Speech-to-speech</strong></td>
+                        <td>OpenAI Realtime, Gemini Live</td>
+                        <td>OpenAI, Gemini</td>
+                        <td>OpenAI, Gemini</td>
+                        <td>OpenAI Realtime API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>VAD</strong></td>
+                        <td>TEN-VAD, Silero (sherpa-onnx), semantic turn detection</td>
+                        <td>Silero, custom Smart Turn</td>
+                        <td>Proprietary TEN VAD</td>
+                        <td>Silero + semantic turn detection</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Audio transport</strong></td>
+                        <td>FastRTC (WebRTC), RTP, WebSocket, local mic</td>
+                        <td>Daily.co (WebRTC)</td>
+                        <td>Agora RTC</td>
+                        <td>LiveKit (WebRTC)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Barge-in</strong></td>
+                        <td>Via hook pipeline events</td>
+                        <td>Built-in interruption handling</td>
+                        <td>Interrupt detector extension</td>
+                        <td>Built-in with min_words config</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SIP/Telephony</strong></td>
+                        <td>RTP backend supported, SIP module in progress</td>
+                        <td>Twilio WebSocket</td>
+                        <td>SIP extension</td>
+                        <td>Native SIP trunking</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Audio processing</strong></td>
+                        <td>AEC (Speex), denoiser (GTCRN), WAV recorder</td>
+                        <td>&mdash;</td>
+                        <td>Noise reduction extension</td>
+                        <td>BVC noise cancellation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Install</strong></td>
+                        <td><code>pip install roomkit[all]</code></td>
+                        <td><code>pip install pipecat-ai</code></td>
+                        <td>Docker + Agora SDK</td>
+                        <td><code>pip install livekit-agents</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>On voice alone, Pipecat and LiveKit Agents are the most polished ecosystems with the widest service integrations. But RoomKit has a surprisingly complete audio pipeline under the hood: neural VAD (TEN-VAD or Silero via sherpa-onnx), semantic turn detection, echo cancellation (Speex AEC), neural denoising (GTCRN), WAV recording, and pluggable backends (WebRTC, RTP, local mic). The difference is architectural: RoomKit's pipeline lives <em>inside</em> a channel that coexists with SMS, Email, and WhatsApp in the same room. TEN goes deepest on real-time media with proprietary VAD and avatar lip-sync.</p>
+
+            <hr>
+
+            <h2>Where Each Framework Shines Alone</h2>
+
+            <p>This is where the real differences emerge.</p>
+
+            <h3>RoomKit: Multi-Channel Conversation Orchestration</h3>
+
+            <p>RoomKit's unique strength is that voice is just one of many channels in a <em>room</em>. You can have a conversation that spans SMS, Email, WhatsApp, Voice, Microsoft Teams, and AI &mdash; all in the same room, with automatic content transcoding between them. A rich card sent to WhatsApp becomes plain text over SMS. An AI response broadcasts to every channel simultaneously.</p>
+
+            <p>But don't mistake "multi-channel" for "voice-light." The voice subsystem has a full audio pipeline: neural VAD (TEN-VAD or Silero), AEC, denoiser, STT, TTS, semantic turn detection, and WAV recording with stereo/mixed/separate modes. The pipeline fires granular events (<code>ON_SPEECH_START</code>, <code>ON_SPEECH_END</code>, <code>ON_VAD_SILENCE</code>, <code>ON_TURN_COMPLETE</code>, <code>ON_TURN_INCOMPLETE</code>, <code>ON_BACKCHANNEL</code>, <code>ON_DTMF</code>) that the hook system can intercept &mdash; the same hook system used by all channels. Audio backends are pluggable: local mic, FastRTC (WebRTC), or RTP (for telephony integration).</p>
+
+            <p><strong>Choose RoomKit when</strong>: you're building a multi-channel conversation system (contact center, B2B2C messaging, omnichannel support) where voice is one touchpoint among many, or when you need the full audio pipeline integrated with hooks and identity resolution across channels.</p>
+
+            <h3>Pipecat: The Widest Ecosystem for Voice AI</h3>
+
+            <p>Pipecat's frame-based pipeline is the most intuitive model for building voice agents. With 40+ service integrations, client SDKs for every platform (React, Swift, Kotlin, C++), and debugging tools like Whisker and Tail, it has the most mature developer ecosystem for pure voice AI.</p>
+
+            <p>Pipecat Flows adds structured conversation state management on top, letting you build complex multi-step interactions (patient intake, order tracking) without reinventing the wheel.</p>
+
+            <p><strong>Choose Pipecat when</strong>: you're building a voice-first AI agent and want the widest choice of AI services with the fastest path to production.</p>
+
+            <h3>TEN Framework: Visual Builder + Multi-Language Extensions</h3>
+
+            <p>TEN is the most ambitious in scope. The TMAN Designer lets non-developers visually wire together voice agents. Extensions can be written in C++, Go, or Python and run in the same process. The proprietary VAD and turn detection models are highly optimized. And the lip-sync avatar integrations (with Trulience, HeyGen, Tavus) make it the clear choice for "wow" demos with visual characters.</p>
+
+            <p>The tradeoff is weight: TEN requires Docker, an Agora account, and a Go server. It's a full platform, not a library.</p>
+
+            <p><strong>Choose TEN when</strong>: you need visual agent building, multi-language extensions, or real-time avatar experiences &mdash; and you're okay with the Agora ecosystem.</p>
+
+            <h3>LiveKit Agents: Production-Grade Voice with Observability</h3>
+
+            <p>LiveKit Agents is the most developer-friendly framework for getting a production voice agent running. The v1.0 <code>AgentSession</code> API is beautifully clean. Semantic turn detection (using a custom open-weights model) reduces false interruptions. The built-in test framework and metrics collection make it easy to iterate. And with native SIP trunking, you can deploy phone agents without extra infrastructure.</p>
+
+            <p>LiveKit's open-source media server means you can self-host the entire stack, which matters for compliance-sensitive deployments.</p>
+
+            <p><strong>Choose LiveKit Agents when</strong>: you're building a production voice AI agent and need the best balance of developer experience, observability, and deployment flexibility.</p>
+
+            <hr>
+
+            <h2>Decision Tree</h2>
+
+            <p>Still not sure? Here's a quick guide:</p>
+
+            <p><strong>"I need voice + SMS + Email + WhatsApp in one conversation"</strong><br>
+            &rarr; RoomKit. None of the others do multi-channel.</p>
+
+            <p><strong>"I want the fastest path to a working voice agent"</strong><br>
+            &rarr; LiveKit Agents or Pipecat. Both get you to "hello world" in under 50 lines.</p>
+
+            <p><strong>"I need to visually build agents without writing code"</strong><br>
+            &rarr; TEN Framework's TMAN Designer.</p>
+
+            <p><strong>"I need lip-sync avatars and video in real-time"</strong><br>
+            &rarr; TEN Framework.</p>
+
+            <p><strong>"I need the widest choice of AI providers"</strong><br>
+            &rarr; Pipecat (40+ integrations).</p>
+
+            <p><strong>"I need to self-host everything for compliance"</strong><br>
+            &rarr; LiveKit Agents (open-source media server) or RoomKit (no external dependencies for core).</p>
+
+            <p><strong>"I need SIP/telephony integration"</strong><br>
+            &rarr; LiveKit Agents (native SIP) or Pipecat (Twilio WebSocket). RoomKit has RTP support already, with a SIP module in development.</p>
+
+            <p><strong>"I'm building a hook/middleware system around conversations"</strong><br>
+            &rarr; RoomKit. The hook pipeline (PRE_INBOUND, POST_DELIVERY, BEFORE_BROADCAST, etc.) is purpose-built for this.</p>
+
+            <hr>
+
+            <h2>Conclusion</h2>
+
+            <p>These four frameworks are not in direct competition &mdash; they solve overlapping but different problems. Pipecat, TEN, and LiveKit Agents are <strong>voice/AI agent frameworks</strong> optimized for real-time audio interactions. RoomKit is a <strong>multi-channel conversation framework</strong> with a full voice pipeline that happens to coexist with SMS, Email, WhatsApp, and a dozen other channels in the same room abstraction.</p>
+
+            <p>The landscape is evolving fast. Speech-to-speech models (OpenAI Realtime, Gemini Live) are making traditional STT &rarr; LLM &rarr; TTS pipelines less necessary. All four frameworks are adapting. What won't change is the underlying architectural bet each one makes: pipelines vs. graphs vs. rooms vs. sessions. Choose the abstraction that matches your problem, and you'll be building on solid ground.</p>
+
+            <hr>
+
+            <p><em>All four frameworks are open source. Go explore:</em></p>
+
+            <ul>
+                <li><strong>RoomKit</strong>: <a href="https://github.com/roomkit-live/roomkit">github.com/roomkit-live/roomkit</a> &mdash; <a href="https://roomkit.live">roomkit.live</a></li>
+                <li><strong>Pipecat</strong>: <a href="https://github.com/pipecat-ai/pipecat">github.com/pipecat-ai/pipecat</a> &mdash; <a href="https://pipecat.ai">pipecat.ai</a></li>
+                <li><strong>TEN Framework</strong>: <a href="https://github.com/TEN-framework/ten-framework">github.com/TEN-framework/ten-framework</a> &mdash; <a href="https://theten.ai">theten.ai</a></li>
+                <li><strong>LiveKit Agents</strong>: <a href="https://github.com/livekit/agents">github.com/livekit/agents</a> &mdash; <a href="https://livekit.io">livekit.io</a></li>
+            </ul>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

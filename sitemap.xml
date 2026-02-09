@@ -71,6 +71,11 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://www.roomkit.live/blog/choosing-the-right-conversational-ai-framework/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://www.roomkit.live/blog/your-voice-assistant-doesnt-need-the-cloud/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
