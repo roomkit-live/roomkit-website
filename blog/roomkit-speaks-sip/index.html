@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomKit Speaks SIP: Bridge Any PBX to Conversational AI - RoomKit Blog</title>
+    <meta name="description" content="RoomKit now supports SIP natively. Incoming calls from any PBX are answered and bridged to conversational AI in real time. No WebRTC, no browser — just a phone call.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/roomkit-speaks-sip/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="RoomKit Speaks SIP: Bridge Any PBX to Conversational AI">
+    <meta property="og:description" content="RoomKit now supports SIP natively. Incoming calls from any PBX are answered and bridged to conversational AI in real time. No WebRTC, no browser — just a phone call.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/roomkit-speaks-sip/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-02-10">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RoomKit Speaks SIP: Bridge Any PBX to Conversational AI">
+    <meta name="twitter:description" content="RoomKit now supports SIP natively. Incoming calls from any PBX are answered and bridged to conversational AI in real time. No WebRTC, no browser — just a phone call.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "RoomKit Speaks SIP: Bridge Any PBX to Conversational AI",
+        "description": "RoomKit now supports SIP natively. Incoming calls from any PBX are answered and bridged to conversational AI in real time. No WebRTC, no browser — just a phone call.",
+        "datePublished": "2026-02-10",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/roomkit-speaks-sip/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/roomkit-speaks-sip/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>RoomKit Speaks SIP: Bridge Any PBX to Conversational AI</h1>
+            <div class="blog-meta">
+                <span>February 10, 2026</span>
+                <span>&middot;</span>
+                <span>12 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>What if you could turn any phone call into a live conversation with an AI &mdash; in under 50 lines of Python?</em></p>
+
+            <hr>
+
+            <p>RoomKit now supports SIP natively. Incoming calls from any SIP-compatible PBX, proxy, or trunk are answered automatically and bridged to a conversational AI model in real time. The caller speaks naturally, the AI responds instantly &mdash; over a regular phone line.</p>
+
+            <p>No WebRTC. No browser. Just a phone call.</p>
+
+            <h2>Why SIP?</h2>
+
+            <p>The world runs on phone calls. Enterprise contact centers, medical clinics, financial advisory firms, government services &mdash; they all rely on telephony infrastructure built on SIP. Millions of PBX systems, SIP trunks, and softphones are deployed worldwide.</p>
+
+            <p>Meanwhile, the most capable conversational AI models now support real-time speech-to-speech interaction. The missing piece was a clean, lightweight bridge between these two worlds.</p>
+
+            <p>RoomKit fills that gap. It handles SIP signaling, RTP media transport, audio resampling, and session management &mdash; so you can focus on the conversation, not the plumbing.</p>
+
+            <h2>How It Works</h2>
+
+            <p>The architecture is straightforward:</p>
+
+            <pre class="ascii-diagram">Phone Call &rarr; PBX / SIP Proxy &rarr; RoomKit &rarr; AI Model
+                                  &UpDownArrow;
+                          Audio resampling
+                       16 kHz (SIP) &harr; 24 kHz (AI)</pre>
+
+            <p>When a call arrives:</p>
+
+            <ol>
+                <li>RoomKit's SIP backend accepts the INVITE and negotiates codecs (G.722 wideband preferred, G.711 fallback)</li>
+                <li>An RTP session is established for bidirectional audio</li>
+                <li>A realtime session is created with the AI provider</li>
+                <li>Audio flows both ways &mdash; the caller's voice goes to the AI, the AI's response goes back to the caller</li>
+                <li>When either side hangs up, everything is cleaned up automatically</li>
+            </ol>
+
+            <p>The PBX can pass application context through custom SIP headers (<code>X-Room-ID</code>, <code>X-Session-ID</code>), which RoomKit uses to route calls to the right room and session. This makes it easy to build multi-tenant systems, IVR flows, or context-aware assistants that know who's calling and why.</p>
+
+            <h2>The Code</h2>
+
+            <p>Here's a complete working example &mdash; a SIP server that answers calls and connects them to Google Gemini Live:</p>
+
+            <pre><code class="code-content"><span class="kw">import</span> asyncio
+<span class="kw">import</span> os
+
+<span class="kw">from</span> roomkit <span class="kw">import</span> RealtimeVoiceChannel, RoomKit
+<span class="kw">from</span> roomkit.providers.gemini.realtime <span class="kw">import</span> GeminiLiveProvider
+<span class="kw">from</span> roomkit.voice.backends.sip <span class="kw">import</span> SIPVoiceBackend
+<span class="kw">from</span> roomkit.voice.base <span class="kw">import</span> VoiceSession
+<span class="kw">from</span> roomkit.voice.realtime.sip_transport <span class="kw">import</span> SIPRealtimeTransport
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    kit = RoomKit()
+
+    <span class="cm"># SIP backend &mdash; answers incoming calls</span>
+    sip_backend = SIPVoiceBackend(
+        local_sip_addr=(<span class="st">"0.0.0.0"</span>, 5060),
+        local_rtp_ip=<span class="st">"0.0.0.0"</span>,  <span class="cm"># auto-detects per call</span>
+        rtp_port_start=10000,
+        rtp_port_end=20000,
+    )
+
+    <span class="cm"># AI provider</span>
+    gemini = GeminiLiveProvider(
+        api_key=os.environ[<span class="st">"GOOGLE_API_KEY"</span>],
+        model=<span class="st">"gemini-2.5-flash-native-audio-preview-12-2025"</span>,
+    )
+
+    <span class="cm"># Bridge: SIP audio &harr; AI audio</span>
+    transport = SIPRealtimeTransport(sip_backend)
+
+    realtime = RealtimeVoiceChannel(
+        <span class="st">"realtime-voice"</span>,
+        provider=gemini,
+        transport=transport,
+        system_prompt=<span class="st">"You are a friendly phone assistant."</span>,
+        voice=<span class="st">"Aoede"</span>,
+        input_sample_rate=16000,
+        output_sample_rate=24000,
+    )
+    kit.register_channel(realtime)
+
+    <span class="cm"># Incoming call &rarr; create room + start AI session</span>
+    <span class="kw">async def</span> <span class="fn">handle_call</span>(session: VoiceSession):
+        room_id = session.metadata.get(<span class="st">"room_id"</span>, session.id)
+        <span class="kw">await</span> kit.create_room(room_id=room_id)
+        <span class="kw">await</span> kit.attach_channel(room_id, <span class="st">"realtime-voice"</span>)
+        <span class="kw">await</span> realtime.start_session(
+            room_id,
+            session.participant_id,
+            connection=session,
+        )
+
+    sip_backend.on_call(
+        <span class="kw">lambda</span> s: asyncio.get_running_loop().create_task(handle_call(s))
+    )
+
+    <span class="cm"># Hangup &rarr; cleanup</span>
+    <span class="kw">async def</span> <span class="fn">handle_disconnect</span>(session: VoiceSession):
+        room_id = session.metadata.get(<span class="st">"room_id"</span>, session.id)
+        <span class="kw">for</span> rt <span class="kw">in</span> realtime._get_room_sessions(room_id):
+            <span class="kw">await</span> realtime.end_session(rt)
+        <span class="kw">await</span> kit.close_room(room_id)
+
+    sip_backend.on_call_disconnected(
+        <span class="kw">lambda</span> s: asyncio.get_running_loop().create_task(handle_disconnect(s))
+    )
+
+    <span class="kw">await</span> sip_backend.start()
+    print(<span class="st">"Waiting for SIP calls on port 5060..."</span>)
+    <span class="kw">await</span> asyncio.Event().wait()
+
+asyncio.run(main())</code></pre>
+
+            <p>That's it. Point your PBX at this server, dial in, and talk to the AI.</p>
+
+            <h2>Audio Quality Matters</h2>
+
+            <p>Telephony traditionally uses narrowband audio &mdash; 8 kHz G.711, the same codec from the 1970s. It works, but it's not great for AI. Speech recognition accuracy drops, and synthesized voices sound tinny and robotic.</p>
+
+            <p>RoomKit negotiates G.722 wideband (16 kHz) when the PBX supports it, which most modern systems do. The difference is immediately noticeable: the AI hears the caller more clearly, and the AI's voice sounds natural and human. For AI models that operate at 24 kHz, RoomKit handles the resampling transparently &mdash; no configuration needed.</p>
+
+            <p>When G.722 isn't available, RoomKit falls back to G.711 (PCMU/PCMA) automatically. It just works.</p>
+
+            <h2>Under the Hood</h2>
+
+            <p>RoomKit's SIP support is built on two open-source Python libraries we developed specifically for this use case:</p>
+
+            <p><strong><a href="https://github.com/anganyAI/aiortp">aiortp</a></strong> &mdash; An asyncio-native RTP library. Handles packet send/receive, jitter buffering, G.711 and G.722 codecs, DTMF (RFC 4733), and RTCP. Pure Python, zero dependencies.</p>
+
+            <p><strong><a href="https://github.com/anganyAI/aiosipua">aiosipua</a></strong> &mdash; An asyncio SIP micro-library. Parses and builds SIP messages, negotiates SDP, manages dialogs, and provides a clean UAS/UAC API. Designed to sit behind a SIP proxy &mdash; it handles signaling, not routing.</p>
+
+            <p>Both libraries are intentionally minimal. They don't try to be a full PBX or a complete VoIP stack. They do exactly what's needed to bridge SIP calls to application logic, and nothing more.</p>
+
+            <p>The key design decisions:</p>
+
+            <ul>
+                <li><strong>Async-native</strong> &mdash; Everything runs on Python's asyncio event loop. No threads, no blocking. A single process can handle many concurrent calls.</li>
+                <li><strong>Zero required dependencies</strong> &mdash; Both libraries use only the Python standard library. Optional codecs (Opus) can be added if needed.</li>
+                <li><strong>Proxy-friendly</strong> &mdash; The SIP library is designed to work behind Kamailio, OpenSIPS, Asterisk, FreeSWITCH, or any SIP proxy. It doesn't handle authentication, retransmissions, or NAT traversal &mdash; that's the proxy's job.</li>
+                <li><strong>Custom header support</strong> &mdash; Application metadata flows through standard SIP X-headers. The PBX sets them, RoomKit reads them. Simple.</li>
+            </ul>
+
+            <h2>What You Can Build</h2>
+
+            <p>This opens up a range of applications:</p>
+
+            <ul>
+                <li><strong>AI-powered IVR</strong> &mdash; Replace rigid menu trees with natural language. "What would you like to do?" instead of "Press 1 for..."</li>
+                <li><strong>Phone-based assistants</strong> &mdash; Customer support, appointment scheduling, information hotlines &mdash; all handled by AI with human-like conversation.</li>
+                <li><strong>Compliance recording with AI</strong> &mdash; In regulated industries like financial services, calls must be recorded. RoomKit can transcribe and analyze calls in real time while maintaining compliance.</li>
+                <li><strong>Multilingual support</strong> &mdash; The AI model handles language switching naturally. A single phone number can serve callers in any language.</li>
+                <li><strong>Hybrid human/AI workflows</strong> &mdash; Start with AI, escalate to a human agent when needed, or have the AI assist the human agent in real time.</li>
+            </ul>
+
+            <h2>Getting Started</h2>
+
+            <p>Install RoomKit with SIP support:</p>
+
+            <pre><code class="code-content">pip install roomkit[sip,realtime-gemini]</code></pre>
+
+            <p>Configure your PBX to route calls to the RoomKit server's IP on port 5060. Add <code>X-Room-ID</code> and <code>X-Session-ID</code> headers in your dialplan for session routing.</p>
+
+            <p>Run the example:</p>
+
+            <pre><code class="code-content">GOOGLE_API_KEY=your-key python examples/realtime_voice_sip_gemini.py</code></pre>
+
+            <p>Pick up the phone and start talking.</p>
+
+            <h2>What's Next</h2>
+
+            <p>SIP support is the first step toward making RoomKit a universal voice AI platform. We're working on:</p>
+
+            <ul>
+                <li><strong>Multi-party calls</strong> &mdash; Multiple callers in the same room, with the AI participating as another voice in the conversation</li>
+                <li><strong>Call transfer and conferencing</strong> &mdash; Standard SIP REFER and re-INVITE for call control</li>
+                <li><strong>Edge deployment</strong> &mdash; Running the AI inference locally for low-latency, privacy-sensitive applications</li>
+                <li><strong>More AI providers</strong> &mdash; OpenAI Realtime and open-source models via RoomKit's provider abstraction</li>
+            </ul>
+
+            <p>The goal is simple: any phone, any AI, any language &mdash; connected with a few lines of Python.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

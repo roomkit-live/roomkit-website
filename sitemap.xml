@@ -71,6 +71,11 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://www.roomkit.live/blog/roomkit-speaks-sip/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://www.roomkit.live/blog/gradium-roomkit-voice-ai-agents/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
