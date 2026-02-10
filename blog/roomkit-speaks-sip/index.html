@@ -141,7 +141,8 @@
             <ol>
                 <li>RoomKit's SIP backend accepts the INVITE and negotiates codecs (G.722 wideband preferred, G.711 fallback)</li>
                 <li>An RTP session is established for bidirectional audio</li>
-                <li>A realtime session is created with the AI provider</li>
+                <li>The call flows through <code>process_inbound()</code>, the same unified entry point used for text messages, running through all registered hooks (spam filtering, logging, traces)</li>
+                <li>A room is created, the channel is attached, and a realtime AI session starts automatically</li>
                 <li>Audio flows both ways: the caller's voice goes to the AI, the AI's response goes back to the caller</li>
                 <li>When either side hangs up, everything is cleaned up automatically</li>
             </ol>
@@ -150,36 +151,41 @@
 
             <h2>The Code</h2>
 
-            <p>Here's a complete working example, a SIP server that answers calls and connects them to Google Gemini Live:</p>
+            <p>Here's a complete working example: a SIP server that answers calls, blocks spam, logs protocol traces, and connects callers to Google Gemini Live. Voice sessions flow through <code>process_inbound()</code>, the same entry point used for text messages, with the same hooks and pipeline:</p>
 
             <pre><code class="code-content"><span class="kw">import</span> asyncio
 <span class="kw">import</span> os
 
 <span class="kw">from</span> roomkit <span class="kw">import</span> RealtimeVoiceChannel, RoomKit
+<span class="kw">from</span> roomkit.models.context <span class="kw">import</span> RoomContext
+<span class="kw">from</span> roomkit.models.enums <span class="kw">import</span> HookTrigger
+<span class="kw">from</span> roomkit.models.event <span class="kw">import</span> RoomEvent, SystemContent
+<span class="kw">from</span> roomkit.models.hook <span class="kw">import</span> HookResult
+<span class="kw">from</span> roomkit.models.trace <span class="kw">import</span> ProtocolTrace
 <span class="kw">from</span> roomkit.providers.gemini.realtime <span class="kw">import</span> GeminiLiveProvider
+<span class="kw">from</span> roomkit.voice <span class="kw">import</span> parse_voice_session
 <span class="kw">from</span> roomkit.voice.backends.sip <span class="kw">import</span> SIPVoiceBackend
-<span class="kw">from</span> roomkit.voice.base <span class="kw">import</span> VoiceSession
 <span class="kw">from</span> roomkit.voice.realtime.sip_transport <span class="kw">import</span> SIPRealtimeTransport
+
+BLOCKED_CALLERS = {<span class="st">"+15550000000"</span>}
 
 <span class="kw">async def</span> <span class="fn">main</span>():
     kit = RoomKit()
 
     <span class="cm"># SIP backend: answers incoming calls</span>
-    sip_backend = SIPVoiceBackend(
+    sip = SIPVoiceBackend(
         local_sip_addr=(<span class="st">"0.0.0.0"</span>, 5060),
-        local_rtp_ip=<span class="st">"0.0.0.0"</span>,  <span class="cm"># auto-detects per call</span>
+        local_rtp_ip=<span class="st">"0.0.0.0"</span>,
         rtp_port_start=10000,
         rtp_port_end=20000,
     )
 
-    <span class="cm"># AI provider</span>
+    <span class="cm"># AI provider + bridge transport</span>
     gemini = GeminiLiveProvider(
         api_key=os.environ[<span class="st">"GOOGLE_API_KEY"</span>],
         model=<span class="st">"gemini-2.5-flash-native-audio-preview-12-2025"</span>,
     )
-
-    <span class="cm"># Bridge: SIP audio &harr; AI audio</span>
-    transport = SIPRealtimeTransport(sip_backend)
+    transport = SIPRealtimeTransport(sip)
 
     realtime = RealtimeVoiceChannel(
         <span class="st">"realtime-voice"</span>,
@@ -192,39 +198,44 @@
     )
     kit.register_channel(realtime)
 
-    <span class="cm"># Incoming call &rarr; create room + start AI session</span>
-    <span class="kw">async def</span> <span class="fn">handle_call</span>(session: VoiceSession):
-        room_id = session.metadata.get(<span class="st">"room_id"</span>, session.id)
-        <span class="kw">await</span> kit.create_room(room_id=room_id)
-        <span class="kw">await</span> kit.attach_channel(room_id, <span class="st">"realtime-voice"</span>)
-        <span class="kw">await</span> realtime.start_session(
-            room_id,
-            session.participant_id,
-            connection=session,
-        )
+    <span class="cm"># Hooks &mdash; same hooks work for voice AND text</span>
+    @kit.hook(HookTrigger.BEFORE_BROADCAST)
+    <span class="kw">async def</span> <span class="fn">gate_incoming</span>(event: RoomEvent, ctx: RoomContext) -> HookResult:
+        <span class="kw">if</span> <span class="kw">isinstance</span>(event.content, SystemContent) <span class="kw">and</span> event.content.code == <span class="st">"session_started"</span>:
+            caller = event.content.data.get(<span class="st">"caller"</span>)
+            <span class="kw">if</span> caller <span class="kw">in</span> BLOCKED_CALLERS:
+                <span class="kw">return</span> HookResult.block(<span class="st">f"caller_blocked:{caller}"</span>)
+        <span class="kw">return</span> HookResult.allow()
 
-    sip_backend.on_call(
-        <span class="kw">lambda</span> s: asyncio.get_running_loop().create_task(handle_call(s))
-    )
+    @kit.hook(HookTrigger.ON_PROTOCOL_TRACE)
+    <span class="kw">async def</span> <span class="fn">on_trace</span>(trace: ProtocolTrace, ctx: RoomContext) -> <span class="kw">None</span>:
+        print(<span class="st">f"[{ctx.room.id}] {trace.direction} {trace.protocol}: {trace.summary}"</span>)
+
+    <span class="cm"># Incoming call &rarr; unified process_inbound (same as text)</span>
+    @sip.on_call
+    <span class="kw">async def</span> <span class="fn">handle_call</span>(session):
+        result = <span class="kw">await</span> kit.process_inbound(
+            parse_voice_session(session, channel_id=<span class="st">"realtime-voice"</span>),
+            room_id=session.metadata.get(<span class="st">"room_id"</span>),
+        )
+        <span class="kw">if</span> result.blocked:
+            print(<span class="st">f"Call rejected: {result.reason}"</span>)
 
     <span class="cm"># Hangup &rarr; cleanup</span>
-    <span class="kw">async def</span> <span class="fn">handle_disconnect</span>(session: VoiceSession):
+    @sip.on_call_disconnected
+    <span class="kw">async def</span> <span class="fn">handle_disconnect</span>(session):
         room_id = session.metadata.get(<span class="st">"room_id"</span>, session.id)
         <span class="kw">for</span> rt <span class="kw">in</span> realtime._get_room_sessions(room_id):
             <span class="kw">await</span> realtime.end_session(rt)
         <span class="kw">await</span> kit.close_room(room_id)
 
-    sip_backend.on_call_disconnected(
-        <span class="kw">lambda</span> s: asyncio.get_running_loop().create_task(handle_disconnect(s))
-    )
-
-    <span class="kw">await</span> sip_backend.start()
+    <span class="kw">await</span> sip.start()
     print(<span class="st">"Waiting for SIP calls on port 5060..."</span>)
     <span class="kw">await</span> asyncio.Event().wait()
 
 asyncio.run(main())</code></pre>
 
-            <p>That's it. Point your PBX at this server, dial in, and talk to the AI.</p>
+            <p>That's it. Point your PBX at this server, dial in, and talk to the AI. The <code>BEFORE_BROADCAST</code> hook blocks spam callers the same way it would block abusive text messages. The <code>ON_PROTOCOL_TRACE</code> hook logs SIP signaling (INVITE, 200 OK, BYE) with full raw payloads. Same hooks, same interface, whether the input is a phone call or a webhook.</p>
 
             <h2>Audio Quality Matters</h2>
 
