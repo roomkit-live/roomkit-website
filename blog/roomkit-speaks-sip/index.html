@@ -111,21 +111,21 @@
     <article class="blog-article">
         <div class="container">
 
-            <p><em>What if you could turn any phone call into a live conversation with an AI &mdash; in under 50 lines of Python?</em></p>
+            <p><em>What if you could turn any phone call into a live conversation with an AI, in under 50 lines of Python?</em></p>
 
             <hr>
 
-            <p>RoomKit now supports SIP natively. Incoming calls from any SIP-compatible PBX, proxy, or trunk are answered automatically and bridged to a conversational AI model in real time. The caller speaks naturally, the AI responds instantly &mdash; over a regular phone line.</p>
+            <p>RoomKit now supports SIP natively. Incoming calls from any SIP-compatible PBX, proxy, or trunk are answered automatically and bridged to a conversational AI model in real time. The caller speaks naturally, the AI responds instantly, over a regular phone line.</p>
 
             <p>No WebRTC. No browser. Just a phone call.</p>
 
             <h2>Why SIP?</h2>
 
-            <p>The world runs on phone calls. Enterprise contact centers, medical clinics, financial advisory firms, government services &mdash; they all rely on telephony infrastructure built on SIP. Millions of PBX systems, SIP trunks, and softphones are deployed worldwide.</p>
+            <p>The world runs on phone calls. Enterprise contact centers, medical clinics, financial advisory firms, government services: they all rely on telephony infrastructure built on SIP. Millions of PBX systems, SIP trunks, and softphones are deployed worldwide.</p>
 
             <p>Meanwhile, the most capable conversational AI models now support real-time speech-to-speech interaction. The missing piece was a clean, lightweight bridge between these two worlds.</p>
 
-            <p>RoomKit fills that gap. It handles SIP signaling, RTP media transport, audio resampling, and session management &mdash; so you can focus on the conversation, not the plumbing.</p>
+            <p>RoomKit fills that gap. It handles SIP signaling, RTP media transport, audio resampling, and session management, so you can focus on the conversation, not the plumbing.</p>
 
             <h2>How It Works</h2>
 
@@ -142,7 +142,7 @@
                 <li>RoomKit's SIP backend accepts the INVITE and negotiates codecs (G.722 wideband preferred, G.711 fallback)</li>
                 <li>An RTP session is established for bidirectional audio</li>
                 <li>A realtime session is created with the AI provider</li>
-                <li>Audio flows both ways &mdash; the caller's voice goes to the AI, the AI's response goes back to the caller</li>
+                <li>Audio flows both ways: the caller's voice goes to the AI, the AI's response goes back to the caller</li>
                 <li>When either side hangs up, everything is cleaned up automatically</li>
             </ol>
 
@@ -150,7 +150,7 @@
 
             <h2>The Code</h2>
 
-            <p>Here's a complete working example &mdash; a SIP server that answers calls and connects them to Google Gemini Live:</p>
+            <p>Here's a complete working example, a SIP server that answers calls and connects them to Google Gemini Live:</p>
 
             <pre><code class="code-content"><span class="kw">import</span> asyncio
 <span class="kw">import</span> os
@@ -164,7 +164,7 @@
 <span class="kw">async def</span> <span class="fn">main</span>():
     kit = RoomKit()
 
-    <span class="cm"># SIP backend &mdash; answers incoming calls</span>
+    <span class="cm"># SIP backend: answers incoming calls</span>
     sip_backend = SIPVoiceBackend(
         local_sip_addr=(<span class="st">"0.0.0.0"</span>, 5060),
         local_rtp_ip=<span class="st">"0.0.0.0"</span>,  <span class="cm"># auto-detects per call</span>
@@ -228,9 +228,9 @@ asyncio.run(main())</code></pre>
 
             <h2>Audio Quality Matters</h2>
 
-            <p>Telephony traditionally uses narrowband audio &mdash; 8 kHz G.711, the same codec from the 1970s. It works, but it's not great for AI. Speech recognition accuracy drops, and synthesized voices sound tinny and robotic.</p>
+            <p>Telephony traditionally uses narrowband audio: 8 kHz G.711, the same codec from the 1970s. It works, but it's not great for AI. Speech recognition accuracy drops, and synthesized voices sound tinny and robotic.</p>
 
-            <p>RoomKit negotiates G.722 wideband (16 kHz) when the PBX supports it, which most modern systems do. The difference is immediately noticeable: the AI hears the caller more clearly, and the AI's voice sounds natural and human. For AI models that operate at 24 kHz, RoomKit handles the resampling transparently &mdash; no configuration needed.</p>
+            <p>RoomKit negotiates G.722 wideband (16 kHz) when the PBX supports it, which most modern systems do. The difference is immediately noticeable: the AI hears the caller more clearly, and the AI's voice sounds natural and human. For AI models that operate at 24 kHz, RoomKit handles the resampling transparently, no configuration needed.</p>
 
             <p>When G.722 isn't available, RoomKit falls back to G.711 (PCMU/PCMA) automatically. It just works.</p>
 
@@ -238,19 +238,19 @@ asyncio.run(main())</code></pre>
 
             <p>RoomKit's SIP support is built on two open-source Python libraries we developed specifically for this use case:</p>
 
-            <p><strong><a href="https://github.com/anganyAI/aiortp">aiortp</a></strong> &mdash; An asyncio-native RTP library. Handles packet send/receive, jitter buffering, G.711 and G.722 codecs, DTMF (RFC 4733), and RTCP. Pure Python, zero dependencies.</p>
+            <p><strong><a href="https://github.com/anganyAI/aiortp">aiortp</a></strong>: an asyncio-native RTP library. Handles packet send/receive, jitter buffering, G.711 and G.722 codecs, DTMF (RFC 4733), and RTCP. Pure Python, zero dependencies.</p>
 
-            <p><strong><a href="https://github.com/anganyAI/aiosipua">aiosipua</a></strong> &mdash; An asyncio SIP micro-library. Parses and builds SIP messages, negotiates SDP, manages dialogs, and provides a clean UAS/UAC API. Designed to sit behind a SIP proxy &mdash; it handles signaling, not routing.</p>
+            <p><strong><a href="https://github.com/anganyAI/aiosipua">aiosipua</a></strong>: an asyncio SIP micro-library. Parses and builds SIP messages, negotiates SDP, manages dialogs, and provides a clean UAS/UAC API. Designed to sit behind a SIP proxy, it handles signaling, not routing.</p>
 
             <p>Both libraries are intentionally minimal. They don't try to be a full PBX or a complete VoIP stack. They do exactly what's needed to bridge SIP calls to application logic, and nothing more.</p>
 
             <p>The key design decisions:</p>
 
             <ul>
-                <li><strong>Async-native</strong> &mdash; Everything runs on Python's asyncio event loop. No threads, no blocking. A single process can handle many concurrent calls.</li>
-                <li><strong>Zero required dependencies</strong> &mdash; Both libraries use only the Python standard library. Optional codecs (Opus) can be added if needed.</li>
-                <li><strong>Proxy-friendly</strong> &mdash; The SIP library is designed to work behind Kamailio, OpenSIPS, Asterisk, FreeSWITCH, or any SIP proxy. It doesn't handle authentication, retransmissions, or NAT traversal &mdash; that's the proxy's job.</li>
-                <li><strong>Custom header support</strong> &mdash; Application metadata flows through standard SIP X-headers. The PBX sets them, RoomKit reads them. Simple.</li>
+                <li><strong>Async-native</strong>: everything runs on Python's asyncio event loop. No threads, no blocking. A single process can handle many concurrent calls.</li>
+                <li><strong>Zero required dependencies</strong>: both libraries use only the Python standard library. Optional codecs (Opus) can be added if needed.</li>
+                <li><strong>Proxy-friendly</strong>: the SIP library is designed to work behind Kamailio, OpenSIPS, Asterisk, FreeSWITCH, or any SIP proxy. It doesn't handle authentication, retransmissions, or NAT traversal, that's the proxy's job.</li>
+                <li><strong>Custom header support</strong>: application metadata flows through standard SIP X-headers. The PBX sets them, RoomKit reads them. Simple.</li>
             </ul>
 
             <h2>What You Can Build</h2>
@@ -258,11 +258,11 @@ asyncio.run(main())</code></pre>
             <p>This opens up a range of applications:</p>
 
             <ul>
-                <li><strong>AI-powered IVR</strong> &mdash; Replace rigid menu trees with natural language. "What would you like to do?" instead of "Press 1 for..."</li>
-                <li><strong>Phone-based assistants</strong> &mdash; Customer support, appointment scheduling, information hotlines &mdash; all handled by AI with human-like conversation.</li>
-                <li><strong>Compliance recording with AI</strong> &mdash; In regulated industries like financial services, calls must be recorded. RoomKit can transcribe and analyze calls in real time while maintaining compliance.</li>
-                <li><strong>Multilingual support</strong> &mdash; The AI model handles language switching naturally. A single phone number can serve callers in any language.</li>
-                <li><strong>Hybrid human/AI workflows</strong> &mdash; Start with AI, escalate to a human agent when needed, or have the AI assist the human agent in real time.</li>
+                <li><strong>AI-powered IVR</strong>: replace rigid menu trees with natural language. "What would you like to do?" instead of "Press 1 for..."</li>
+                <li><strong>Phone-based assistants</strong>: customer support, appointment scheduling, information hotlines, all handled by AI with human-like conversation.</li>
+                <li><strong>Compliance recording with AI</strong>: in regulated industries like financial services, calls must be recorded. RoomKit can transcribe and analyze calls in real time while maintaining compliance.</li>
+                <li><strong>Multilingual support</strong>: the AI model handles language switching naturally. A single phone number can serve callers in any language.</li>
+                <li><strong>Hybrid human/AI workflows</strong>: start with AI, escalate to a human agent when needed, or have the AI assist the human agent in real time.</li>
             </ul>
 
             <h2>Getting Started</h2>
@@ -279,18 +279,13 @@ asyncio.run(main())</code></pre>
 
             <p>Pick up the phone and start talking.</p>
 
-            <h2>What's Next</h2>
+            <h2>What's Already There</h2>
 
-            <p>SIP support is the first step toward making RoomKit a universal voice AI platform. We're working on:</p>
+            <p>RoomKit is not just a SIP bridge. It already supports multiple AI providers (Gemini Live, OpenAI Realtime), multi-party rooms where several participants and AI channels coexist, and edge deployment with ONNX models for low-latency, privacy-sensitive applications.</p>
 
-            <ul>
-                <li><strong>Multi-party calls</strong> &mdash; Multiple callers in the same room, with the AI participating as another voice in the conversation</li>
-                <li><strong>Call transfer and conferencing</strong> &mdash; Standard SIP REFER and re-INVITE for call control</li>
-                <li><strong>Edge deployment</strong> &mdash; Running the AI inference locally for low-latency, privacy-sensitive applications</li>
-                <li><strong>More AI providers</strong> &mdash; OpenAI Realtime and open-source models via RoomKit's provider abstraction</li>
-            </ul>
+            <p>SIP support adds the last missing piece: connecting all of this to the phone network. Any PBX, any trunk, any softphone can now be a front door to conversational AI.</p>
 
-            <p>The goal is simple: any phone, any AI, any language &mdash; connected with a few lines of Python.</p>
+            <p>The goal is simple: any phone, any AI, any language, connected with a few lines of Python.</p>
 
         </div>
     </article>
