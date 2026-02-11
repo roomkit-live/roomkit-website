@@ -19,7 +19,7 @@ K8S_HOST   := root@192.168.50.6
 NAMESPACE  := roomkit
 BUILD_DIR  := .build
 
-WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg robots.txt sitemap.xml css js blog
+WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg robots.txt sitemap.xml css js blog roomkit-ui
 
 .PHONY: gather build deploy full clean status logs
 
