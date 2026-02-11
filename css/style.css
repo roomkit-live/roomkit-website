@@ -1486,6 +1486,7 @@ code {
 
 .blog-article .container {
     max-width: 780px;
+    overflow-wrap: break-word;
 }
 
 .blog-article h2 {
@@ -1515,6 +1516,8 @@ code {
     color: var(--color-primary-light);
     text-decoration: underline;
     text-underline-offset: 2px;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .blog-article a:hover {
@@ -1546,6 +1549,7 @@ code {
     background: var(--code-bg);
     white-space: pre-wrap;
     word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .blog-article pre .code-content {
@@ -1555,6 +1559,7 @@ code {
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .blog-article code {
@@ -1591,11 +1596,21 @@ code {
     margin: var(--space-2xl) 0;
 }
 
+.blog-article .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: var(--space-lg);
+}
+
 .blog-article table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9375rem;
     margin-bottom: var(--space-lg);
+}
+
+.blog-article .table-wrapper table {
+    margin-bottom: 0;
 }
 
 .blog-article th,

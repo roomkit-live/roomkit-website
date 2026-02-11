@@ -111,100 +111,6 @@
         .ui-preview {
             padding: var(--space-3xl) 0;
         }
-        .ui-preview-window {
-            max-width: 440px;
-            margin: 0 auto;
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            border: 1px solid var(--color-border);
-            background: #1C1C1E;
-            box-shadow: var(--shadow-xl), 0 0 60px rgba(99, 102, 241, 0.1);
-        }
-        .ui-preview-titlebar {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-sm) var(--space-md);
-            background: #2C2C2E;
-        }
-        .ui-preview-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-        .ui-preview-dot.red { background: #FF5F57; }
-        .ui-preview-dot.yellow { background: #FFBD2E; }
-        .ui-preview-dot.green { background: #28C840; }
-        .ui-preview-titlebar span {
-            flex: 1;
-            text-align: center;
-            font-size: 0.8125rem;
-            color: #8E8E93;
-            font-weight: 500;
-        }
-        .ui-preview-body {
-            padding: var(--space-xl) var(--space-md);
-        }
-        .ui-chat-bubble {
-            padding: var(--space-sm) var(--space-md);
-            border-radius: 16px;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            margin-bottom: var(--space-sm);
-            max-width: 80%;
-        }
-        .ui-chat-bubble.ai {
-            background: #2C2C2E;
-            color: #F1F5F9;
-            border-top-left-radius: 4px;
-        }
-        .ui-chat-bubble.user {
-            background: #0A84FF;
-            color: white;
-            margin-left: auto;
-            border-top-right-radius: 4px;
-        }
-        .ui-chat-time {
-            font-size: 0.6875rem;
-            color: #636366;
-            margin-bottom: var(--space-md);
-        }
-        .ui-chat-time.right { text-align: right; }
-        .ui-vu-meter {
-            height: 60px;
-            margin: var(--space-md) 0;
-            border-radius: var(--radius-md);
-            background: radial-gradient(ellipse 40% 100% at 30% 50%, rgba(48, 209, 88, 0.2), transparent),
-                        radial-gradient(ellipse 40% 100% at 70% 50%, rgba(99, 102, 241, 0.2), transparent);
-        }
-        .ui-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-sm) var(--space-lg);
-        }
-        .ui-ctrl-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1.5px solid #48484A;
-            background: #3A3A3C;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .ui-ctrl-btn svg { width: 16px; height: 16px; color: #FFFFFF; }
-        .ui-ctrl-call {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #FF453A;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .ui-ctrl-call svg { width: 18px; height: 18px; color: #FFFFFF; }
 
         .providers-section {
             padding: var(--space-3xl) 0;
@@ -364,6 +270,7 @@
                 <a href="/docs/features/" class="nav-link">Features</a>
                 <a href="/docs/mcp/" class="nav-link">MCP</a>
                 <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
                 <a href="/blog/" class="nav-link">Blog</a>
                 <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
             </div>
@@ -414,35 +321,7 @@
     <!-- App Preview -->
     <section class="ui-preview">
         <div class="container">
-            <div class="ui-preview-window">
-                <div class="ui-preview-titlebar">
-                    <div class="ui-preview-dot red"></div>
-                    <div class="ui-preview-dot yellow"></div>
-                    <div class="ui-preview-dot green"></div>
-                    <span>RoomKit UI</span>
-                    <div style="width: 48px;"></div>
-                </div>
-                <div class="ui-preview-body">
-                    <div class="ui-chat-bubble ai">Hello! How can I help you today?</div>
-                    <div class="ui-chat-time">14:02</div>
-                    <div class="ui-chat-bubble user">Tell me about RoomKit</div>
-                    <div class="ui-chat-time right">14:02</div>
-                    <div class="ui-chat-bubble ai">RoomKit is a Python framework for building multi-channel conversation systems. It supports voice, text, and AI channels in a unified API!</div>
-                    <div class="ui-chat-time">14:02</div>
-                    <div class="ui-vu-meter"></div>
-                    <div class="ui-controls">
-                        <div class="ui-ctrl-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                        </div>
-                        <div class="ui-ctrl-call">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-                        </div>
-                        <div class="ui-ctrl-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <img src="/roomkit-ui/screenshot.png" alt="RoomKit UI — real-time voice conversation" style="max-width: 380px; margin: 0 auto; display: block; border-radius: var(--radius-xl); box-shadow: var(--shadow-xl), 0 0 60px rgba(99, 102, 241, 0.1);">
         </div>
     </section>
 
@@ -495,6 +374,41 @@
                     </div>
                     <h3>Noise Reduction</h3>
                     <p>Optional RNNoise denoiser removes background noise for crystal-clear voice input.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </div>
+                    <h3>System-Wide Dictation</h3>
+                    <p>Press a global hotkey to dictate anywhere. Transcription is pasted into the focused app automatically.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <h3>MCP Tool Support</h3>
+                    <p>Connect external tools via Model Context Protocol. Stdio, SSE, and HTTP transports supported.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    </div>
+                    <h3>Multi-Language STT</h3>
+                    <p>Dictation in 14+ languages including English, French, Spanish, German, Japanese, Chinese, and more.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                    </div>
+                    <h3>Dark & Light Themes</h3>
+                    <p>Apple-inspired dark and light mode. Switch instantly from settings with full theme-aware components.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h12"/></svg>
+                    </div>
+                    <h3>Markdown Chat</h3>
+                    <p>AI responses render with full markdown — code blocks, tables, links, and inline formatting.</p>
                 </div>
             </div>
         </div>
@@ -554,7 +468,7 @@
                     macOS
                 </div>
                 <div class="platform-badge">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.581 19.049c-.55-.446-.336-1.431-.907-2.031-1.227-1.291-1.575-3.312-1.198-4.982.349-1.548.954-3.034.676-4.629C18.674 4.579 15.925 2 12.41 2c-3.238 0-5.602 2.179-6.199 5.247-.262 1.345.074 2.783.389 4.082.292 1.205.025 2.449-.54 3.501-.307.572-.654 1.14-.773 1.79-.138.756.09 1.367.559 1.919.358.42.831.711 1.337.964 1.13.565 2.42.892 3.578 1.381.538.228 1.118.487 1.377 1.041.171.369.241.811.558 1.084.449.386 1.109.119 1.529-.198.63-.476 1.072-1.149 1.656-1.677.479-.433 1.112-.747 1.724-.861.897-.168 1.792-.05 2.696-.192.722-.113 1.444-.354 1.976-.857.505-.477.728-1.17.31-1.752-.252-.351-.628-.593-.949-.858z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg>
                     Linux
                 </div>
                 <div class="platform-badge">
