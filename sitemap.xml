@@ -76,6 +76,11 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://www.roomkit.live/blog/i-built-a-desktop-voice-assistant-in-python/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://www.roomkit.live/blog/roomkit-speaks-sip/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>

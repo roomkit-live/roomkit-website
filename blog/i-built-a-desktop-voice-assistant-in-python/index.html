@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Built a Desktop Voice Assistant in Python. Here's What I Learned - RoomKit Blog</title>
+    <meta name="description" content="I built RoomKit UI, a desktop voice assistant for macOS, Linux, and Windows. It supports Google Gemini and OpenAI Realtime, connects to external tools via MCP, and ships as a standalone app.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/i-built-a-desktop-voice-assistant-in-python/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="I Built a Desktop Voice Assistant in Python. Here's What I Learned">
+    <meta property="og:description" content="I built RoomKit UI, a desktop voice assistant for macOS, Linux, and Windows. It supports Google Gemini and OpenAI Realtime, connects to external tools via MCP, and ships as a standalone app.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/i-built-a-desktop-voice-assistant-in-python/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-02-10">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="I Built a Desktop Voice Assistant in Python. Here's What I Learned">
+    <meta name="twitter:description" content="I built RoomKit UI, a desktop voice assistant for macOS, Linux, and Windows. It supports Google Gemini and OpenAI Realtime, connects to external tools via MCP, and ships as a standalone app.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "I Built a Desktop Voice Assistant in Python. Here's What I Learned",
+        "description": "I built RoomKit UI, a desktop voice assistant for macOS, Linux, and Windows. It supports Google Gemini and OpenAI Realtime, connects to external tools via MCP, and ships as a standalone app.",
+        "datePublished": "2026-02-10",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/i-built-a-desktop-voice-assistant-in-python/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/i-built-a-desktop-voice-assistant-in-python/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>I Built a Desktop Voice Assistant in Python. Here&rsquo;s What I Learned</h1>
+            <div class="blog-meta">
+                <span>February 10, 2026</span>
+                <span>&middot;</span>
+                <span>8 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p>I&rsquo;ve been building <a href="https://www.roomkit.live">RoomKit</a>, an open-source Python framework for multi-channel conversations. After writing about <a href="/blog/i-built-a-multi-channel-conversation-framework/">the architecture</a> and <a href="/blog/your-voice-assistant-doesnt-need-the-cloud/">running voice AI fully local</a>, I wanted to push things further: what does a real, usable voice assistant look like when built on top of RoomKit?</p>
+
+            <p>So I built one. <a href="https://github.com/roomkit-live/roomkit-ui">RoomKit UI</a> is a desktop voice assistant for macOS, Linux, and Windows. You press a button, you talk, the AI responds in real time. It supports Google Gemini and OpenAI&rsquo;s realtime APIs, connects to external tools via MCP, and ships as a standalone app you can download and run.</p>
+
+            <p>This post is a walkthrough of what it does, how it&rsquo;s built, and what made RoomKit the right foundation for it.</p>
+
+            <p><img src="/roomkit-ui/screenshot.png" alt="RoomKit UI screenshot" style="max-width: 100%; border-radius: 8px; margin: 1.5rem 0;"></p>
+
+            <h2>The idea</h2>
+
+            <p>Most voice AI demos live in a browser or a terminal. That&rsquo;s fine for showing off a model, but it&rsquo;s not how people actually want to use a voice assistant. I wanted something that sits on my desktop, always ready, that I can talk to naturally, and that can actually <em>do things</em> through tool integrations.</p>
+
+            <p>The key requirements were simple:</p>
+
+            <ul>
+                <li>Real-time, full-duplex voice conversation with interruption support</li>
+                <li>Switch between AI providers without changing anything else</li>
+                <li>Connect external tools (filesystem, APIs, databases) via MCP</li>
+                <li>System-wide dictation: press a hotkey, speak, and the transcribed text gets pasted into whatever app has focus</li>
+                <li>Run on all three major platforms from a single codebase</li>
+            </ul>
+
+            <h2>Two providers, one conversation</h2>
+
+            <p>One of the things I&rsquo;m most proud of in this app is that switching between Google Gemini and OpenAI Realtime is a settings toggle. No code changes, no restart, no different conversation flow. You pick your provider, enter your API key, and go.</p>
+
+            <p>This works because RoomKit&rsquo;s <code>RealtimeVoiceChannel</code> abstracts the speech-to-speech layer. Both Gemini Live and OpenAI Realtime follow the same pattern: you open a WebSocket, stream audio in, and get audio back. The differences in protocol, authentication, and message format are handled by RoomKit&rsquo;s provider implementations. The UI just sees &ldquo;start session&rdquo; and &ldquo;audio frames in/out.&rdquo;</p>
+
+            <p>In practice, this means you can compare providers side by side. Gemini tends to have lower latency for conversational back-and-forth. OpenAI Realtime has richer voice expressiveness. Having both available in the same app, toggled from a dropdown, makes evaluating these tradeoffs trivial.</p>
+
+            <h2>MCP: giving the assistant hands</h2>
+
+            <p>A voice assistant that can only chat is a toy. The moment it can <em>do things</em> &mdash; search your files, query a database, create a calendar event, call an API &mdash; it becomes a tool.</p>
+
+            <p>RoomKit UI supports <a href="https://modelcontextprotocol.io/">MCP (Model Context Protocol)</a> natively. From the settings panel, you can add MCP servers using any of the three transport types: stdio (local processes), SSE (server-sent events), or HTTP. Each server exposes a set of tools that the AI can invoke during the conversation.</p>
+
+            <p>Here&rsquo;s what this looks like in practice. Say you have an MCP server that exposes a <code>search_files</code> tool. You tell the assistant: &ldquo;Find the PDF I downloaded last week about quarterly results.&rdquo; The AI calls the tool, gets the results, and reads them back to you &mdash; all in the flow of a natural voice conversation.</p>
+
+            <p>The MCP integration sits at the RoomKit engine level. When the realtime voice provider receives a tool call from the model, RoomKit routes it to the appropriate MCP server, waits for the response, and feeds it back into the conversation. The UI shows tool calls as they happen in the chat transcript, so you can see exactly what the assistant is doing.</p>
+
+            <p>This is where RoomKit&rsquo;s architecture shines. Because everything flows through rooms and channels, adding MCP tools doesn&rsquo;t require any special plumbing. It&rsquo;s just another participant in the conversation: the AI asks, the tool answers, the response gets broadcast back.</p>
+
+            <h2>The desktop experience</h2>
+
+            <p>Building a desktop app in Python in 2026 is surprisingly viable. PySide6 (Qt for Python) gives you native-looking widgets, proper system tray integration, global hotkeys, and audio device management. Combined with <code>qasync</code> to bridge Qt&rsquo;s event loop with Python&rsquo;s asyncio, the whole thing runs on a single thread without blocking.</p>
+
+            <p>A few details that make it feel like a real app rather than a demo:</p>
+
+            <p><strong>Animated VU meter.</strong> The main window shows an ambient glow visualization that responds to both microphone and speaker audio levels. It&rsquo;s not just cosmetic: it gives you immediate feedback that the system is listening and that audio is flowing correctly.</p>
+
+            <p><strong>Chat transcript.</strong> Every conversation is displayed as iMessage-style bubbles with markdown rendering. The AI&rsquo;s responses stream in word by word as the transcription arrives. Tool calls appear inline, so you can follow the assistant&rsquo;s reasoning.</p>
+
+            <p><strong>System-wide dictation.</strong> Press a global hotkey (configurable), speak, and the transcribed text gets pasted into whatever application has focus. This uses OpenAI&rsquo;s STT API and supports 14+ languages with auto-detection. On macOS it hooks into NSEvent; on Linux and Windows it uses pynput. It&rsquo;s the feature I personally use most &mdash; faster than typing for quick messages, notes, and search queries.</p>
+
+            <p><strong>Echo cancellation.</strong> For hands-free use without headphones, RoomKit UI includes WebRTC AEC (via <code>aec-audio-processing</code>) and Speex AEC as a fallback. Combined with an optional RNNoise denoiser, you can have a conversation with the AI through your laptop speakers without feedback loops.</p>
+
+            <h2>Project structure</h2>
+
+            <p>The codebase is intentionally small &mdash; around 15 files:</p>
+
+            <pre><code class="code-content">src/room_ui/
+&boxvr;&boxh;&boxh; app.py              <span class="cm"># QApplication + qasync event loop</span>
+&boxvr;&boxh;&boxh; engine.py           <span class="cm"># Async engine bridging RoomKit &harr; Qt signals</span>
+&boxvr;&boxh;&boxh; mcp_manager.py      <span class="cm"># MCP client manager (stdio, SSE, HTTP)</span>
+&boxvr;&boxh;&boxh; settings.py         <span class="cm"># QSettings persistence</span>
+&boxvr;&boxh;&boxh; stt_engine.py       <span class="cm"># STT dictation engine + text pasting</span>
+&boxvr;&boxh;&boxh; hotkey.py           <span class="cm"># Global hotkey (NSEvent / pynput)</span>
+&boxvr;&boxh;&boxh; tray.py             <span class="cm"># System tray icon</span>
+&boxvr;&boxh;&boxh; theme.py            <span class="cm"># Dark &amp; Light stylesheets</span>
+&boxvr;&boxh;&boxh; icons.py            <span class="cm"># Heroicons SVG rendering</span>
+&boxur;&boxh;&boxh; widgets/            <span class="cm"># UI components</span></code></pre>
+
+            <p>The <code>engine.py</code> file is the bridge between RoomKit&rsquo;s async world and Qt&rsquo;s signal/slot system. It creates a RoomKit instance, registers the realtime voice channel, manages MCP servers, and emits Qt signals when transcriptions arrive, tool calls happen, or the session state changes. The widgets subscribe to these signals and update accordingly.</p>
+
+            <p>This separation means the UI layer knows nothing about voice protocols, WebSocket connections, or AI providers. It just reacts to signals: &ldquo;new transcription,&rdquo; &ldquo;tool call started,&rdquo; &ldquo;session ended.&rdquo;</p>
+
+            <h2>Getting started</h2>
+
+            <p>You can download pre-built binaries from the <a href="https://github.com/roomkit-live/roomkit-ui/releases">releases page</a>, or run from source:</p>
+
+            <pre><code class="code-content">git clone https://github.com/roomkit-live/roomkit-ui.git
+cd roomkit-ui
+uv sync
+uv run python -m room_ui</code></pre>
+
+            <p>Open settings, pick your provider, enter an API key, and press the green call button. That&rsquo;s it.</p>
+
+            <p>To add MCP tools, go to the MCP tab in settings and configure your servers. Any tools they expose will be available to the AI in your next conversation.</p>
+
+            <h2>What this means for RoomKit</h2>
+
+            <p>RoomKit UI is both a useful app and a proof of what you can build on top of RoomKit&rsquo;s primitives. The same framework that handles SMS routing and email delivery also powers real-time speech-to-speech AI with tool calling &mdash; because at the end of the day, it&rsquo;s all just messages flowing through rooms.</p>
+
+            <p>If you&rsquo;re building voice AI applications in Python, I think there&rsquo;s something valuable in having a framework that doesn&rsquo;t lock you into one provider, one transport, or one modality. RoomKit UI demonstrates that you can go from <code>pip install roomkit</code> to a production-quality desktop voice assistant without any middleware, cloud services, or vendor SDKs in between.</p>
+
+            <p>The code is MIT-licensed and open source. I&rsquo;d love to hear what you build with it.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
