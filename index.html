@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoomKit - Multi-Channel Conversation Framework for Python | SMS, Email, Voice, AI, WebSocket</title>
-    <meta name="description" content="Open-source Python library for building multi-channel conversation systems. Unify SMS, Email, WhatsApp, Teams, Messenger, Voice, AI, and WebSocket into room-based experiences. Async-first, type-safe, with pluggable backends.">
-    <meta name="keywords" content="python conversation framework, multi-channel messaging, SMS API, chatbot framework, async python, pydantic, AI chatbot, websocket chat, python chat library, MCP server, microsoft teams bot, whatsapp api, facebook messenger">
+    <meta name="description" content="Open-source Python framework for building multi-channel conversation systems with voice AI and multi-agent orchestration. Unify SMS, Email, WhatsApp, Teams, Messenger, Voice, AI, and WebSocket into room-based experiences. Async-first, type-safe, with pluggable backends.">
+    <meta name="keywords" content="python conversation framework, multi-channel messaging, SMS API, chatbot framework, async python, pydantic, AI chatbot, websocket chat, python chat library, MCP server, microsoft teams bot, whatsapp api, facebook messenger, voice AI, multi-agent, orchestration">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.roomkit.live/">
@@ -101,6 +101,7 @@
                     <span class="badge">Pure Python</span>
                     <span class="badge">Async-First</span>
                     <span class="badge">Type-Safe</span>
+                    <span class="badge">Voice AI</span>
                     <span class="badge badge-mcp">MCP Ready</span>
                 </div>
                 <h1 class="hero-title">
@@ -293,11 +294,11 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                     </div>
                 </div>
                 <div class="comparison-card">
-                    <h4>Unified APIs</h4>
-                    <span class="comparison-examples">Twilio, SuprSend, Courier</span>
-                    <p>SaaS services that abstract multiple channels behind one API.</p>
+                    <h4>Voice AI Frameworks</h4>
+                    <span class="comparison-examples">Pipecat, LiveKit Agents, TEN Framework</span>
+                    <p>Pipeline or session-based voice AI. Focus on audio processing, not conversations.</p>
                     <div class="comparison-verdict">
-                        <strong>Use RoomKit when:</strong> You want self-hosted, open source, no vendor lock-in.
+                        <strong>Use RoomKit when:</strong> You need voice + text + multi-agent in the same room.
                     </div>
                 </div>
             </div>
@@ -402,6 +403,14 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                             <td class="no">✗</td>
                             <td class="no">✗</td>
                         </tr>
+                        <tr>
+                            <td>Multi-agent orchestration</td>
+                            <td class="yes">✓</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                            <td class="no">✗</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -456,7 +465,7 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                         </svg>
                     </div>
                     <h3>Powerful Hook System</h3>
-                    <p>Intercept, modify, or block events at any point. Build content moderation, analytics, AI routing, and more with sync and async hooks.</p>
+                    <p>35+ hook triggers to intercept, modify, or block events at any point. Build content moderation, analytics, AI routing, and more with sync and async hooks.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -489,7 +498,7 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                         </svg>
                     </div>
                     <h3>Real-Time Voice</h3>
-                    <p>Two voice modes: STT/TTS pipeline with FastRTC, or speech-to-speech AI via Gemini Live and OpenAI Realtime. Tool calling, text injection, and auto-reconnect built in.</p>
+                    <p>4 voice backends (FastRTC, SIP, RTP, Local Audio). Full audio pipeline with AEC, AGC, Denoiser, VAD, DTMF, and Diarization. 4 interruption strategies. STT/TTS or speech-to-speech modes.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -508,6 +517,67 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                     </div>
                     <h3>Production Resilience</h3>
                     <p>Circuit breakers isolate failing providers. Rate limiting with token buckets. Retry with exponential backoff. Chain depth limits prevent infinite loops.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Agent Orchestration Section -->
+    <section class="orchestration-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Multi-Agent Orchestration</h2>
+                <p class="section-description">
+                    Define agents, wire them into pipelines, and hand off conversations — including on live voice calls.
+                </p>
+            </div>
+            <div class="orchestration-diagram">
+                <code>Inbound → ConversationRouter → Active Agent → Handoff → Next Agent</code>
+            </div>
+            <div class="orchestration-features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <h3>Agent</h3>
+                    <p>Extends AIChannel with role, voice, greeting, language, and memory. Each agent is a self-contained persona.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <h3>ConversationPipeline</h3>
+                    <p>Staged workflows that move conversations through phases — triage, handling, resolution — automatically.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+                    </div>
+                    <h3>Handoff Protocol</h3>
+                    <p>Context-preserving handoffs with audit trail. Voice handoffs without disconnect — the caller never knows.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <h3>ConversationState</h3>
+                    <p>Phase tracking, transition history, and custom context. Know exactly where every conversation stands.</p>
+                </div>
+            </div>
+            <div class="orchestration-code">
+                <div class="code-window">
+                    <div class="code-header">
+                        <div class="code-dots"><span></span><span></span><span></span></div>
+                        <span class="code-filename">pipeline.py</span>
+                    </div>
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPipeline, PipelineStage
+
+pipeline = ConversationPipeline(stages=[
+    PipelineStage(phase=<span class="st">"triage"</span>, agent_id=<span class="st">"agent-triage"</span>, next=<span class="st">"handling"</span>),
+    PipelineStage(phase=<span class="st">"handling"</span>, agent_id=<span class="st">"agent-handler"</span>, next=<span class="kw">None</span>),
+])
+
+router, handler = pipeline.install(kit, [triage, handler])</code></pre>
                 </div>
             </div>
         </div>
@@ -566,6 +636,13 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                     <span>Bot Framework</span>
                 </div>
                 <div class="channel-card">
+                    <div class="channel-icon telegram" style="background: linear-gradient(135deg, #26a5e4, #0088cc);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4z"/></svg>
+                    </div>
+                    <strong class="channel-name">Telegram</strong>
+                    <span>Bot API</span>
+                </div>
+                <div class="channel-card">
                     <div class="channel-icon ws">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
                     </div>
@@ -584,14 +661,14 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg>
                     </div>
                     <strong class="channel-name">AI</strong>
-                    <span>Anthropic, OpenAI, Gemini</span>
+                    <span>Anthropic, OpenAI, Gemini, Mistral</span>
                 </div>
                 <div class="channel-card">
                     <div class="channel-icon voice">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                     </div>
                     <strong class="channel-name">Voice</strong>
-                    <span>Deepgram, ElevenLabs, FastRTC</span>
+                    <span>SIP, FastRTC, RTP, Local</span>
                 </div>
                 <div class="channel-card">
                     <div class="channel-icon voice">
@@ -626,6 +703,7 @@ result = <span class="kw">await</span> kit.process_inbound(message)
                 <button class="tab" data-tab="realtime">Realtime</button>
                 <button class="tab" data-tab="voice">Voice</button>
                 <button class="tab" data-tab="realtime-voice">Realtime Voice</button>
+                <button class="tab" data-tab="orchestration">Orchestration</button>
                 <button class="tab" data-tab="sources">Event Sources</button>
             </div>
             <div class="examples-content">
@@ -693,16 +771,16 @@ sub_id = <span class="kw">await</span> kit.subscribe_room(<span class="st">"room
                     <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, VoiceChannel
 <span class="kw">from</span> roomkit.voice.stt.deepgram <span class="kw">import</span> DeepgramSTTProvider
 <span class="kw">from</span> roomkit.voice.tts.elevenlabs <span class="kw">import</span> ElevenLabsTTSProvider
-<span class="kw">from</span> roomkit.voice.backends.fastrtc <span class="kw">import</span> FastRTCVoiceBackend
+<span class="kw">from</span> roomkit.voice.backends.fastrtc <span class="kw">import</span> FastRTCBackend
 
-<span class="cm"># Configure voice providers</span>
-stt = DeepgramSTTProvider(api_key=<span class="st">"..."</span>)
-tts = ElevenLabsTTSProvider(api_key=<span class="st">"..."</span>, voice_id=<span class="st">"..."</span>)
-backend = FastRTCVoiceBackend(stt=stt, tts=tts)
-
-<span class="cm"># Register the voice channel</span>
+<span class="cm"># Configure voice channel with STT, TTS, and backend</span>
 kit = RoomKit()
-kit.register_channel(VoiceChannel(<span class="st">"voice"</span>, backend=backend))
+kit.register_channel(VoiceChannel(
+    <span class="st">"voice"</span>,
+    stt=DeepgramSTTProvider(api_key=<span class="st">"..."</span>),
+    tts=ElevenLabsTTSProvider(api_key=<span class="st">"..."</span>, voice_id=<span class="st">"..."</span>),
+    backend=FastRTCBackend(),
+))
 
 <span class="cm"># Attach to a room — voice joins the same conversation</span>
 <span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"voice"</span>)
@@ -731,6 +809,35 @@ session = <span class="kw">await</span> channel.start_session(<span class="st">"
 
 <span class="cm"># Transcriptions appear as RoomEvents in the room
 # Text from other channels is injected into the AI session</span></code></pre>
+                </div>
+                <div class="example-panel" id="orchestration">
+                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit
+<span class="kw">from</span> roomkit.channels.ai <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> (
+    Agent, ConversationPipeline, PipelineStage
+)
+
+kit = RoomKit()
+
+<span class="cm"># Define agents with distinct roles</span>
+triage = Agent(
+    <span class="st">"triage"</span>, provider=my_ai,
+    role=<span class="st">"Classify the customer's intent"</span>,
+    greeting=<span class="st">"Hi! How can I help you today?"</span>,
+)
+handler = Agent(
+    <span class="st">"handler"</span>, provider=my_ai,
+    role=<span class="st">"Resolve the customer's issue"</span>,
+)
+
+<span class="cm"># Wire into a pipeline</span>
+pipeline = ConversationPipeline(stages=[
+    PipelineStage(phase=<span class="st">"triage"</span>, agent_id=<span class="st">"triage"</span>, next=<span class="st">"handling"</span>),
+    PipelineStage(phase=<span class="st">"handling"</span>, agent_id=<span class="st">"handler"</span>, next=<span class="kw">None</span>),
+])
+
+<span class="cm"># Install — router and handler are wired automatically</span>
+router, on_handoff = pipeline.install(kit, [triage, handler])</code></pre>
                 </div>
                 <div class="example-panel" id="sources">
                     <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, BaseSourceProvider, SourceStatus

@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoomKit UI - Desktop Voice Assistant for Gemini & OpenAI</title>
-    <meta name="description" content="Open-source desktop voice assistant built with PySide6 and RoomKit. Real-time voice conversations with Google Gemini and OpenAI, featuring animated VU meter, chat transcript, and echo cancellation.">
-    <meta name="keywords" content="voice assistant, desktop app, gemini, openai, realtime voice, pyside6, python, roomkit, echo cancellation, VU meter">
+    <title>RoomKit UI - Desktop Voice Assistant</title>
+    <meta name="description" content="Open-source desktop voice assistant built with PySide6 and RoomKit. Real-time voice conversations with Google Gemini, OpenAI, Anthropic Claude, or local models. Featuring animated VU meter, chat transcript, echo cancellation, and MCP Apps.">
+    <meta name="keywords" content="voice assistant, desktop app, gemini, openai, anthropic, claude, local llm, realtime voice, pyside6, python, roomkit, echo cancellation, VU meter, MCP">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.roomkit.live/roomkit-ui/">
 
     <!-- Open Graph -->
     <meta property="og:title" content="RoomKit UI - Desktop Voice Assistant">
-    <meta property="og:description" content="Open-source desktop voice assistant with Google Gemini and OpenAI realtime voice. Dark theme, animated VU meter, chat transcript.">
+    <meta property="og:description" content="Open-source desktop voice assistant with Google Gemini, OpenAI, Anthropic Claude, or local models. Dark theme, animated VU meter, chat transcript.">
     <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
     <meta property="og:url" content="https://www.roomkit.live/roomkit-ui/">
     <meta property="og:type" content="website">
@@ -21,7 +21,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="RoomKit UI - Desktop Voice Assistant">
-    <meta name="twitter:description" content="Open-source desktop voice assistant with Gemini and OpenAI realtime voice.">
+    <meta name="twitter:description" content="Open-source desktop voice assistant with Gemini, OpenAI, Anthropic Claude, or local models.">
     <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
 
     <!-- Favicon -->
@@ -46,7 +46,7 @@
             "price": "0",
             "priceCurrency": "USD"
         },
-        "description": "Open-source desktop voice assistant built with PySide6 and RoomKit. Supports Google Gemini and OpenAI realtime voice.",
+        "description": "Open-source desktop voice assistant built with PySide6 and RoomKit. Supports Google Gemini, OpenAI, Anthropic Claude, and local LLMs.",
         "url": "https://www.roomkit.live/roomkit-ui/",
         "author": {
             "@type": "Person",
@@ -120,7 +120,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: var(--space-xl);
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
         }
         .provider-card {
@@ -292,14 +292,14 @@
             <div class="hero-badge" style="justify-content: center;">
                 <span class="badge">Open Source</span>
                 <span class="badge">PySide6</span>
-                <span class="badge">Gemini & OpenAI</span>
+                <span class="badge">4 AI Providers</span>
             </div>
             <h1 class="ui-hero-title">
                 Voice Assistant<br><span class="gradient-text">On Your Desktop</span>
             </h1>
             <p class="ui-hero-description">
                 A native desktop app for real-time voice conversations with AI.
-                Switch between Google Gemini and OpenAI with one click.
+                Google Gemini, OpenAI, Anthropic Claude, or local models — switch with one click.
                 Built on RoomKit.
             </p>
             <div class="ui-hero-actions">
@@ -310,8 +310,8 @@
                 </a>
             </div>
             <div class="ui-hero-install">
-                <code>uv run python -m room_ui</code>
-                <button class="copy-btn" data-copy="uv run python -m room_ui" aria-label="Copy command" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);">
+                <code>uv run python -m roomkit_ui</code>
+                <button class="copy-btn" data-copy="uv run python -m roomkit_ui" aria-label="Copy command" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                 </button>
             </div>
@@ -410,6 +410,48 @@
                     <h3>Markdown Chat</h3>
                     <p>AI responses render with full markdown — code blocks, tables, links, and inline formatting.</p>
                 </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+                    </div>
+                    <h3>Two Conversation Modes</h3>
+                    <p>Speech-to-Speech (realtime) or Voice Channel (STT → LLM → TTS). Choose per provider.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                    </div>
+                    <h3>Local TTS</h3>
+                    <p>Piper, Qwen3-TTS (voice clone), NeuTTS (voice clone). Fully offline text-to-speech.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    </div>
+                    <h3>Local STT Models</h3>
+                    <p>Whisper, Parakeet, Zipformer via sherpa-onnx. Download models from settings.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <h3>MCP Apps</h3>
+                    <p>Render HTML UIs from MCP servers inline in the chat. Interactive tool results, not just text.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h3>Skills Marketplace</h3>
+                    <p>Browse and install skills from CLabHub. Extend your assistant without writing code.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>
+                    </div>
+                    <h3>GPU Acceleration</h3>
+                    <p>CUDA (NVIDIA) or CoreML (Apple) for local models. Hardware-accelerated inference.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -418,7 +460,7 @@
     <section class="providers-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Dual AI Provider</h2>
+                <h2 class="section-title">Choose Your Provider</h2>
                 <p class="section-description">Switch between providers instantly. Your API keys are saved independently.</p>
             </div>
             <div class="providers-grid">
@@ -449,6 +491,29 @@
                         <span>onyx</span>
                         <span>nova</span>
                         <span>shimmer</span>
+                    </div>
+                </div>
+                <div class="provider-card">
+                    <div class="provider-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.5"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"/></svg>
+                    </div>
+                    <h3>Anthropic Claude</h3>
+                    <p>Claude with STT/TTS voice channel mode. Powerful reasoning with natural voice.</p>
+                    <div class="provider-voices">
+                        <span>Voice Channel</span>
+                        <span>STT + LLM + TTS</span>
+                    </div>
+                </div>
+                <div class="provider-card">
+                    <div class="provider-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2m2 0h2m2 0h2"/><path d="M7 11h10"/></svg>
+                    </div>
+                    <h3>Local LLMs</h3>
+                    <p>vLLM, Ollama. No API key needed, fully offline. Run models on your own hardware.</p>
+                    <div class="provider-voices">
+                        <span>vLLM</span>
+                        <span>Ollama</span>
+                        <span>Offline</span>
                     </div>
                 </div>
             </div>
@@ -497,14 +562,14 @@
                     <div class="install-step-num">2</div>
                     <div class="install-step-content">
                         <h3>Run the app</h3>
-                        <code>uv run python -m room_ui</code>
+                        <code>uv run python -m roomkit_ui</code>
                     </div>
                 </div>
                 <div class="install-step">
                     <div class="install-step-num">3</div>
                     <div class="install-step-content">
                         <h3>Enter your API key</h3>
-                        <p>Open Settings, choose your provider (Gemini or OpenAI), paste your API key, and start talking.</p>
+                        <p>Open Settings, choose your provider (Gemini, OpenAI, Claude, or local), paste your API key, and start talking.</p>
                     </div>
                 </div>
             </div>
