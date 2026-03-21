@@ -297,6 +297,52 @@ print(state.handoff_count)    <span class="cm"># total handoffs so far</span>
 
             <p>This is a deliberate design choice. In a multi-agent system, silence is preferable to chaos. A user waiting a few seconds for a supervisor to pick up is a better experience than three agents responding simultaneously with conflicting answers.</p>
 
+            <h2>StatusBus: Shared Awareness Between Agents</h2>
+
+            <p>Routing and handoffs solve <em>who handles what</em>. But in a multi-agent system, agents also need to know <em>what the others are doing</em>. A supervisor delegating research to two workers needs to know when each finishes. A triage agent handing off to a specialist wants confirmation that the handoff landed. A background agent running a long task should broadcast its progress.</p>
+
+            <p>RoomKit's <code>StatusBus</code> is a shared event log for this kind of coordination. Every agent can post status updates, and every agent (or hook, or external system) can subscribe to be notified in real time.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration.status_bus <span class="kw">import</span> StatusBus, StatusLevel
+
+<span class="cm"># The bus is available on every RoomKit instance</span>
+bus = kit.status_bus
+
+<span class="cm"># An agent posts a status update after completing a tool call</span>
+bus.post(
+    agent_id=<span class="st">"agent-researcher"</span>,
+    action=<span class="st">"search_google"</span>,
+    status=StatusLevel.OK,
+    detail=<span class="st">"Found 7 results for 'roomkit multi-agent'"</span>,
+)
+
+<span class="cm"># Another agent posts a failure</span>
+bus.post(
+    agent_id=<span class="st">"agent-coder"</span>,
+    action=<span class="st">"run_tests"</span>,
+    status=StatusLevel.FAILED,
+    detail=<span class="st">"3 tests failed in test_billing.py"</span>,
+)
+
+<span class="cm"># Subscribe to status updates in real time</span>
+<span class="kw">async def</span> <span class="fn">on_status</span>(entry):
+    print(<span class="st">f"[</span>{entry.agent_id}<span class="st">] </span>{entry.action}<span class="st"> → </span>{entry.status}<span class="st">"</span>)
+
+<span class="kw">await</span> bus.subscribe(on_status)
+
+<span class="cm"># Query recent activity</span>
+recent = <span class="kw">await</span> bus.recent(10, agent_id=<span class="st">"agent-researcher"</span>)
+
+<span class="cm"># Get a text summary suitable for injecting into an agent's context</span>
+summary = <span class="kw">await</span> bus.recent_text(5)
+<span class="cm"># "[14:32:07] agent-researcher: search_google → ok | Found 7 results..."</span></code></pre>
+
+            <p>The <code>post()</code> method is synchronous &mdash; safe to call from tool handlers, hooks, or any context. Subscriber notification is scheduled asynchronously. Each <code>StatusEntry</code> carries a timestamp, agent ID, action name, status level (<code>OK</code>, <code>FAILED</code>, <code>PENDING</code>, <code>INFO</code>, <code>COMPLETED</code>), and optional detail and metadata.</p>
+
+            <p>The bus uses a pluggable backend. The default <code>InMemoryStatusBackend</code> works for single-process setups and optionally persists to a JSONL file. For distributed deployments, you can implement a Redis or NATS backend by subclassing <code>StatusBackend</code>.</p>
+
+            <p>This matters for orchestration because it gives agents <strong>shared awareness</strong> without coupling them. The supervisor doesn't poll each worker &mdash; it subscribes to the bus and reacts when a worker posts <code>COMPLETED</code> or <code>FAILED</code>. A dashboard hook can subscribe and stream status updates to a UI. The <code>recent_text()</code> method produces a formatted summary you can inject into an agent's context window, so it knows what happened while it was idle.</p>
+
             <h2>Choosing a Strategy</h2>
 
             <p>The four strategies cover the most common multi-agent patterns:</p>

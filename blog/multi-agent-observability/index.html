@@ -171,16 +171,16 @@ kit = RoomKit(
 
             <p>These are not arbitrary strings. They form a hierarchy. A <code>VOICE_SESSION</code> span contains <code>STT_TRANSCRIBE</code>, <code>INBOUND_PIPELINE</code>, <code>LLM_GENERATE</code>, <code>BROADCAST</code>, and <code>TTS_SYNTHESIZE</code> as children. A <code>BROADCAST</code> contains one <code>DELIVERY</code> per target channel. An <code>LLM_GENERATE</code> may contain one or more <code>LLM_TOOL_CALL</code> spans. The hierarchy mirrors the actual execution flow, so when you open a trace in Jaeger, you see the architecture of the request, not a flat list of events.</p>
 
-            <div class="ascii-diagram">VOICE_SESSION (4312ms)
-  |-- STT_TRANSCRIBE (620ms, ttfb=180ms)
-  |-- INBOUND_PIPELINE (1840ms)
-  |     |-- HOOK_SYNC: validate_content (3ms)
-  |     |-- LLM_GENERATE (1420ms, tokens_in=340, tokens_out=89)
-  |     |     |-- LLM_TOOL_CALL: lookup_order (120ms)
-  |     |     |-- LLM_TOOL_CALL: check_inventory (95ms)
-  |-- BROADCAST (357ms)
-        |-- DELIVERY: voice-out (45ms)
-        |-- TTS_SYNTHESIZE (310ms, ttfb=95ms)</div>
+            <pre><code class="code-content">VOICE_SESSION (4312ms)
+├── STT_TRANSCRIBE (620ms, ttfb=180ms)
+├── INBOUND_PIPELINE (1840ms)
+│   ├── HOOK_SYNC: validate_content (3ms)
+│   └── LLM_GENERATE (1420ms, tokens_in=340, tokens_out=89)
+│       ├── LLM_TOOL_CALL: lookup_order (120ms)
+│       └── LLM_TOOL_CALL: check_inventory (95ms)
+└── BROADCAST (357ms)
+    ├── DELIVERY: voice-out (45ms)
+    └── TTS_SYNTHESIZE (310ms, ttfb=95ms)</code></pre>
 
             <h2>Attributes That Answer Real Questions</h2>
 
