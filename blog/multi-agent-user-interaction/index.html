@@ -132,29 +132,27 @@
 
             <h2>TransportChannel: One Abstraction, Ten Channels</h2>
 
-            <p>RoomKit's answer is the <code>TransportChannel</code> abstraction. Every channel type -- <code>SMSChannel</code>, <code>VoiceChannel</code>, <code>WebSocketChannel</code>, <code>WhatsAppChannel</code>, <code>TelegramChannel</code>, <code>EmailChannel</code>, <code>HTTPChannel</code>, <code>RealtimeVoiceChannel</code>, <code>MessengerChannel</code>, <code>TeamsChannel</code> -- implements the same interface. When a message arrives from any channel, it's normalized into a single <code>InboundMessage</code> model before anything else happens.</p>
+            <p>RoomKit's answer is the <code>Channel</code> abstraction. Text-based channels -- <code>SMSChannel</code>, <code>WhatsAppChannel</code>, <code>TelegramChannel</code>, <code>EmailChannel</code>, <code>HTTPChannel</code>, <code>MessengerChannel</code>, <code>TeamsChannel</code> -- are factory functions that return a <code>TransportChannel</code> with the right configuration. Specialized channels -- <code>VoiceChannel</code>, <code>RealtimeVoiceChannel</code>, <code>WebSocketChannel</code> -- are full classes with their own pipeline logic. But they all share the same <code>Channel</code> base interface. When a message arrives from any of them, it's normalized into a single <code>InboundMessage</code> model before anything else happens.</p>
 
             <p>The channel handles provider-specific parsing and signature verification internally. By the time the message reaches your application code, you're working with a clean, uniform object:</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> (
-    RoomKit, SMSChannel, WhatsAppChannel, RealtimeVoiceChannel,
-    InboundMessage, TextContent,
-)
-<span class="kw">from</span> roomkit.providers.twilio <span class="kw">import</span> TwilioSMSProvider
-<span class="kw">from</span> roomkit.providers.whatsapp <span class="kw">import</span> WhatsAppCloudProvider
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, SMSChannel, WhatsAppChannel, RealtimeVoiceChannel
+<span class="kw">from</span> roomkit.providers.twilio <span class="kw">import</span> TwilioSMSProvider, TwilioConfig
+<span class="kw">from</span> roomkit.providers.whatsapp.personal <span class="kw">import</span> WhatsAppPersonalProvider
 <span class="kw">from</span> roomkit.providers.gemini.realtime <span class="kw">import</span> GeminiLiveProvider
 
 kit = RoomKit()
 
 <span class="cm"># Three channels, three providers, one room</span>
 sms = SMSChannel(<span class="st">"support-sms"</span>, provider=TwilioSMSProvider(
-    account_sid=<span class="st">"AC..."</span>,
-    auth_token=<span class="st">"tok..."</span>,
-    from_number=<span class="st">"+15551234567"</span>,
+    config=TwilioConfig(
+        account_sid=<span class="st">"AC..."</span>,
+        auth_token=<span class="st">"tok..."</span>,
+        from_number=<span class="st">"+15551234567"</span>,
+    )
 ))
-whatsapp = WhatsAppChannel(<span class="st">"support-whatsapp"</span>, provider=WhatsAppCloudProvider(
-    phone_number_id=<span class="st">"123456"</span>,
-    access_token=<span class="st">"EAA..."</span>,
+whatsapp = WhatsAppChannel(<span class="st">"support-whatsapp"</span>, provider=WhatsAppPersonalProvider(
+    source=whatsapp_source,
 ))
 voice = RealtimeVoiceChannel(<span class="st">"support-voice"</span>, provider=GeminiLiveProvider(
     api_key=<span class="st">"..."</span>,
@@ -173,30 +171,41 @@ kit.register_channel(voice)
 
             <p>A customer texting on SMS and another messaging on WhatsApp are now in the same conversation. The room is the convergence point. The channel is just the transport.</p>
 
-            <h2>InboundRouter: Resolving Where a Message Belongs</h2>
+            <h2>InboundRoomRouter: Resolving Where a Message Belongs</h2>
 
             <p>When a webhook fires or a WebSocket frame arrives, the system needs to answer one question: which room does this message belong to?</p>
 
-            <p>That's the job of the <code>InboundRouter</code>. It takes a raw inbound message and resolves it to a room, creating one if needed. The routing logic is yours to define -- match on phone number, session ID, customer account, or any combination:</p>
+            <p>That's the job of the <code>InboundRoomRouter</code>. It receives the channel ID, channel type, and participant ID, and returns a room ID -- or <code>None</code> to let the framework auto-create one. The routing logic is yours to define -- match on phone number, session ID, customer account, or any combination:</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> InboundRouter, InboundMessage
+            <pre><code class="code-content"><span class="kw">from</span> typing <span class="kw">import</span> Any
+<span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit
+<span class="kw">from</span> roomkit.core.inbound_router <span class="kw">import</span> InboundRoomRouter
+<span class="kw">from</span> roomkit.models.enums <span class="kw">import</span> ChannelType
 
-<span class="kw">class</span> <span class="fn">SupportRouter</span>(InboundRouter):
-    <span class="kw">async def</span> <span class="fn">resolve</span>(self, message: InboundMessage) -> str:
+<span class="kw">class</span> <span class="fn">SupportRouter</span>(InboundRoomRouter):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, db):
+        self.db = db
+
+    <span class="kw">async def</span> <span class="fn">route</span>(
+        self,
+        channel_id: str,
+        channel_type: ChannelType,
+        participant_id: str | None = None,
+        channel_data: dict[str, Any] | None = None,
+    ) -> str | None:
         <span class="cm"># Look up existing open case by sender identity</span>
-        case = <span class="kw">await</span> self.db.find_open_case(message.sender_id)
-        <span class="kw">if</span> case:
-            <span class="kw">return</span> case.room_id
+        <span class="kw">if</span> participant_id:
+            case = <span class="kw">await</span> self.db.find_open_case(participant_id)
+            <span class="kw">if</span> case:
+                <span class="kw">return</span> case.room_id
 
-        <span class="cm"># No open case — create a new room</span>
-        room_id = <span class="st">f"case-</span>{uuid4().hex[:8]}<span class="st">"</span>
-        <span class="kw">await</span> self.kit.create_room(room_id=room_id)
-        <span class="kw">await</span> self.kit.attach_channel(room_id, message.channel_id)
-        <span class="kw">return</span> room_id
+        <span class="cm"># Return None to let RoomKit auto-create a new room</span>
+        <span class="kw">return</span> None
 
-kit.set_inbound_router(SupportRouter(db=case_database))</code></pre>
+<span class="cm"># Pass the router when creating the RoomKit instance</span>
+kit = RoomKit(inbound_router=SupportRouter(db=case_database))</code></pre>
 
-            <p>The router doesn't care whether the message came from SMS, WhatsApp, or a WebSocket. It receives the same <code>InboundMessage</code> regardless. This is the payoff of input normalization: routing logic is written once and works for every channel.</p>
+            <p>The router doesn't care whether the message came from SMS, WhatsApp, or a WebSocket. It receives the same channel-agnostic parameters regardless. This is the payoff of input normalization: routing logic is written once and works for every channel.</p>
 
             <h2>Request Validation: Trust Nothing</h2>
 
@@ -208,21 +217,23 @@ kit.set_inbound_router(SupportRouter(db=case_database))</code></pre>
 
             <p><strong>Content filtering</strong> via <code>BEFORE_BROADCAST</code> hooks gives you a final gate before a message enters the conversation. This is where you apply business rules -- profanity filters, rate limiting, compliance checks, PII redaction:</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HookTrigger, HookResult
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.models.enums <span class="kw">import</span> HookTrigger
+<span class="kw">from</span> roomkit.models.hook <span class="kw">import</span> HookResult
+<span class="kw">from</span> roomkit.models.context <span class="kw">import</span> RoomContext
+<span class="kw">from</span> roomkit.models.event <span class="kw">import</span> RoomEvent
 
 <span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_BROADCAST)
-<span class="kw">async def</span> <span class="fn">validate_content</span>(event, ctx):
+<span class="kw">async def</span> <span class="fn">validate_content</span>(event: RoomEvent, context: RoomContext) -> HookResult:
     <span class="cm"># Block messages with PII</span>
     <span class="kw">if</span> contains_pii(event.content.body):
         <span class="kw">return</span> HookResult.block(<span class="st">"Message contains personal information"</span>)
 
-    <span class="cm"># Rate limit per sender: max 10 messages per minute</span>
-    count = <span class="kw">await</span> ctx.store.count_recent(
-        room_id=ctx.room.id,
-        sender_id=event.source.sender_id,
-        window_seconds=60,
-    )
-    <span class="kw">if</span> count > 10:
+    <span class="cm"># Rate limit: check recent events from this sender</span>
+    sender_recent = [
+        e <span class="kw">for</span> e <span class="kw">in</span> context.recent_events
+        <span class="kw">if</span> e.source <span class="kw">and</span> e.source.channel_id == event.source.channel_id
+    ]
+    <span class="kw">if</span> len(sender_recent) > 10:
         <span class="kw">return</span> HookResult.block(<span class="st">"Rate limit exceeded"</span>)
 
     <span class="kw">return</span> HookResult.allow()</code></pre>

@@ -151,16 +151,14 @@
             <p>Setting it up with connection pooling takes a handful of lines:</p>
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit
-<span class="kw">from</span> roomkit.stores <span class="kw">import</span> PostgresStore
+<span class="kw">from</span> roomkit.store.postgres <span class="kw">import</span> PostgresStore
 
 <span class="kw">async def</span> <span class="fn">create_app</span>():
-    <span class="cm"># PostgresStore with asyncpg connection pooling</span>
     store = PostgresStore(
         dsn=<span class="st">"postgresql://user:pass@localhost:5432/roomkit"</span>,
-        min_size=<span class="nu">5</span>,   <span class="cm"># minimum connections in pool</span>
-        max_size=<span class="nu">20</span>,  <span class="cm"># maximum connections in pool</span>
     )
-    <span class="kw">await</span> store.initialize()  <span class="cm"># creates tables if they don't exist</span>
+    <span class="cm"># init() creates tables and opens the connection pool</span>
+    <span class="kw">await</span> store.init(min_size=<span class="nu">5</span>, max_size=<span class="nu">20</span>)
 
     kit = RoomKit(store=store)
 
@@ -168,7 +166,7 @@
     <span class="kw">await</span> kit.create_room(room_id=<span class="st">"support-42"</span>)
     <span class="kw">return</span> kit</code></pre>
 
-            <p>The <code>min_size</code> and <code>max_size</code> parameters control asyncpg's connection pool. Under load, the pool scales up to <code>max_size</code> connections and reclaims them when traffic drops. This matters in multi-agent systems where multiple agents in the same room might issue concurrent storage operations &mdash; you do not want them blocking each other on a single connection.</p>
+            <p>The <code>min_size</code> and <code>max_size</code> parameters passed to <code>init()</code> control asyncpg's connection pool. Under load, the pool scales up to <code>max_size</code> connections and reclaims them when traffic drops. This matters in multi-agent systems where multiple agents in the same room might issue concurrent storage operations &mdash; you do not want them blocking each other on a single connection.</p>
 
             <h2>Event Storage: The Conversation Timeline</h2>
 
@@ -188,10 +186,10 @@ events = <span class="kw">await</span> kit.store.list_events(<span class="st">"s
 <span class="kw">for</span> event <span class="kw">in</span> events:
     print(<span class="st">f"[{event.index}] {event.source.channel_id}: {event.content.body}"</span>)
 
-<span class="cm"># Query with filters — only events from a specific channel</span>
+<span class="cm"># Query with visibility filter</span>
 ai_events = <span class="kw">await</span> kit.store.list_events(
     <span class="st">"support-42"</span>,
-    channel_id=<span class="st">"assistant"</span>,
+    visibility_filter=<span class="st">"intelligence"</span>,
 )
 
 <span class="cm"># Paginate through history — useful for long conversations</span>
@@ -224,26 +222,26 @@ recent = <span class="kw">await</span> kit.store.list_events(
 
             <pre><code class="code-content"><span class="cm"># Identity resolution links addresses across channels</span>
 identity = <span class="kw">await</span> kit.store.resolve_identity(
-    address=<span class="st">"+1-555-0123"</span>,
     channel_type=<span class="st">"sms"</span>,
+    address=<span class="st">"+1-555-0123"</span>,
 )
 
 <span class="cm"># Link additional addresses to the same identity</span>
 <span class="kw">await</span> kit.store.link_address(
     identity_id=identity.id,
-    address=<span class="st">"+1-555-0123"</span>,
     channel_type=<span class="st">"whatsapp"</span>,
+    address=<span class="st">"+1-555-0123"</span>,
 )
 <span class="kw">await</span> kit.store.link_address(
     identity_id=identity.id,
-    address=<span class="st">"jane.doe@example.com"</span>,
     channel_type=<span class="st">"email"</span>,
+    address=<span class="st">"jane.doe@example.com"</span>,
 )
 
 <span class="cm"># Now any channel resolves to the same person</span>
 same_person = <span class="kw">await</span> kit.store.resolve_identity(
-    address=<span class="st">"jane.doe@example.com"</span>,
     channel_type=<span class="st">"email"</span>,
+    address=<span class="st">"jane.doe@example.com"</span>,
 )
 <span class="kw">assert</span> same_person.id == identity.id  <span class="cm"># True — same identity</span></code></pre>
 

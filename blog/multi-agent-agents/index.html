@@ -109,64 +109,64 @@
             <p>Here's what a multi-agent room looks like in practice &mdash; a customer support system with a supervisor, a billing specialist, and a technical specialist:</p>
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, AIChannel
-<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicProvider
-<span class="kw">from</span> roomkit.providers.openai <span class="kw">import</span> OpenAIProvider
-<span class="kw">from</span> roomkit.providers.gemini <span class="kw">import</span> GeminiProvider
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider, AnthropicConfig
+<span class="kw">from</span> roomkit.providers.openai <span class="kw">import</span> OpenAIAIProvider, OpenAIConfig
+<span class="kw">from</span> roomkit.providers.gemini <span class="kw">import</span> GeminiAIProvider, GeminiConfig
+<span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationRouter
 
 kit = RoomKit()
 
 <span class="cm"># Supervisor: Claude for complex reasoning and oversight</span>
-supervisor = AIChannel(<span class="st">"supervisor"</span>, provider=AnthropicProvider(
-    api_key=ANTHROPIC_KEY,
-    model=<span class="st">"claude-sonnet-4-20250514"</span>,
-), config={
-    <span class="st">"system_prompt"</span>: (
+supervisor = AIChannel(<span class="st">"supervisor"</span>,
+    provider=AnthropicAIProvider(config=AnthropicConfig(
+        model=<span class="st">"claude-sonnet-4-20250514"</span>,
+    )),
+    system_prompt=(
         <span class="st">"You are a support supervisor. You observe all exchanges "</span>
         <span class="st">"between customers and specialist agents. Intervene only when "</span>
         <span class="st">"an agent gives incorrect information, when the customer is "</span>
         <span class="st">"frustrated, or when escalation is needed. Otherwise, stay silent."</span>
     ),
-    <span class="st">"temperature"</span>: 0.3,
-    <span class="st">"max_tokens"</span>: 1024,
-})
+    temperature=<span class="num">0.3</span>,
+    max_tokens=<span class="num">1024</span>,
+)
 
 <span class="cm"># Billing specialist: GPT-4o for structured data extraction</span>
-billing = AIChannel(<span class="st">"billing-agent"</span>, provider=OpenAIProvider(
-    api_key=OPENAI_KEY,
-    model=<span class="st">"gpt-4o"</span>,
-), config={
-    <span class="st">"system_prompt"</span>: (
+billing = AIChannel(<span class="st">"billing-agent"</span>,
+    provider=OpenAIAIProvider(config=OpenAIConfig(model=<span class="st">"gpt-4o"</span>)),
+    system_prompt=(
         <span class="st">"You are a billing specialist. Handle invoice inquiries, "</span>
         <span class="st">"payment issues, refund requests, and subscription changes. "</span>
         <span class="st">"Always verify the customer's account before making changes."</span>
     ),
-    <span class="st">"temperature"</span>: 0.1,
-    <span class="st">"max_tokens"</span>: 2048,
-})
+    temperature=<span class="num">0.1</span>,
+    max_tokens=<span class="num">2048</span>,
+)
 
 <span class="cm"># Technical specialist: Gemini for multimodal support (screenshots)</span>
-tech = AIChannel(<span class="st">"tech-agent"</span>, provider=GeminiProvider(
-    api_key=GEMINI_KEY,
-    model=<span class="st">"gemini-2.5-pro"</span>,
-), config={
-    <span class="st">"system_prompt"</span>: (
+tech = AIChannel(<span class="st">"tech-agent"</span>,
+    provider=GeminiAIProvider(config=GeminiConfig(model=<span class="st">"gemini-2.5-pro"</span>)),
+    system_prompt=(
         <span class="st">"You are a technical support specialist. Diagnose bugs, "</span>
         <span class="st">"walk users through configuration steps, and analyze "</span>
         <span class="st">"screenshots or error logs they share."</span>
     ),
-    <span class="st">"temperature"</span>: 0.2,
-    <span class="st">"max_tokens"</span>: 4096,
-    <span class="st">"thinking_budget"</span>: 2048,
-})
+    temperature=<span class="num">0.2</span>,
+    max_tokens=<span class="num">4096</span>,
+    thinking_budget=<span class="num">2048</span>,
+)
 
 kit.register_channel(supervisor)
 kit.register_channel(billing)
 kit.register_channel(tech)
 
-<span class="cm"># Create the room and attach all agents</span>
+<span class="cm"># Configure orchestration with supervisor</span>
+router = ConversationRouter(supervisor_id=<span class="st">"supervisor"</span>)
+
+<span class="cm"># Create the room with orchestration</span>
 <span class="kw">await</span> kit.create_room(
     room_id=<span class="st">"support-room-001"</span>,
-    supervisor_id=<span class="st">"supervisor"</span>,  <span class="cm"># always receives events</span>
+    orchestration=router,
 )
 <span class="kw">await</span> kit.attach_channel(<span class="st">"support-room-001"</span>, <span class="st">"supervisor"</span>)
 <span class="kw">await</span> kit.attach_channel(<span class="st">"support-room-001"</span>, <span class="st">"billing-agent"</span>)
@@ -224,28 +224,29 @@ kit.register_channel(tech)
 
     <span class="kw">return</span> json.dumps({<span class="st">"error"</span>: <span class="st">f"Unknown tool: </span>{tool_name}<span class="st">"</span>})
 
+<span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AITool
+
 <span class="cm"># Attach the handler to the billing agent</span>
-billing = AIChannel(<span class="st">"billing-agent"</span>, provider=OpenAIProvider(
-    api_key=OPENAI_KEY,
-    model=<span class="st">"gpt-4o"</span>,
-), config={
-    <span class="st">"system_prompt"</span>: <span class="st">"You are a billing specialist..."</span>,
-    <span class="st">"tools"</span>: [
-        {
-            <span class="st">"name"</span>: <span class="st">"lookup_invoice"</span>,
-            <span class="st">"description"</span>: <span class="st">"Look up an invoice by ID"</span>,
-            <span class="st">"parameters"</span>: {
+billing = AIChannel(<span class="st">"billing-agent"</span>,
+    provider=OpenAIAIProvider(config=OpenAIConfig(model=<span class="st">"gpt-4o"</span>)),
+    system_prompt=<span class="st">"You are a billing specialist..."</span>,
+    tool_handler=billing_tools,
+    tools=[
+        AITool(
+            name=<span class="st">"lookup_invoice"</span>,
+            description=<span class="st">"Look up an invoice by ID"</span>,
+            parameters={
                 <span class="st">"type"</span>: <span class="st">"object"</span>,
                 <span class="st">"properties"</span>: {
                     <span class="st">"invoice_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}
                 },
                 <span class="st">"required"</span>: [<span class="st">"invoice_id"</span>],
             },
-        },
-        {
-            <span class="st">"name"</span>: <span class="st">"process_refund"</span>,
-            <span class="st">"description"</span>: <span class="st">"Process a refund for an invoice"</span>,
-            <span class="st">"parameters"</span>: {
+        ),
+        AITool(
+            name=<span class="st">"process_refund"</span>,
+            description=<span class="st">"Process a refund for an invoice"</span>,
+            parameters={
                 <span class="st">"type"</span>: <span class="st">"object"</span>,
                 <span class="st">"properties"</span>: {
                     <span class="st">"invoice_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
@@ -254,10 +255,9 @@ billing = AIChannel(<span class="st">"billing-agent"</span>, provider=OpenAIProv
                 },
                 <span class="st">"required"</span>: [<span class="st">"invoice_id"</span>, <span class="st">"reason"</span>],
             },
-        },
+        ),
     ],
-    <span class="st">"tool_handler"</span>: billing_tools,
-})</code></pre>
+)</code></pre>
 
             <p>The billing agent gets <code>lookup_invoice</code> and <code>process_refund</code>. The tech agent would get <code>query_logs</code> and <code>run_diagnostic</code>. The supervisor might get <code>escalate_to_human</code> and <code>flag_for_review</code>. Each agent's tool set defines its capability boundary &mdash; and that boundary is enforced by the framework, not by prompt instructions the LLM might ignore.</p>
 
@@ -267,61 +267,58 @@ billing = AIChannel(<span class="st">"billing-agent"</span>, provider=OpenAIProv
 
             <p>RoomKit solves this with the <code>DelegateHandler</code>. Delegation creates a <strong>child room</strong> linked to the parent, shares the relevant channels (same provider instance, different binding), and executes the task independently. The parent room continues handling the conversation while the child works in the background.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> DelegateHandler, DelegatedTask, Agent, HookTrigger
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.models.enums <span class="kw">import</span> HookTrigger
 
-<span class="cm"># Define a report-generation agent</span>
-report_agent = Agent(
-    agent_id=<span class="st">"report-generator"</span>,
-    provider=AnthropicProvider(
-        api_key=ANTHROPIC_KEY,
+<span class="cm"># Register a report-generation agent channel</span>
+report_agent = AIChannel(<span class="st">"report-generator"</span>,
+    provider=AnthropicAIProvider(config=AnthropicConfig(
         model=<span class="st">"claude-sonnet-4-20250514"</span>,
-    ),
+    )),
     system_prompt=(
         <span class="st">"You generate usage reports. Query the database for the "</span>
         <span class="st">"requested time period, format the data, and return a summary."</span>
     ),
     tool_handler=report_tools,
 )
+kit.register_channel(report_agent)
 
 <span class="cm"># Fire-and-forget: delegate and continue the conversation</span>
-task: DelegatedTask = <span class="kw">await</span> kit.delegate(
+task = <span class="kw">await</span> kit.delegate(
     room_id=<span class="st">"support-room-001"</span>,
-    agent=report_agent,
+    agent_id=<span class="st">"report-generator"</span>,
     task=<span class="st">"Generate a usage report for account ACC-7742 covering the last 90 days"</span>,
 )
 <span class="cm"># Parent room is NOT blocked — conversation continues immediately</span>
 
 <span class="cm"># Or: blocking delegation with a timeout</span>
-task: DelegatedTask = <span class="kw">await</span> kit.delegate(
+task = <span class="kw">await</span> kit.delegate(
     room_id=<span class="st">"support-room-001"</span>,
-    agent=report_agent,
+    agent_id=<span class="st">"report-generator"</span>,
     task=<span class="st">"Look up the current balance for account ACC-7742"</span>,
 )
 result = <span class="kw">await</span> task.wait(timeout=30.0)  <span class="cm"># blocks until complete or timeout</span></code></pre>
 
             <p>The child room shares channels from the parent &mdash; same provider instance, different binding. This means the delegated agent has access to the same tools and context as the parent, but operates in its own execution scope. When the task completes, the result flows back through the delegation lifecycle hooks.</p>
 
-            <p>Three hooks give you full visibility into the delegation lifecycle:</p>
+            <p>Two hooks give you visibility into the delegation lifecycle:</p>
 
             <ul>
                 <li><strong><code>ON_TASK_DELEGATED</code></strong> &mdash; fires when a task is dispatched to a child room. Use it for logging, metrics, or notifying the user that background work has started.</li>
-                <li><strong><code>ON_TASK_COMPLETED</code></strong> &mdash; fires when the delegated agent finishes. The result is available on the event, and you can inject it back into the parent conversation.</li>
-                <li><strong><code>ON_TASK_REJECTED</code></strong> &mdash; fires when delegation fails (timeout, agent error, resource limit). Use it to notify the user or trigger a retry with a different agent.</li>
+                <li><strong><code>ON_TASK_COMPLETED</code></strong> &mdash; fires when the delegated agent finishes. The result is available on the event, and you can use it to inform the parent conversation.</li>
             </ul>
 
-            <pre><code class="code-content"><span class="decorator">@kit.hook</span>(HookTrigger.ON_TASK_COMPLETED)
-<span class="kw">async def</span> <span class="fn">handle_report_ready</span>(event, ctx):
-    <span class="cm"># Inject the result back into the parent conversation</span>
-    <span class="kw">await</span> ctx.room.broadcast(
-        <span class="st">f"Your report is ready:\n\n</span>{event.result}<span class="st">"</span>
-    )
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.models.event <span class="kw">import</span> RoomEvent
+<span class="kw">from</span> roomkit.models.context <span class="kw">import</span> RoomContext
 
-<span class="decorator">@kit.hook</span>(HookTrigger.ON_TASK_REJECTED)
-<span class="kw">async def</span> <span class="fn">handle_task_failure</span>(event, ctx):
-    <span class="kw">await</span> ctx.room.broadcast(
-        <span class="st">"I wasn't able to generate that report right now. "</span>
-        <span class="st">"Let me try a different approach."</span>
-    )</code></pre>
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_TASK_COMPLETED)
+<span class="kw">async def</span> <span class="fn">handle_report_ready</span>(event: RoomEvent, context: RoomContext) -> <span class="kw">None</span>:
+    <span class="cm"># Log the completed task for downstream processing</span>
+    print(<span class="st">f"Task completed in room </span>{context.room.id}<span class="st">: </span>{event.content.body}<span class="st">"</span>)
+
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_TASK_DELEGATED)
+<span class="kw">async def</span> <span class="fn">handle_task_started</span>(event: RoomEvent, context: RoomContext) -> <span class="kw">None</span>:
+    print(<span class="st">f"Background task started in room </span>{context.room.id}<span class="st">"</span>)</code></pre>
 
             <p>This model is fundamentally different from "agent calls agent" patterns where one LLM makes an API call to another LLM. In RoomKit, delegation is a first-class operation with lifecycle management, timeout handling, and hook-based observability. The parent room doesn't lose track of what it spawned.</p>
 

@@ -132,7 +132,7 @@ kit = RoomKit(
             <p><strong>OpenTelemetryProvider</strong> is for production. It bridges RoomKit's internal telemetry to the OpenTelemetry SDK, which means your spans flow directly into whatever backend you already use &mdash; Jaeger, Grafana Tempo, Datadog, Honeycomb. No custom exporters, no proprietary format. Standard OTel.</p>
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit
-<span class="kw">from</span> roomkit.telemetry <span class="kw">import</span> OpenTelemetryProvider
+<span class="kw">from</span> roomkit.telemetry.opentelemetry <span class="kw">import</span> OpenTelemetryProvider
 <span class="kw">from</span> opentelemetry.sdk.trace <span class="kw">import</span> TracerProvider
 <span class="kw">from</span> opentelemetry.sdk.trace.export <span class="kw">import</span> BatchSpanProcessor
 <span class="kw">from</span> opentelemetry.exporter.otlp.proto.grpc.trace_exporter <span class="kw">import</span> OTLPSpanExporter
@@ -213,7 +213,7 @@ kit = RoomKit(
 
             <h2>Testing with MockTelemetryProvider</h2>
 
-            <p>Observability is not just for production. RoomKit includes <code>MockTelemetryProvider</code> specifically for testing. It captures every span and metric in memory so you can assert on them in your test suite.</p>
+            <p>Observability is not just for production. RoomKit includes <code>MockTelemetryProvider</code> specifically for testing. It captures every span in memory so you can assert on them in your test suite.</p>
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit.telemetry <span class="kw">import</span> MockTelemetryProvider, SpanKind
 
@@ -226,17 +226,13 @@ kit = RoomKit(
     <span class="cm"># Assert on captured spans</span>
     llm_spans = telemetry.get_spans(kind=SpanKind.LLM_GENERATE)
     <span class="kw">assert</span> len(llm_spans) == <span class="num">1</span>
-    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"input_tokens"</span>] > <span class="num">0</span>
-    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"output_tokens"</span>] > <span class="num">0</span>
+    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"llm.input_tokens"</span>] > <span class="num">0</span>
+    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"llm.output_tokens"</span>] > <span class="num">0</span>
     <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"ttfb_ms"</span>] < <span class="num">5000</span>
 
     <span class="cm"># Assert on the span hierarchy</span>
     session_spans = telemetry.get_spans(kind=SpanKind.VOICE_SESSION)
-    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].parent_id == session_spans[<span class="num">0</span>].span_id
-
-    <span class="cm"># Assert that no events were blocked</span>
-    blocked = telemetry.get_events(status=<span class="st">"BLOCKED"</span>)
-    <span class="kw">assert</span> len(blocked) == <span class="num">0</span></code></pre>
+    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].parent_id == session_spans[<span class="num">0</span>].id</code></pre>
 
             <p>This is the kind of test that catches regressions before they hit production. If a refactor accidentally breaks token tracking or changes the span hierarchy, your tests fail. Observability becomes a contract, not a best-effort annotation.</p>
 

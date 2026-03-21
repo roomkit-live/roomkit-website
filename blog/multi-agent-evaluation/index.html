@@ -112,20 +112,21 @@
 
 <span class="cm"># A supervisor agent evaluates a support agent's response</span>
 observation = Observation(
+    room_id=<span class="st">"support-case-7742"</span>,
     category=<span class="st">"response_quality"</span>,
     confidence=<span class="num">0.87</span>,
-    data={
+    content=<span class="st">"Agent provided correct billing info but missed the refund eligibility window"</span>,
+    metadata={
         <span class="st">"agent_id"</span>: <span class="st">"support-agent"</span>,
-        <span class="st">"issue"</span>: <span class="st">"Agent provided correct billing info but missed the refund eligibility window"</span>,
         <span class="st">"severity"</span>: <span class="st">"medium"</span>,
         <span class="st">"suggestion"</span>: <span class="st">"Check refund_policy tool before confirming timelines"</span>,
     },
 )
 
-<span class="cm"># Store the observation on the room</span>
-<span class="kw">await</span> room.add_observation(observation)</code></pre>
+<span class="cm"># Store the observation via the conversation store</span>
+<span class="kw">await</span> kit.store.add_observation(observation)</code></pre>
 
-            <p>Each observation has three fields that matter. The <code>category</code> is a string you define &mdash; <code>"response_quality"</code>, <code>"hallucination_check"</code>, <code>"tone_assessment"</code>, <code>"policy_compliance"</code>, whatever dimensions matter for your system. The <code>confidence</code> is a float between 0 and 1, expressing how certain the evaluator is about the finding. And the <code>data</code> dict carries arbitrary structured context: which agent was evaluated, what the issue was, and what should change.</p>
+            <p>Each observation has three fields that matter. The <code>category</code> is a string you define &mdash; <code>"response_quality"</code>, <code>"hallucination_check"</code>, <code>"tone_assessment"</code>, <code>"policy_compliance"</code>, whatever dimensions matter for your system. The <code>confidence</code> is a float between 0 and 1, expressing how certain the evaluator is about the finding. And the <code>content</code> string plus <code>metadata</code> dict carry the structured context: which agent was evaluated, what the issue was, and what should change.</p>
 
             <p>Observations are not metrics. They are not logs. They are <strong>judgment records</strong> &mdash; structured opinions about conversation quality that accumulate over time and feed back into the system.</p>
 
@@ -147,15 +148,19 @@ After each agent response, evaluate it on these dimensions:
 
 Use the create_observation tool to record your findings."""</span>
 
-<span class="cm"># The supervisor's tool for creating observations</span>
-<span class="kw">async def</span> <span class="fn">create_observation</span>(category: str, confidence: float, data: dict):
-    observation = Observation(
-        category=category,
-        confidence=confidence,
-        data=data,
-    )
-    <span class="kw">await</span> room.add_observation(observation)
-    <span class="kw">return</span> {<span class="st">"status"</span>: <span class="st">"recorded"</span>}</code></pre>
+<span class="cm"># The supervisor's tool handler for creating observations</span>
+<span class="kw">async def</span> <span class="fn">supervisor_tools</span>(tool_name: str, arguments: dict) -> str:
+    <span class="kw">if</span> tool_name == <span class="st">"create_observation"</span>:
+        observation = Observation(
+            room_id=current_room_id,
+            category=arguments[<span class="st">"category"</span>],
+            confidence=arguments.get(<span class="st">"confidence"</span>, 1.0),
+            content=arguments[<span class="st">"content"</span>],
+            metadata=arguments.get(<span class="st">"metadata"</span>, {}),
+        )
+        <span class="kw">await</span> kit.store.add_observation(observation)
+        <span class="kw">return</span> json.dumps({<span class="st">"status"</span>: <span class="st">"recorded"</span>})
+    <span class="kw">return</span> json.dumps({<span class="st">"error"</span>: <span class="st">f"Unknown tool: </span>{tool_name}<span class="st">"</span>})</code></pre>
 
             <p>The supervisor is just another AI channel in the room, but its purpose is purely evaluative. It does not answer user questions. It watches, scores, and records. Every response the support agent gives, the supervisor creates an observation with a category, a confidence score, and structured data explaining the judgment.</p>
 
@@ -165,56 +170,63 @@ Use the create_observation tool to record your findings."""</span>
 
             <p>Not every evaluation needs an LLM. Some quality signals are structural &mdash; they come from how the conversation flows, not what was said. RoomKit's hook system fires at key moments where quality can be measured directly.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HookTrigger
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.models.enums <span class="kw">import</span> HookTrigger
 <span class="kw">from</span> roomkit.models <span class="kw">import</span> Observation
+<span class="kw">from</span> roomkit.models.event <span class="kw">import</span> RoomEvent
+<span class="kw">from</span> roomkit.models.context <span class="kw">import</span> RoomContext
+<span class="kw">from</span> roomkit.orchestration.state <span class="kw">import</span> get_conversation_state
 
 <span class="decorator">@kit.hook</span>(HookTrigger.ON_PHASE_TRANSITION)
-<span class="kw">async def</span> <span class="fn">track_escalations</span>(event, ctx):
-    <span class="cm"># Flag conversations that escalate too quickly</span>
-    phase_history = ctx.conversation_state.phase_history
-    handling_phases = [p <span class="kw">for</span> p <span class="kw">in</span> phase_history <span class="kw">if</span> p.phase == <span class="st">"HANDLING"</span>]
-    escalation_phases = [p <span class="kw">for</span> p <span class="kw">in</span> phase_history <span class="kw">if</span> p.phase == <span class="st">"ESCALATION"</span>]
+<span class="kw">async def</span> <span class="fn">track_escalations</span>(event: RoomEvent, context: RoomContext) -> <span class="kw">None</span>:
+    <span class="cm"># Extract conversation state from room metadata</span>
+    state = get_conversation_state(context.room)
+    <span class="kw">if not</span> state:
+        <span class="kw">return</span>
 
-    <span class="kw">if</span> len(escalation_phases) > 1:
-        <span class="kw">await</span> ctx.room.add_observation(Observation(
+    <span class="cm"># Flag conversations that escalate too quickly</span>
+    escalations = [p <span class="kw">for</span> p <span class="kw">in</span> state.phase_history <span class="kw">if</span> p.to_phase == <span class="st">"escalation"</span>]
+    handling = [p <span class="kw">for</span> p <span class="kw">in</span> state.phase_history <span class="kw">if</span> p.to_phase == <span class="st">"handling"</span>]
+
+    <span class="kw">if</span> len(escalations) > 1:
+        <span class="kw">await</span> kit.store.add_observation(Observation(
+            room_id=context.room.id,
             category=<span class="st">"escalation_pattern"</span>,
             confidence=<span class="num">0.95</span>,
-            data={
-                <span class="st">"escalation_count"</span>: len(escalation_phases),
-                <span class="st">"handling_attempts"</span>: len(handling_phases),
-                <span class="st">"issue"</span>: <span class="st">"Multiple escalations indicate agent unable to resolve"</span>,
+            content=<span class="st">"Multiple escalations indicate agent unable to resolve"</span>,
+            metadata={
+                <span class="st">"escalation_count"</span>: len(escalations),
+                <span class="st">"handling_attempts"</span>: len(handling),
             },
         ))
 
 <span class="decorator">@kit.hook</span>(HookTrigger.ON_HANDOFF)
-<span class="kw">async def</span> <span class="fn">track_handoff_quality</span>(event, ctx):
-    <span class="cm"># Measure how quickly agents hand off after receiving a conversation</span>
-    handoff_data = event.metadata
-    <span class="kw">await</span> ctx.room.add_observation(Observation(
+<span class="kw">async def</span> <span class="fn">track_handoff_quality</span>(event: RoomEvent, context: RoomContext) -> <span class="kw">None</span>:
+    <span class="cm"># Record context about every agent transfer</span>
+    <span class="kw">await</span> kit.store.add_observation(Observation(
+        room_id=context.room.id,
         category=<span class="st">"handoff_analysis"</span>,
         confidence=<span class="num">0.90</span>,
-        data={
-            <span class="st">"source_agent"</span>: handoff_data[<span class="st">"source_agent"</span>],
-            <span class="st">"target_agent"</span>: handoff_data[<span class="st">"target_agent"</span>],
-            <span class="st">"reason"</span>: handoff_data.get(<span class="st">"reason"</span>, <span class="st">"unspecified"</span>),
-            <span class="st">"messages_before_handoff"</span>: handoff_data.get(<span class="st">"message_count"</span>, 0),
+        content=<span class="st">f"Handoff from </span>{event.metadata.get(<span class="st">'source_agent'</span>, <span class="st">'unknown'</span>)}<span class="st"> to </span>{event.metadata.get(<span class="st">'target_agent'</span>, <span class="st">'unknown'</span>)}<span class="st">"</span>,
+        metadata={
+            <span class="st">"reason"</span>: event.metadata.get(<span class="st">"reason"</span>, <span class="st">"unspecified"</span>),
         },
     ))
 
 <span class="decorator">@kit.hook</span>(HookTrigger.ON_HANDOFF_REJECTED)
-<span class="kw">async def</span> <span class="fn">track_rejected_handoffs</span>(event, ctx):
+<span class="kw">async def</span> <span class="fn">track_rejected_handoffs</span>(event: RoomEvent, context: RoomContext) -> <span class="kw">None</span>:
     <span class="cm"># Rejected handoffs are a strong quality signal</span>
-    <span class="kw">await</span> ctx.room.add_observation(Observation(
+    <span class="kw">await</span> kit.store.add_observation(Observation(
+        room_id=context.room.id,
         category=<span class="st">"handoff_rejected"</span>,
         confidence=<span class="num">0.99</span>,
-        data={
-            <span class="st">"attempted_target"</span>: event.metadata[<span class="st">"target_agent"</span>],
-            <span class="st">"rejection_reason"</span>: event.metadata[<span class="st">"reason"</span>],
-            <span class="st">"issue"</span>: <span class="st">"Routing attempted handoff to unavailable or inappropriate agent"</span>,
+        content=<span class="st">"Routing attempted handoff to unavailable or inappropriate agent"</span>,
+        metadata={
+            <span class="st">"attempted_target"</span>: event.metadata.get(<span class="st">"target_agent"</span>, <span class="st">"unknown"</span>),
+            <span class="st">"rejection_reason"</span>: event.metadata.get(<span class="st">"reason"</span>, <span class="st">"unknown"</span>),
         },
     ))</code></pre>
 
-            <p>Three hooks, three different quality signals &mdash; none requiring an LLM call. The <code>ON_PHASE_TRANSITION</code> hook examines <code>ConversationState.phase_history</code> to detect problematic patterns like repeated escalations. The <code>ON_HANDOFF</code> hook records context about every agent transfer. The <code>ON_HANDOFF_REJECTED</code> hook catches routing failures. Together, they build a structural quality profile of every conversation.</p>
+            <p>Three hooks, three different quality signals &mdash; none requiring an LLM call. The <code>ON_PHASE_TRANSITION</code> hook extracts <code>ConversationState</code> from room metadata and examines <code>phase_history</code> to detect problematic patterns like repeated escalations. Each <code>PhaseTransition</code> record has <code>from_phase</code>, <code>to_phase</code>, <code>reason</code>, and a timestamp, giving you a precise audit trail. The <code>ON_HANDOFF</code> hook records context about every agent transfer. The <code>ON_HANDOFF_REJECTED</code> hook catches routing failures. Together, they build a structural quality profile of every conversation.</p>
 
             <h2>Task Completion as an Evaluation Metric</h2>
 
@@ -231,12 +243,12 @@ Use the create_observation tool to record your findings."""</span>
             <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationRouter, RoutingRule, RoutingConditions
 
 <span class="kw">async def</span> <span class="fn">build_quality_aware_router</span>(room):
-    <span class="cm"># Pull recent observations for each agent</span>
-    observations = <span class="kw">await</span> room.get_observations()
+    <span class="cm"># Pull recent observations for each agent from the store</span>
+    observations = <span class="kw">await</span> kit.store.list_observations(room.id)
     agent_scores = {}
     <span class="kw">for</span> obs <span class="kw">in</span> observations:
         <span class="kw">if</span> obs.category == <span class="st">"response_quality"</span>:
-            agent_id = obs.data.get(<span class="st">"agent_id"</span>)
+            agent_id = obs.metadata.get(<span class="st">"agent_id"</span>)
             <span class="kw">if</span> agent_id:
                 agent_scores.setdefault(agent_id, []).append(obs.confidence)
 

@@ -114,7 +114,7 @@
 
             <p>Everything starts with how tools are defined. In RoomKit, every tool is an <code>AITool</code> instance with a name, description, and JSON Schema parameters. This is not just documentation &mdash; it is the contract that the LLM uses to generate valid function calls and that the policy engine uses to make access decisions.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> AITool
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AITool
 
 search_tool = AITool(
     name=<span class="st">"search_orders"</span>,
@@ -150,7 +150,7 @@ delete_tool = AITool(
 
             <p>RoomKit's <code>MCPToolProvider</code> connects to MCP-compliant servers over streaming HTTP or SSE transports. It fetches the tool catalog from the server, merges it with your local tools, and presents a unified interface to the AI channel. The key function here is <code>compose_tool_handlers()</code>, which takes your local handler and the MCP provider and produces a single handler that routes calls to the right place.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.mcp <span class="kw">import</span> MCPToolProvider, compose_tool_handlers
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.tools <span class="kw">import</span> MCPToolProvider, compose_tool_handlers
 <span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
 
 <span class="cm"># Connect to an MCP server that provides CRM tools</span>
@@ -160,16 +160,16 @@ crm_mcp = MCPToolProvider(
 )
 
 <span class="cm"># Local tools defined in your codebase</span>
-<span class="kw">async def</span> <span class="fn">local_tool_handler</span>(tool_name, args, ctx):
+<span class="kw">async def</span> <span class="fn">local_tool_handler</span>(tool_name: str, args: dict) -> str:
     <span class="kw">if</span> tool_name == <span class="st">"search_orders"</span>:
         <span class="kw">return await</span> order_db.search(**args)
     <span class="kw">if</span> tool_name == <span class="st">"get_shipping_status"</span>:
         <span class="kw">return await</span> shipping_api.track(args[<span class="st">"tracking_id"</span>])
 
-<span class="cm"># Compose local + MCP tools into a single handler</span>
+<span class="cm"># Compose local + MCP handlers into a single handler</span>
 combined_handler = compose_tool_handlers(
-    local_handler=local_tool_handler,
-    mcp_providers=[crm_mcp],
+    local_tool_handler,
+    crm_mcp.tool_handler,
 )
 
 <span class="cm"># The AI channel sees all tools — local and remote — as one set</span>
@@ -188,7 +188,7 @@ agent = AIChannel(
 
             <p>Policies are evaluated at execution time, not at tool discovery. This is a deliberate design decision. The agent still sees the tool in its catalog (so the LLM knows it exists and can reference it in conversation), but if the agent tries to call a blocked tool, RoomKit intercepts the call and returns an error message to the AI. The agent learns that the tool is unavailable and adjusts its behavior.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> ToolPolicy
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.tools <span class="kw">import</span> ToolPolicy
 
 <span class="cm"># Billing agent: can search and read, cannot modify or delete</span>
 billing_policy = ToolPolicy(
@@ -212,29 +212,27 @@ admin_policy = ToolPolicy(
 
             <p>RoleOverride supports two modes. <strong>Restrict</strong> mode intersects the role's tool set with the base policy &mdash; the agent can only use tools that both the role and the policy allow. This is a dual-constraint model, useful when you want a policy as a baseline and roles as further restrictions. <strong>Replace</strong> mode ignores the base policy entirely and uses only the role's tool set. This is useful for privileged roles like admin or supervisor that need capabilities outside the normal policy.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoleOverride, ToolPolicy
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.tools <span class="kw">import</span> ToolPolicy, RoleOverride
 
-<span class="cm"># Base policy for the room</span>
-base_policy = ToolPolicy(
+<span class="cm"># Policy with role-specific overrides</span>
+policy = ToolPolicy(
     allow=[<span class="st">"search_*"</span>, <span class="st">"get_*"</span>, <span class="st">"create_ticket"</span>],
     deny=[<span class="st">"delete_*"</span>],
-)
-
-<span class="cm"># Tier-1 support: restrict mode — can only search (intersection with base)</span>
-tier1_override = RoleOverride(
-    role=<span class="st">"tier1_support"</span>,
-    mode=<span class="st">"restrict"</span>,
-    policy=ToolPolicy(allow=[<span class="st">"search_*"</span>, <span class="st">"get_*"</span>]),
-)
-
-<span class="cm"># Supervisor: replace mode — full access, bypasses base policy</span>
-supervisor_override = RoleOverride(
-    role=<span class="st">"supervisor"</span>,
-    mode=<span class="st">"replace"</span>,
-    policy=ToolPolicy(allow=[<span class="st">"*"</span>]),
+    role_overrides={
+        <span class="cm"># Tier-1 support: restrict mode — intersection with base policy</span>
+        <span class="st">"tier1_support"</span>: RoleOverride(
+            allow=[<span class="st">"search_*"</span>, <span class="st">"get_*"</span>],
+            mode=<span class="st">"restrict"</span>,
+        ),
+        <span class="cm"># Supervisor: replace mode — full access, bypasses base policy</span>
+        <span class="st">"supervisor"</span>: RoleOverride(
+            allow=[<span class="st">"*"</span>],
+            mode=<span class="st">"replace"</span>,
+        ),
+    },
 )</code></pre>
 
-            <p>When the tier-1 support agent tries to call <code>create_ticket</code>, it is blocked: the base policy allows it, but the role override in restrict mode only permits <code>search_*</code> and <code>get_*</code>. The intersection is enforced. When the supervisor agent calls <code>delete_account</code>, it succeeds: replace mode bypasses the base policy entirely.</p>
+            <p>When the tier-1 support agent tries to call <code>create_ticket</code>, it is blocked: the base policy allows it, but the role override in restrict mode only permits <code>search_*</code> and <code>get_*</code>. The intersection is enforced. When the supervisor agent calls <code>delete_account</code>, it succeeds: replace mode bypasses the base policy entirely. Role overrides are defined inline on the <code>ToolPolicy</code> via the <code>role_overrides</code> dictionary, keyed by role name.</p>
 
             <p>This layered model &mdash; base policy plus role overrides &mdash; means you define the security posture once and customize per agent without duplicating rules.</p>
 

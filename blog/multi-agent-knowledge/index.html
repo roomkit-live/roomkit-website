@@ -113,35 +113,45 @@
 
             <p>RoomKit's answer to context retrieval is the <code>MemoryProvider</code> ABC. Every AI channel has a memory provider that controls exactly what conversation history and context the LLM sees. The interface is deliberately minimal &mdash; one method to implement:</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> MemoryProvider, AIContext
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.memory <span class="kw">import</span> MemoryProvider, MemoryResult
 
 <span class="kw">class</span> <span class="fn">MyMemoryProvider</span>(MemoryProvider):
-    <span class="kw">async def</span> <span class="fn">retrieve</span>(self, room_id: str, channel_id: str) -> AIContext:
-        <span class="cm"># Return the context that the LLM should see</span>
+    <span class="kw">async def</span> <span class="fn">retrieve</span>(
+        self,
+        room_id: str,
+        current_event: RoomEvent,
+        context: RoomContext,
+        *,
+        channel_id: str | None = None,
+    ) -> MemoryResult:
+        <span class="cm"># Return the events that the LLM should see</span>
         ...</code></pre>
 
-            <p>That's the contract. Whatever you return from <code>retrieve()</code> becomes the message history the LLM reasons over. This is where you make the engineering decisions that matter: how far back to look, what to summarize, what to retrieve from external sources, what to skip entirely.</p>
+            <p>That's the contract. Whatever you return from <code>retrieve()</code> becomes the conversation history the LLM reasons over. The method receives the current event, the room context, and optionally the channel ID &mdash; giving you full information to make retrieval decisions. This is where you make the engineering choices that matter: how far back to look, what to summarize, what to retrieve from external sources, what to skip entirely.</p>
 
             <h3>SlidingWindowMemory: The Sensible Default</h3>
 
             <p>Out of the box, RoomKit ships <code>SlidingWindowMemory</code> as the default provider. It does exactly what the name suggests: returns the last N events from the conversation timeline, where N defaults to 50.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel, SlidingWindowMemory
-<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.memory <span class="kw">import</span> SlidingWindowMemory
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider, AnthropicConfig
 
 <span class="cm"># Default: last 50 events</span>
-agent = AIChannel(<span class="st">"support-agent"</span>, provider=AnthropicAIProvider(
-    model=<span class="st">"claude-sonnet-4-20250514"</span>,
+agent = AIChannel(<span class="st">"support-agent"</span>,
+    provider=AnthropicAIProvider(config=AnthropicConfig(
+        model=<span class="st">"claude-sonnet-4-20250514"</span>,
+    )),
     system_prompt=<span class="st">"You are a customer support agent."</span>,
-))
+)
 
 <span class="cm"># Custom window size for a long-running research agent</span>
 researcher = AIChannel(<span class="st">"research-agent"</span>,
-    provider=AnthropicAIProvider(
+    provider=AnthropicAIProvider(config=AnthropicConfig(
         model=<span class="st">"claude-sonnet-4-20250514"</span>,
-        system_prompt=<span class="st">"You are a research assistant."</span>,
-    ),
-    memory_provider=SlidingWindowMemory(max_events=200),
+    )),
+    system_prompt=<span class="st">"You are a research assistant."</span>,
+    memory=SlidingWindowMemory(max_events=200),
 )</code></pre>
 
             <p>This works well for most conversational use cases. The sliding window is predictable, cheap, and fast &mdash; it's just a slice of the event store. But it has obvious limitations: it forgets anything older than the window, it doesn't prioritize important events over filler, and it knows nothing about external documents.</p>
@@ -150,27 +160,37 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
 
             <h2>Custom Retrieval: Vector Search and Hybrid RAG</h2>
 
-            <p>Here's where the architecture pays off. Because <code>MemoryProvider</code> is a simple ABC, you can plug in any retrieval strategy &mdash; vector search, hybrid RAG, summarization, or a combination. The AI channel doesn't care how you built the context, only that you return an <code>AIContext</code>.</p>
+            <p>Here's where the architecture pays off. Because <code>MemoryProvider</code> is a simple ABC, you can plug in any retrieval strategy &mdash; vector search, hybrid RAG, summarization, or a combination. The AI channel doesn't care how you built the context, only that you return a <code>MemoryResult</code> with the events and pre-built messages the LLM should see.</p>
 
             <p>Here's a real-world example: a memory provider that queries a vector database for relevant documentation and combines it with recent conversation history.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> MemoryProvider, AIContext, AIMessage
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.memory <span class="kw">import</span> MemoryProvider, MemoryResult
+<span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AIMessage
+<span class="kw">from</span> roomkit.models.event <span class="kw">import</span> RoomEvent
+<span class="kw">from</span> roomkit.models.context <span class="kw">import</span> RoomContext
 <span class="kw">import</span> chromadb
 
 <span class="kw">class</span> <span class="fn">VectorRAGMemory</span>(MemoryProvider):
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, collection_name: str, max_history: int = <span class="num">20</span>,
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, store, collection_name: str, max_history: int = <span class="num">20</span>,
                  max_docs: int = <span class="num">5</span>):
+        self.store = store
         self.client = chromadb.HttpClient()
         self.collection = self.client.get_collection(collection_name)
         self.max_history = max_history
         self.max_docs = max_docs
 
-    <span class="kw">async def</span> <span class="fn">retrieve</span>(self, room_id: str, channel_id: str) -> AIContext:
-        <span class="cm"># 1. Get recent conversation history</span>
+    <span class="kw">async def</span> <span class="fn">retrieve</span>(
+        self,
+        room_id: str,
+        current_event: RoomEvent,
+        context: RoomContext,
+        *,
+        channel_id: str | None = None,
+    ) -> MemoryResult:
+        <span class="cm"># 1. Get recent conversation history from the store</span>
         events = <span class="kw">await</span> self.store.list_events(
             room_id, limit=self.max_history
         )
-        messages = [self._event_to_message(e) <span class="kw">for</span> e <span class="kw">in</span> events]
 
         <span class="cm"># 2. Use the last user message as the retrieval query</span>
         last_user_msg = next(
@@ -179,7 +199,7 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
             <span class="kw">None</span>
         )
         <span class="kw">if not</span> last_user_msg:
-            <span class="kw">return</span> AIContext(messages=messages)
+            <span class="kw">return</span> MemoryResult(events=events)
 
         <span class="cm"># 3. Query the vector database</span>
         results = self.collection.query(
@@ -187,18 +207,21 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
             n_results=self.max_docs,
         )
 
-        <span class="cm"># 4. Inject retrieved documents as system context</span>
+        <span class="cm"># 4. Inject retrieved documents as a pre-built AI message</span>
         doc_context = <span class="st">"\n\n"</span>.join(
             doc <span class="kw">for</span> doc <span class="kw">in</span> results[<span class="st">"documents"</span>][<span class="num">0</span>]
         )
-        context_msg = AIMessage(
-            role=<span class="st">"system"</span>,
-            content=<span class="st">f"Relevant documentation:\n\n{doc_context}"</span>,
-        )
 
-        <span class="kw">return</span> AIContext(messages=[context_msg] + messages)</code></pre>
+        <span class="kw">return</span> MemoryResult(
+            <span class="cm"># Pre-built messages are prepended, events appended</span>
+            messages=[AIMessage(
+                role=<span class="st">"user"</span>,
+                content=<span class="st">f"Relevant documentation:\n\n{doc_context}"</span>,
+            )],
+            events=events,
+        )</code></pre>
 
-            <p>The pattern is straightforward: retrieve recent history from the event store, use the latest user message to query your vector database, and assemble both into a single <code>AIContext</code>. The agent sees conversation history <em>and</em> relevant documentation, without anyone dumping the entire knowledge base into the prompt.</p>
+            <p>The pattern is straightforward: retrieve recent history from the event store, use the latest user message to query your vector database, and assemble both into a single <code>MemoryResult</code>. The <code>messages</code> field holds pre-built AI messages (like retrieved documents), while <code>events</code> holds raw room events that the AI channel converts automatically. The agent sees conversation history <em>and</em> relevant documentation, without anyone dumping the entire knowledge base into the prompt.</p>
 
             <p>You can extend this in any direction. Summarize older history instead of truncating it. Query multiple vector collections. Add metadata filtering based on the user's account or the agent's role. The <code>MemoryProvider</code> boundary gives you full control without touching the AI channel's internals.</p>
 
@@ -206,100 +229,95 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
 
             <p>Multi-agent systems have a context problem that single-agent systems don't: when Agent A hands off to Agent B, what does Agent B know? If the answer is "nothing," the user has to repeat themselves. If the answer is "everything Agent A saw," you're back to the "dump it all in" problem.</p>
 
-            <p>RoomKit ships <code>HandoffMemoryProvider</code> to handle this explicitly. When a handoff occurs, the provider injects context from the previous agent &mdash; what was discussed, what was decided, why the handoff happened &mdash; into the receiving agent's context window.</p>
+            <p>RoomKit ships <code>HandoffMemoryProvider</code> to handle this explicitly. It wraps an inner <code>MemoryProvider</code> and, when a handoff has occurred, injects context from the previous agent &mdash; what was discussed, what was decided, why the handoff happened &mdash; into the receiving agent's context window.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel, HandoffMemoryProvider
-<span class="kw">from</span> roomkit.providers.openai <span class="kw">import</span> OpenAIAIProvider
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.memory <span class="kw">import</span> SlidingWindowMemory
+<span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> HandoffMemoryProvider
+<span class="kw">from</span> roomkit.providers.openai <span class="kw">import</span> OpenAIAIProvider, OpenAIConfig
 
 <span class="cm"># Triage agent that classifies and routes</span>
-triage = AIChannel(<span class="st">"triage"</span>, provider=OpenAIAIProvider(
-    model=<span class="st">"gpt-4o"</span>,
+triage = AIChannel(<span class="st">"triage"</span>,
+    provider=OpenAIAIProvider(config=OpenAIConfig(model=<span class="st">"gpt-4o"</span>)),
     system_prompt=<span class="st">"Classify the customer issue and hand off to the right specialist."</span>,
-))
+)
 
 <span class="cm"># Billing specialist receives handoff context automatically</span>
+<span class="cm"># HandoffMemoryProvider wraps an inner provider (here: SlidingWindowMemory)</span>
 billing = AIChannel(<span class="st">"billing"</span>,
-    provider=OpenAIAIProvider(
-        model=<span class="st">"gpt-4o"</span>,
-        system_prompt=<span class="st">"You are a billing specialist. Resolve payment issues."</span>,
-    ),
-    memory_provider=HandoffMemoryProvider(),
+    provider=OpenAIAIProvider(config=OpenAIConfig(model=<span class="st">"gpt-4o"</span>)),
+    system_prompt=<span class="st">"You are a billing specialist. Resolve payment issues."</span>,
+    memory=HandoffMemoryProvider(inner=SlidingWindowMemory()),
 )
 
 <span class="cm"># Technical support specialist with the same pattern</span>
 tech = AIChannel(<span class="st">"tech-support"</span>,
-    provider=OpenAIAIProvider(
-        model=<span class="st">"gpt-4o"</span>,
-        system_prompt=<span class="st">"You are a technical support engineer."</span>,
-    ),
-    memory_provider=HandoffMemoryProvider(),
+    provider=OpenAIAIProvider(config=OpenAIConfig(model=<span class="st">"gpt-4o"</span>)),
+    system_prompt=<span class="st">"You are a technical support engineer."</span>,
+    memory=HandoffMemoryProvider(inner=SlidingWindowMemory()),
 )</code></pre>
 
-            <p>When the triage agent hands off to billing, the <code>HandoffMemoryProvider</code> automatically includes the triage conversation as context. The billing agent sees what the customer already explained and what the triage agent concluded &mdash; no repetition, no context loss. The handoff metadata (reason, source agent, timestamp) is available as structured data, not buried in free-text conversation history.</p>
+            <p>When the triage agent hands off to billing, the <code>HandoffMemoryProvider</code> automatically includes the triage conversation as context, layered on top of the inner provider's normal retrieval. The billing agent sees what the customer already explained and what the triage agent concluded &mdash; no repetition, no context loss. The handoff metadata (reason, source agent, timestamp) is available as structured data, not buried in free-text conversation history.</p>
 
             <h2>SkillRegistry: Structured Knowledge Packaging</h2>
 
             <p>Conversation history and retrieved documents cover dynamic knowledge &mdash; things that change per session or per query. But agents also need <strong>static knowledge</strong>: how to perform specific tasks, reference documentation for complex procedures, decision trees for troubleshooting flows.</p>
 
-            <p>RoomKit's <code>SkillRegistry</code> packages this kind of knowledge into discrete <code>Skill</code> objects, each with its own instructions, reference files, and on-demand loading. Instead of stuffing everything into the system prompt upfront, skills are loaded when the agent needs them.</p>
+            <p>RoomKit's <code>SkillRegistry</code> packages this kind of knowledge into discrete skills, each defined as a directory with its own instructions and reference documents. Instead of stuffing everything into the system prompt upfront, skills are loaded when the agent needs them.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> SkillRegistry, Skill
+            <pre><code class="code-content"><span class="cm"># Skills are directories on disk with a standard structure:</span>
+<span class="cm">#   skills/refund_processing/</span>
+<span class="cm">#     instructions.md     &lt;-- loaded as the skill's instructions</span>
+<span class="cm">#     refund_policy.md    &lt;-- reference file, loaded on demand</span>
+<span class="cm">#     decision_tree.md    &lt;-- reference file, loaded on demand</span>
+<span class="cm">#</span>
+<span class="cm">#   skills/account_recovery/</span>
+<span class="cm">#     instructions.md</span>
+<span class="cm">#     identity_verification.md</span>
+
+<span class="kw">from</span> roomkit.skills <span class="kw">import</span> SkillRegistry
+<span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider, AnthropicConfig
 
 registry = SkillRegistry()
 
-<span class="cm"># Register skills with instructions and reference documents</span>
-registry.register(Skill(
-    name=<span class="st">"refund_processing"</span>,
-    instructions=<span class="st">"Follow the refund policy. Verify the order is within "</span>
-                 <span class="st">"the 30-day return window. Check for prior refunds."</span>,
-    reference_files=[
-        <span class="st">"skills/refund_policy.md"</span>,
-        <span class="st">"skills/refund_decision_tree.md"</span>,
-    ],
-))
+<span class="cm"># Register skills by pointing to their directories</span>
+registry.register(<span class="st">"skills/refund_processing"</span>)
+registry.register(<span class="st">"skills/account_recovery"</span>)
 
-registry.register(Skill(
-    name=<span class="st">"account_recovery"</span>,
-    instructions=<span class="st">"Verify identity using two of three: email, phone, "</span>
-                 <span class="st">"last four of payment method. Never skip verification."</span>,
-    reference_files=[
-        <span class="st">"skills/identity_verification.md"</span>,
-    ],
-))
-
-<span class="cm"># Attach the registry to an AI channel</span>
+<span class="cm"># Attach skills to an AI channel</span>
 support = AIChannel(<span class="st">"support"</span>,
-    provider=AnthropicAIProvider(
+    provider=AnthropicAIProvider(config=AnthropicConfig(
         model=<span class="st">"claude-sonnet-4-20250514"</span>,
-        system_prompt=<span class="st">"You are a customer support agent."</span>,
-    ),
-    skill_registry=registry,
+    )),
+    system_prompt=<span class="st">"You are a customer support agent."</span>,
+    skills=registry,
 )</code></pre>
 
-            <p>Each <code>Skill</code> object exposes a <code>read_skill_reference()</code> tool that the agent can call to load reference documents on demand. The agent doesn't start with all documentation in its context &mdash; it pulls what it needs, when it needs it. This keeps the initial prompt lean and the context window focused on the current task.</p>
+            <p>The <code>read_skill_reference()</code> tool is automatically available to the agent, letting it load reference documents on demand. The agent doesn't start with all documentation in its context &mdash; it calls the tool when it needs a specific reference. This keeps the initial prompt lean and the context window focused on the current task.</p>
 
-            <p>The skill model also enforces structure. Instead of a blob of instructions, each skill has a name, a description, explicit reference files, and clear boundaries. When you audit what an agent knows how to do, the registry gives you a concrete inventory &mdash; not a 2,000-line system prompt to reverse-engineer.</p>
+            <p>The skill model also enforces structure. Instead of a blob of instructions, each skill has a name, instructions, and reference files organized in a directory. When you audit what an agent knows how to do, the registry gives you a concrete inventory &mdash; not a 2,000-line system prompt to reverse-engineer.</p>
 
-            <h2>AIContext Building: Assembling the Full Picture</h2>
+            <h2>From MemoryResult to AIContext</h2>
 
-            <p>All of these pieces &mdash; memory providers, handoff context, skill references &mdash; converge at a single point: the <code>AIContext</code> that gets sent to the LLM. Understanding how this assembly works is key to building agents that perform well without burning through tokens.</p>
+            <p>All of these pieces &mdash; memory providers, handoff context, skill references &mdash; converge into the final <code>AIContext</code> that gets sent to the LLM. Understanding this assembly is key to building agents that perform well without burning through tokens.</p>
 
             <p>The flow looks like this:</p>
 
-            <div class="ascii-diagram">MemoryProvider.retrieve()
+            <div class="ascii-diagram">MemoryProvider.retrieve() --> MemoryResult (messages + events)
     |
     v
-[Conversation History] + [Retrieved Docs] + [Handoff Context]
+AIChannel converts events to AIMessages
     |
     v
-SkillRegistry (on-demand via tool calls)
+SkillRegistry adds tool definitions
     |
     v
 AIContext --> LLM Provider --> Response</div>
 
-            <p>The <code>MemoryProvider</code> runs first, assembling the base context from whatever sources it has access to. If the agent has a <code>SkillRegistry</code>, skill-related tools are added to the available tool set. The assembled <code>AIContext</code> &mdash; messages, system context, tool definitions &mdash; is then passed to the LLM provider for inference.</p>
+            <p>The <code>MemoryProvider</code> runs first, returning a <code>MemoryResult</code> with pre-built messages and raw events. The AI channel converts the raw events into <code>AIMessage</code> objects (preserving vision support and content types), prepends the pre-built messages, and adds skill tools to the available tool set. The final <code>AIContext</code> &mdash; messages, system prompt, tool definitions &mdash; is then passed to the LLM provider for inference.</p>
 
-            <p>This pipeline is explicit. There is no hidden context injection, no magical prompt augmentation happening behind the scenes. If you want to inspect exactly what the LLM sees, read the <code>AIContext</code>. If you want to change it, implement a <code>MemoryProvider</code>. The architecture makes the knowledge flow auditable.</p>
+            <p>This pipeline is explicit. There is no hidden context injection, no magical prompt augmentation happening behind the scenes. If you want to change what the LLM sees, implement a <code>MemoryProvider</code>. The architecture makes the knowledge flow auditable.</p>
 
             <h2>Designing Your Knowledge Architecture</h2>
 

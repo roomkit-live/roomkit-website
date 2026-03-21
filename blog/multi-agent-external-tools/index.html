@@ -121,37 +121,43 @@
             <p>Real systems rarely use just one external service. A support room might need SMS for customer notifications, a voice channel for live calls, and an AI channel for the agent brain. Here's how that looks in practice:</p>
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, SMSChannel, AIChannel
-<span class="kw">from</span> roomkit.voice <span class="kw">import</span> VoiceChannel
-<span class="kw">from</span> roomkit.providers.twilio <span class="kw">import</span> TwilioSMSProvider
-<span class="kw">from</span> roomkit.providers.deepgram <span class="kw">import</span> DeepgramSTTProvider
-<span class="kw">from</span> roomkit.providers.elevenlabs <span class="kw">import</span> ElevenLabsTTSProvider
-<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicProvider
-<span class="kw">from</span> roomkit.voice.backends.fastrpc <span class="kw">import</span> FastRTCBackend
+<span class="kw">from</span> roomkit.channels <span class="kw">import</span> VoiceChannel
+<span class="kw">from</span> roomkit.providers.twilio <span class="kw">import</span> TwilioSMSProvider, TwilioConfig
+<span class="kw">from</span> roomkit.voice.stt.deepgram <span class="kw">import</span> DeepgramSTTProvider, DeepgramConfig
+<span class="kw">from</span> roomkit.voice.tts.elevenlabs <span class="kw">import</span> ElevenLabsTTSProvider, ElevenLabsConfig
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider, AnthropicConfig
+<span class="kw">from</span> roomkit.voice.backends.fastrtc <span class="kw">import</span> FastRTCVoiceBackend
 
 kit = RoomKit()
 
 <span class="cm"># SMS — outbound confirmations and inbound customer messages</span>
 sms = SMSChannel(<span class="st">"notify-sms"</span>, provider=TwilioSMSProvider(
-    account_sid=os.environ[<span class="st">"TWILIO_SID"</span>],
-    auth_token=os.environ[<span class="st">"TWILIO_TOKEN"</span>],
-    from_number=<span class="st">"+15559876543"</span>,
+    config=TwilioConfig(
+        account_sid=os.environ[<span class="st">"TWILIO_SID"</span>],
+        auth_token=os.environ[<span class="st">"TWILIO_TOKEN"</span>],
+        from_number=<span class="st">"+15559876543"</span>,
+    )
 ))
 
 <span class="cm"># Voice — live calls with streaming STT/TTS</span>
 voice = VoiceChannel(<span class="st">"live-voice"</span>,
-    stt=DeepgramSTTProvider(api_key=os.environ[<span class="st">"DG_KEY"</span>]),
-    tts=ElevenLabsTTSProvider(
+    stt=DeepgramSTTProvider(config=DeepgramConfig(
+        api_key=os.environ[<span class="st">"DG_KEY"</span>],
+    )),
+    tts=ElevenLabsTTSProvider(config=ElevenLabsConfig(
         api_key=os.environ[<span class="st">"EL_KEY"</span>],
         voice_id=<span class="st">"rachel"</span>,
-    ),
-    backend=FastRTCBackend(host=<span class="st">"0.0.0.0"</span>, port=8765),
+    )),
+    backend=FastRTCVoiceBackend(),
 )
 
 <span class="cm"># AI — the agent brain</span>
-ai = AIChannel(<span class="st">"support-agent"</span>, provider=AnthropicProvider(
-    model=<span class="st">"claude-sonnet-4-20250514"</span>,
+ai = AIChannel(<span class="st">"support-agent"</span>,
+    provider=AnthropicAIProvider(config=AnthropicConfig(
+        model=<span class="st">"claude-sonnet-4-20250514"</span>,
+    )),
     system_prompt=<span class="st">"You are a support agent for Acme Corp..."</span>,
-))
+)
 
 <span class="cm"># Register and attach everything to one room</span>
 <span class="kw">for</span> ch <span class="kw">in</span> (sms, voice, ai):
@@ -159,7 +165,7 @@ ai = AIChannel(<span class="st">"support-agent"</span>, provider=AnthropicProvid
 
 <span class="kw">await</span> kit.create_room(room_id=<span class="st">"case-0421"</span>)
 <span class="kw">for</span> ch <span class="kw">in</span> (sms, voice, ai):
-    <span class="kw">await</span> kit.attach_channel(<span class="st">"case-0421"</span>, ch.id)</code></pre>
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"case-0421"</span>, ch.channel_id)</code></pre>
 
             <p>Three providers, three protocols, one room. The AI agent hears everything &mdash; the SMS messages, the voice transcriptions &mdash; and can respond through any attached channel. When a customer calls in and the agent needs to send a confirmation code, it writes to the SMS channel. No separate integration code. No provider-specific logic in the agent.</p>
 
@@ -171,49 +177,52 @@ ai = AIChannel(<span class="st">"support-agent"</span>, provider=AnthropicProvid
 
             <pre><code class="code-content"><span class="kw">import</span> json
 <span class="kw">import</span> httpx
+<span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AITool
 
-<span class="kw">async def</span> <span class="fn">lookup_customer</span>(arguments: dict) -> str:
-    <span class="st">"""Look up a customer by email or phone in the CRM."""</span>
-    <span class="kw">async with</span> httpx.AsyncClient() <span class="kw">as</span> client:
-        resp = <span class="kw">await</span> client.get(
-            <span class="st">"https://crm.internal/api/v2/customers"</span>,
-            params={<span class="st">"q"</span>: arguments[<span class="st">"query"</span>]},
-            headers={<span class="st">"Authorization"</span>: <span class="st">f"Bearer </span>{os.environ[<span class="st">'CRM_TOKEN'</span>]}<span class="st">"</span>},
-            timeout=5.0,
-        )
-        resp.raise_for_status()
-        customers = resp.json()[<span class="st">"results"</span>]
+<span class="kw">async def</span> <span class="fn">support_tools</span>(tool_name: str, arguments: dict) -> str:
+    <span class="st">"""Handle tool calls for the support agent."""</span>
+    <span class="kw">if</span> tool_name == <span class="st">"lookup_customer"</span>:
+        <span class="kw">async with</span> httpx.AsyncClient() <span class="kw">as</span> client:
+            resp = <span class="kw">await</span> client.get(
+                <span class="st">"https://crm.internal/api/v2/customers"</span>,
+                params={<span class="st">"q"</span>: arguments[<span class="st">"query"</span>]},
+                headers={<span class="st">"Authorization"</span>: <span class="st">f"Bearer </span>{os.environ[<span class="st">'CRM_TOKEN'</span>]}<span class="st">"</span>},
+                timeout=5.0,
+            )
+            resp.raise_for_status()
+            customers = resp.json()[<span class="st">"results"</span>]
 
-    <span class="kw">if not</span> customers:
-        <span class="kw">return</span> json.dumps({<span class="st">"found"</span>: <span class="kw">False</span>})
+        <span class="kw">if not</span> customers:
+            <span class="kw">return</span> json.dumps({<span class="st">"found"</span>: <span class="kw">False</span>})
 
-    customer = customers[0]
-    <span class="kw">return</span> json.dumps({
-        <span class="st">"found"</span>: <span class="kw">True</span>,
-        <span class="st">"name"</span>: customer[<span class="st">"name"</span>],
-        <span class="st">"plan"</span>: customer[<span class="st">"subscription_plan"</span>],
-        <span class="st">"open_tickets"</span>: customer[<span class="st">"open_ticket_count"</span>],
-        <span class="st">"last_contact"</span>: customer[<span class="st">"last_contact_date"</span>],
-    })
+        customer = customers[0]
+        <span class="kw">return</span> json.dumps({
+            <span class="st">"found"</span>: <span class="kw">True</span>,
+            <span class="st">"name"</span>: customer[<span class="st">"name"</span>],
+            <span class="st">"plan"</span>: customer[<span class="st">"subscription_plan"</span>],
+            <span class="st">"open_tickets"</span>: customer[<span class="st">"open_ticket_count"</span>],
+        })
+
+    <span class="kw">return</span> json.dumps({<span class="st">"error"</span>: <span class="st">f"Unknown tool: </span>{tool_name}<span class="st">"</span>})
 
 <span class="cm"># Register the tool on the AI channel</span>
 ai = AIChannel(<span class="st">"support-agent"</span>,
-    provider=AnthropicProvider(
+    provider=AnthropicAIProvider(config=AnthropicConfig(
         model=<span class="st">"claude-sonnet-4-20250514"</span>,
-        system_prompt=<span class="st">"You are a support agent. Use lookup_customer to find customer records before answering account questions."</span>,
-    ),
-    tools=[{
-        <span class="st">"name"</span>: <span class="st">"lookup_customer"</span>,
-        <span class="st">"description"</span>: <span class="st">"Search the CRM for a customer by email or phone number."</span>,
-        <span class="st">"input_schema"</span>: {
+    )),
+    system_prompt=<span class="st">"You are a support agent. Use lookup_customer to find customer records before answering account questions."</span>,
+    tools=[AITool(
+        name=<span class="st">"lookup_customer"</span>,
+        description=<span class="st">"Search the CRM for a customer by email or phone number."</span>,
+        parameters={
             <span class="st">"type"</span>: <span class="st">"object"</span>,
             <span class="st">"properties"</span>: {
-                <span class="st">"query"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>, <span class="st">"description"</span>: <span class="st">"Email address or phone number to search for"</span>}
+                <span class="st">"query"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>, <span class="st">"description"</span>: <span class="st">"Email address or phone number"</span>}
             },
             <span class="st">"required"</span>: [<span class="st">"query"</span>],
         },
-    }],
-    tool_handler=lookup_customer,
+    )],
+    tool_handler=support_tools,
 )</code></pre>
 
             <p>The LLM decides when to call the tool based on the conversation context. When a customer asks "what plan am I on?", the agent calls <code>lookup_customer</code> with their email, gets the CRM data, and responds with specific account details. No hallucination, no guesswork &mdash; the agent retrieved real data from a real system.</p>
@@ -226,18 +235,15 @@ ai = AIChannel(<span class="st">"support-agent"</span>,
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HTTPChannel
 
-<span class="cm"># Push every room event to an analytics pipeline</span>
-analytics = HTTPChannel(<span class="st">"analytics-hook"</span>,
-    url=<span class="st">"https://analytics.internal/ingest/conversations"</span>,
-    headers={<span class="st">"Authorization"</span>: <span class="st">f"Bearer </span>{os.environ[<span class="st">'ANALYTICS_KEY'</span>]}<span class="st">"</span>},
-    events=[<span class="st">"message.created"</span>, <span class="st">"tool.called"</span>, <span class="st">"agent.handoff"</span>],
-)
+<span class="cm"># HTTPChannel is a factory that creates a webhook transport channel.</span>
+<span class="cm"># The provider handles the actual HTTP delivery.</span>
+analytics = HTTPChannel(<span class="st">"analytics-hook"</span>, provider=webhook_provider)
 
 kit.register_channel(analytics)
 <span class="kw">await</span> kit.attach_channel(<span class="st">"case-0421"</span>, <span class="st">"analytics-hook"</span>)
 
-<span class="cm"># Now every message, tool call, and agent handoff in room "case-0421"</span>
-<span class="cm"># is POSTed to your analytics endpoint as structured JSON.</span></code></pre>
+<span class="cm"># Now every event broadcast in room "case-0421"</span>
+<span class="cm"># is delivered to the webhook provider as structured JSON.</span></code></pre>
 
             <p>This is powerful for integration patterns where the external system is the consumer, not the provider. Feed conversation transcripts into a data warehouse. Push agent decisions to a compliance audit log. Send real-time events to a Slack channel for human oversight. The room broadcasts to HTTPChannel just like it broadcasts to SMS or WhatsApp &mdash; it's the same mechanism, aimed at a different target.</p>
 

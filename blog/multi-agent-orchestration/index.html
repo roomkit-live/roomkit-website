@@ -120,7 +120,7 @@ router = ConversationRouter(
             agent_id=<span class="st">"billing-agent"</span>,
             priority=<span class="num">1</span>,
             conditions=RoutingConditions(
-                intent_match=[<span class="st">"billing"</span>, <span class="st">"invoice"</span>, <span class="st">"payment"</span>],
+                intents={<span class="st">"billing"</span>, <span class="st">"invoice"</span>, <span class="st">"payment"</span>},
             ),
         ),
         <span class="cm"># Priority 2: technical issues during handling phase</span>
@@ -128,8 +128,8 @@ router = ConversationRouter(
             agent_id=<span class="st">"tech-support-agent"</span>,
             priority=<span class="num">2</span>,
             conditions=RoutingConditions(
-                intent_match=[<span class="st">"bug"</span>, <span class="st">"error"</span>, <span class="st">"not_working"</span>],
-                phases=[ConversationPhase.HANDLING],
+                intents={<span class="st">"bug"</span>, <span class="st">"error"</span>, <span class="st">"not_working"</span>},
+                phases={ConversationPhase.HANDLING},
             ),
         ),
         <span class="cm"># Priority 10: catch-all general assistant</span>
@@ -139,17 +139,18 @@ router = ConversationRouter(
             conditions=RoutingConditions(),
         ),
     ],
+    supervisor_id=<span class="st">"supervisor-agent"</span>,
 )
 
-<span class="cm"># Evaluate routing for an incoming event</span>
-target = router.evaluate(event)
+<span class="cm"># Select the right agent for an incoming event</span>
+target = router.select_agent(event, context, state)
 <span class="cm"># Returns "billing-agent", "tech-support-agent", or "general-agent"</span></code></pre>
 
-            <p>A few things to notice. The <code>conditions</code> object supports multiple matching dimensions: intent strings, conversation phases, and arbitrary metadata. An empty <code>RoutingConditions()</code> matches everything &mdash; making it a natural catch-all at a low priority. The priority number is evaluated ascending, so priority 1 beats priority 10.</p>
+            <p>A few things to notice. The <code>conditions</code> object supports multiple matching dimensions: intent sets, conversation phases, channel types, and even a custom callable. An empty <code>RoutingConditions()</code> matches everything &mdash; making it a natural catch-all at a low priority. The priority number is evaluated ascending, so priority 1 beats priority 10.</p>
 
             <h3>Intent Classification</h3>
 
-            <p>The router does not classify intents itself &mdash; that is not its job. It reads the <code>intent</code> field from <code>event.metadata["intent"]</code> and matches it against the <code>intent_match</code> list in each rule. This means you can use whatever intent classification strategy fits your system: an LLM call, a local classifier, a keyword extractor, or a hardcoded value from upstream logic. The router stays decoupled from the classification mechanism.</p>
+            <p>The router does not classify intents itself &mdash; that is not its job. It reads the <code>intent</code> field from <code>event.metadata["intent"]</code> and matches it against the <code>intents</code> set in each rule. This means you can use whatever intent classification strategy fits your system: an LLM call, a local classifier, a keyword extractor, or a hardcoded value from upstream logic. The router stays decoupled from the classification mechanism.</p>
 
             <p>In practice, I wire intent classification into a hook that runs before routing. The hook enriches the event metadata, and the router consumes it. Clean separation. If I want to swap from a keyword-based classifier to an LLM-based one, the routing rules stay identical.</p>
 
@@ -172,19 +173,25 @@ target = router.evaluate(event)
 
             <p>Phase transitions are explicit. An agent or a hook triggers a transition, and the router re-evaluates which agent should be active for the new phase.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPhase
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPhase, ConversationState
+
+<span class="cm"># Current state tracks phase, active agent, and history</span>
+state = ConversationState(
+    phase=ConversationPhase.HANDLING,
+    active_agent_id=<span class="st">"general-agent"</span>,
+)
 
 <span class="cm"># An agent decides it cannot handle the issue</span>
-<span class="kw">await</span> orchestrator.transition_phase(
-    conversation_id=<span class="st">"conv-42"</span>,
-    new_phase=ConversationPhase.ESCALATION,
+new_state = state.transition(
+    to_phase=ConversationPhase.ESCALATION,
+    to_agent=<span class="st">"senior-agent"</span>,
     reason=<span class="st">"Customer requesting refund above agent's authorized limit"</span>,
 )
 
-<span class="cm"># The router re-evaluates: escalation-phase rules now match</span>
-<span class="cm"># A senior agent or human operator takes over</span></code></pre>
+<span class="cm"># new_state.phase_history now contains the transition record</span>
+<span class="cm"># The router re-evaluates: escalation-phase rules now match</span></code></pre>
 
-            <p>The <code>reason</code> parameter is stored in the conversation timeline, so you always have an audit trail of why the conversation moved from one phase to another. This matters when you are debugging why a customer ended up talking to the wrong agent at 2 AM.</p>
+            <p>The <code>reason</code> parameter is stored in the <code>phase_history</code> as a <code>PhaseTransition</code> record, so you always have an audit trail of why the conversation moved from one phase to another. The <code>transition()</code> method returns a new <code>ConversationState</code> &mdash; the pattern is immutable, so each state change is explicit and traceable.</p>
 
             <h2>The Supervisor Pattern</h2>
 
@@ -194,38 +201,38 @@ target = router.evaluate(event)
 
             <p>The supervisor pattern solves a class of problems that are hard to address with pure routing: quality monitoring, compliance checks, SLA enforcement, and graceful degradation when a specialist agent fails. The supervisor is always watching, always receiving context, and always able to step in.</p>
 
-            <p>Non-active, non-supervisor agents are muted &mdash; they do not receive events and do not consume resources. This keeps the system efficient even with dozens of registered agents.</p>
+            <p>Non-active, non-supervisor agents are filtered out at the event router level &mdash; events are simply not dispatched to them, so they do not consume LLM tokens or processing time. This keeps the system efficient even with dozens of registered agents.</p>
 
             <h2>Handoffs: Agent-to-Agent Transfers</h2>
 
             <p>Routing handles the initial assignment, but conversations are not static. A billing agent might discover the user actually has a technical problem. A general agent might realize the question requires a specialist. The user might explicitly ask to "talk to someone else."</p>
 
-            <p>This is where <code>HandoffHandler</code> comes in. A handoff is a structured transfer from one agent to another, with context injection so the receiving agent does not start from zero.</p>
+            <p>This is where <code>HandoffHandler</code> comes in. A handoff is a structured transfer from one agent to another, with context injection so the receiving agent does not start from zero. The handler takes the <code>RoomKit</code> instance and the <code>ConversationRouter</code>, along with optional configuration like agent aliases and allowed transitions.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> HandoffHandler, HandoffConfig
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> HandoffHandler
 
 handoff = HandoffHandler(
-    config=HandoffConfig(
-        <span class="cm"># Inject conversation summary into the receiving agent's context</span>
-        inject_summary=<span class="kw">True</span>,
-        <span class="cm"># Include the last N messages for immediate context</span>
-        context_window=<span class="num">10</span>,
-        <span class="cm"># Notify the user that a transfer is happening</span>
-        announce_transfer=<span class="kw">True</span>,
-        announcement_template=<span class="st">"Transferring you to {target_agent} for further assistance."</span>,
-    ),
+    kit=kit,
+    router=router,
+    agent_aliases={<span class="st">"billing"</span>: <span class="st">"billing-agent"</span>, <span class="st">"tech"</span>: <span class="st">"tech-support-agent"</span>},
+    allowed_transitions={
+        <span class="st">"general-agent"</span>: {<span class="st">"billing-agent"</span>, <span class="st">"tech-support-agent"</span>},
+        <span class="st">"billing-agent"</span>: {<span class="st">"tech-support-agent"</span>, <span class="st">"general-agent"</span>},
+    },
 )
 
-<span class="cm"># Execute the handoff</span>
-<span class="kw">await</span> handoff.transfer(
-    conversation_id=<span class="st">"conv-42"</span>,
-    source_agent=<span class="st">"general-agent"</span>,
-    target_agent=<span class="st">"billing-agent"</span>,
-    reason=<span class="st">"User asked about invoice discrepancy"</span>,
-    metadata={<span class="st">"invoice_id"</span>: <span class="st">"INV-2026-0847"</span>},
+<span class="cm"># Execute the handoff (called by the agent via a tool)</span>
+result = <span class="kw">await</span> handoff.handle(
+    room_id=<span class="st">"support-case-7742"</span>,
+    calling_agent_id=<span class="st">"general-agent"</span>,
+    arguments={
+        <span class="st">"target"</span>: <span class="st">"billing"</span>,
+        <span class="st">"reason"</span>: <span class="st">"User asked about invoice discrepancy"</span>,
+        <span class="st">"summary"</span>: <span class="st">"Customer has a billing question about INV-2026-0847"</span>,
+    },
 )</code></pre>
 
-            <p>During a handoff, the handler does several things: it mutes the source agent, activates the target agent, optionally generates a summary of the conversation so far, injects that summary plus the last N messages into the target agent's context, and sends an announcement to the user. The <code>metadata</code> dictionary lets you pass structured data &mdash; an invoice ID, a ticket number, a customer tier &mdash; so the receiving agent can act immediately without asking the user to repeat themselves.</p>
+            <p>During a handoff, the handler updates the <code>ConversationState</code>, transitions the phase if configured, and activates the target agent. The <code>allowed_transitions</code> map controls which agents can hand off to which &mdash; preventing unintended routing loops. Agent aliases let the AI use friendly names like "billing" instead of full IDs.</p>
 
             <p>This is the difference between a handoff that frustrates users ("Can you explain your issue again?") and one that feels seamless ("I see you have a question about invoice INV-2026-0847. Let me look into that.").</p>
 
@@ -233,35 +240,38 @@ handoff = HandoffHandler(
 
             <p>Not all multi-agent scenarios are about routing to one agent or another. Some workflows are inherently sequential: an intake agent collects information, a qualification agent classifies the request, a specialist handles it, a resolution agent wraps up. Each agent does its part, then passes the conversation forward.</p>
 
-            <p><code>ConversationPipeline</code> models this as a series of <code>PipelineStage</code> definitions. Each stage specifies an agent, an optional phase, and transition conditions. The pipeline advances automatically when a stage's exit criteria are met.</p>
+            <p><code>ConversationPipeline</code> models this as a series of <code>PipelineStage</code> definitions. Each stage specifies a phase, an agent, and optionally the next stage to advance to. Stages can also define which previous stages they allow returning to, enabling loops when needed.</p>
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPipeline, PipelineStage
 
 pipeline = ConversationPipeline(
     stages=[
         PipelineStage(
-            agent_id=<span class="st">"intake-agent"</span>,
             phase=ConversationPhase.INTAKE,
-            exit_condition=<span class="st">"user_identified"</span>,
+            agent_id=<span class="st">"intake-agent"</span>,
+            next=ConversationPhase.QUALIFICATION,
+            description=<span class="st">"Collect user information and identify the request"</span>,
         ),
         PipelineStage(
-            agent_id=<span class="st">"qualification-agent"</span>,
             phase=ConversationPhase.QUALIFICATION,
-            exit_condition=<span class="st">"intent_classified"</span>,
+            agent_id=<span class="st">"qualification-agent"</span>,
+            next=ConversationPhase.HANDLING,
+            can_return_to={ConversationPhase.INTAKE},
         ),
         PipelineStage(
-            agent_id=<span class="st">"specialist-agent"</span>,
             phase=ConversationPhase.HANDLING,
-            exit_condition=<span class="st">"issue_resolved"</span>,
+            agent_id=<span class="st">"specialist-agent"</span>,
+            next=ConversationPhase.FOLLOWUP,
         ),
         PipelineStage(
-            agent_id=<span class="st">"followup-agent"</span>,
             phase=ConversationPhase.FOLLOWUP,
+            agent_id=<span class="st">"followup-agent"</span>,
         ),
     ],
+    supervisor_id=<span class="st">"supervisor-agent"</span>,
 )</code></pre>
 
-            <p>The pipeline approach works well when the conversation has a predictable shape. For more dynamic scenarios &mdash; where the next agent depends on runtime conditions &mdash; the <code>ConversationRouter</code> with priority-based rules is the better fit. In practice, I often combine both: a pipeline for the overall structure, with routing rules that handle exceptions and escalations within each stage.</p>
+            <p>The pipeline approach works well when the conversation has a predictable shape. The <code>next</code> field defines the forward progression, while <code>can_return_to</code> allows controlled backward transitions. For more dynamic scenarios &mdash; where the next agent depends on runtime conditions &mdash; the <code>ConversationRouter</code> with priority-based rules is the better fit. In practice, I often combine both: a pipeline for the overall structure, with routing rules that handle exceptions and escalations within each stage.</p>
 
             <h2>Fallback Behavior</h2>
 
