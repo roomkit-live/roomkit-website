@@ -1607,10 +1607,12 @@ code {
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: anywhere;
+    padding: 0;
 }
 
 .blog-article pre .code-content {
-    padding: var(--space-lg);
+    display: block;
+    padding: 1.25rem 1.5rem;
     font-size: 0.875rem;
     line-height: 1.7;
     margin: 0;
@@ -1631,6 +1633,10 @@ code {
     background: none;
     padding: 0;
     font-size: inherit;
+}
+
+.blog-article pre code.code-content {
+    padding: 1.25rem 1.5rem;
 }
 
 .blog-article blockquote {

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 2: Orchestration — Routing Conversations to the Right Agent - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit orchestrates multi-agent conversations with ConversationRouter, phase-based routing, intent classification, and automatic agent handoffs.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-orchestration/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 2: Orchestration — Routing Conversations to the Right Agent">
+    <meta property="og:description" content="How RoomKit orchestrates multi-agent conversations with ConversationRouter, phase-based routing, intent classification, and automatic agent handoffs.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-orchestration/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 2: Orchestration — Routing Conversations to the Right Agent">
+    <meta name="twitter:description" content="How RoomKit orchestrates multi-agent conversations with ConversationRouter, phase-based routing, intent classification, and automatic agent handoffs.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 2: Orchestration — Routing Conversations to the Right Agent",
+        "description": "How RoomKit orchestrates multi-agent conversations with ConversationRouter, phase-based routing, intent classification, and automatic agent handoffs.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-orchestration/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-orchestration/"
+    }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 2: Orchestration &mdash; Routing Conversations to the Right Agent</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>10 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 2 of the <a href="/blog/multi-agent-architecture-series/">Multi-Agent Architecture series</a>. In <a href="/blog/multi-agent-user-interaction/">Part 1</a> we covered user interaction &mdash; how agents receive and respond to messages. Today we tackle the next question: once a message arrives, how do you decide which agent should handle it?</em></p>
+
+            <hr>
+
+            <h2>The Routing Problem</h2>
+
+            <p>A single-agent system is simple. Every message goes to the same agent, every response comes back through the same path. But the moment you add a second agent, you face a decision that compounds with every agent after it: <strong>who handles this message?</strong></p>
+
+            <p>In production systems I have worked on, I have seen this solved with nested if-chains, keyword matching, regex dispatchers, and one memorable case where the routing logic was a 400-line function that nobody dared touch. All of these approaches share the same problem &mdash; they encode routing decisions as imperative code instead of treating routing as a first-class concern with its own data model.</p>
+
+            <p>RoomKit takes a different approach. Routing is declarative, priority-based, and phase-aware. You describe <em>when</em> each agent should activate, and the framework evaluates the rules at runtime.</p>
+
+            <h2>ConversationRouter and RoutingRules</h2>
+
+            <p>The central piece is <code>ConversationRouter</code>. You give it a list of <code>RoutingRule</code> objects, each with a target agent, a set of <code>RoutingConditions</code>, and a numeric priority. When an event arrives, the router evaluates every rule in priority order and activates the first match.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> (
+    ConversationRouter,
+    RoutingRule,
+    RoutingConditions,
+    ConversationPhase,
+)
+
+router = ConversationRouter(
+    rules=[
+        <span class="cm"># Priority 1: billing questions go to the billing agent</span>
+        RoutingRule(
+            agent_id=<span class="st">"billing-agent"</span>,
+            priority=<span class="num">1</span>,
+            conditions=RoutingConditions(
+                intent_match=[<span class="st">"billing"</span>, <span class="st">"invoice"</span>, <span class="st">"payment"</span>],
+            ),
+        ),
+        <span class="cm"># Priority 2: technical issues during handling phase</span>
+        RoutingRule(
+            agent_id=<span class="st">"tech-support-agent"</span>,
+            priority=<span class="num">2</span>,
+            conditions=RoutingConditions(
+                intent_match=[<span class="st">"bug"</span>, <span class="st">"error"</span>, <span class="st">"not_working"</span>],
+                phases=[ConversationPhase.HANDLING],
+            ),
+        ),
+        <span class="cm"># Priority 10: catch-all general assistant</span>
+        RoutingRule(
+            agent_id=<span class="st">"general-agent"</span>,
+            priority=<span class="num">10</span>,
+            conditions=RoutingConditions(),
+        ),
+    ],
+)
+
+<span class="cm"># Evaluate routing for an incoming event</span>
+target = router.evaluate(event)
+<span class="cm"># Returns "billing-agent", "tech-support-agent", or "general-agent"</span></code></pre>
+
+            <p>A few things to notice. The <code>conditions</code> object supports multiple matching dimensions: intent strings, conversation phases, and arbitrary metadata. An empty <code>RoutingConditions()</code> matches everything &mdash; making it a natural catch-all at a low priority. The priority number is evaluated ascending, so priority 1 beats priority 10.</p>
+
+            <h3>Intent Classification</h3>
+
+            <p>The router does not classify intents itself &mdash; that is not its job. It reads the <code>intent</code> field from <code>event.metadata["intent"]</code> and matches it against the <code>intent_match</code> list in each rule. This means you can use whatever intent classification strategy fits your system: an LLM call, a local classifier, a keyword extractor, or a hardcoded value from upstream logic. The router stays decoupled from the classification mechanism.</p>
+
+            <p>In practice, I wire intent classification into a hook that runs before routing. The hook enriches the event metadata, and the router consumes it. Clean separation. If I want to swap from a keyword-based classifier to an LLM-based one, the routing rules stay identical.</p>
+
+            <h2>Conversation Phases</h2>
+
+            <p>Not every routing decision depends on what the user said. Some depend on <em>where the conversation is</em> in its lifecycle. A message during intake ("Hi, I need help") requires a different agent than the same message during escalation ("I already explained this three times").</p>
+
+            <p>RoomKit models this with <code>ConversationPhase</code>, a lifecycle enum with six stages:</p>
+
+            <div class="ascii-diagram">INTAKE --> QUALIFICATION --> HANDLING --> ESCALATION --> RESOLUTION --> FOLLOWUP</div>
+
+            <ul>
+                <li><strong>INTAKE</strong> &mdash; Initial contact. Collect basic information, identify the user.</li>
+                <li><strong>QUALIFICATION</strong> &mdash; Determine what the user needs. Classify the request.</li>
+                <li><strong>HANDLING</strong> &mdash; Active work on the request by the appropriate agent.</li>
+                <li><strong>ESCALATION</strong> &mdash; The current agent cannot resolve the issue. Transfer to a higher-tier agent or a human.</li>
+                <li><strong>RESOLUTION</strong> &mdash; The issue is resolved. Confirm with the user.</li>
+                <li><strong>FOLLOWUP</strong> &mdash; Post-resolution check-in. Satisfaction survey, related offers.</li>
+            </ul>
+
+            <p>Phase transitions are explicit. An agent or a hook triggers a transition, and the router re-evaluates which agent should be active for the new phase.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPhase
+
+<span class="cm"># An agent decides it cannot handle the issue</span>
+<span class="kw">await</span> orchestrator.transition_phase(
+    conversation_id=<span class="st">"conv-42"</span>,
+    new_phase=ConversationPhase.ESCALATION,
+    reason=<span class="st">"Customer requesting refund above agent's authorized limit"</span>,
+)
+
+<span class="cm"># The router re-evaluates: escalation-phase rules now match</span>
+<span class="cm"># A senior agent or human operator takes over</span></code></pre>
+
+            <p>The <code>reason</code> parameter is stored in the conversation timeline, so you always have an audit trail of why the conversation moved from one phase to another. This matters when you are debugging why a customer ended up talking to the wrong agent at 2 AM.</p>
+
+            <h2>The Supervisor Pattern</h2>
+
+            <p>In a multi-agent system, you often need one agent that always knows what is happening &mdash; regardless of which specialist is currently active. RoomKit supports this through the <code>supervisor_id</code> parameter.</p>
+
+            <p>When you designate an agent as supervisor, it receives every event in the conversation, even when it is not the active agent. The active agent handles the user-facing response; the supervisor observes, logs, and can intervene when necessary.</p>
+
+            <p>The supervisor pattern solves a class of problems that are hard to address with pure routing: quality monitoring, compliance checks, SLA enforcement, and graceful degradation when a specialist agent fails. The supervisor is always watching, always receiving context, and always able to step in.</p>
+
+            <p>Non-active, non-supervisor agents are muted &mdash; they do not receive events and do not consume resources. This keeps the system efficient even with dozens of registered agents.</p>
+
+            <h2>Handoffs: Agent-to-Agent Transfers</h2>
+
+            <p>Routing handles the initial assignment, but conversations are not static. A billing agent might discover the user actually has a technical problem. A general agent might realize the question requires a specialist. The user might explicitly ask to "talk to someone else."</p>
+
+            <p>This is where <code>HandoffHandler</code> comes in. A handoff is a structured transfer from one agent to another, with context injection so the receiving agent does not start from zero.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> HandoffHandler, HandoffConfig
+
+handoff = HandoffHandler(
+    config=HandoffConfig(
+        <span class="cm"># Inject conversation summary into the receiving agent's context</span>
+        inject_summary=<span class="kw">True</span>,
+        <span class="cm"># Include the last N messages for immediate context</span>
+        context_window=<span class="num">10</span>,
+        <span class="cm"># Notify the user that a transfer is happening</span>
+        announce_transfer=<span class="kw">True</span>,
+        announcement_template=<span class="st">"Transferring you to {target_agent} for further assistance."</span>,
+    ),
+)
+
+<span class="cm"># Execute the handoff</span>
+<span class="kw">await</span> handoff.transfer(
+    conversation_id=<span class="st">"conv-42"</span>,
+    source_agent=<span class="st">"general-agent"</span>,
+    target_agent=<span class="st">"billing-agent"</span>,
+    reason=<span class="st">"User asked about invoice discrepancy"</span>,
+    metadata={<span class="st">"invoice_id"</span>: <span class="st">"INV-2026-0847"</span>},
+)</code></pre>
+
+            <p>During a handoff, the handler does several things: it mutes the source agent, activates the target agent, optionally generates a summary of the conversation so far, injects that summary plus the last N messages into the target agent's context, and sends an announcement to the user. The <code>metadata</code> dictionary lets you pass structured data &mdash; an invoice ID, a ticket number, a customer tier &mdash; so the receiving agent can act immediately without asking the user to repeat themselves.</p>
+
+            <p>This is the difference between a handoff that frustrates users ("Can you explain your issue again?") and one that feels seamless ("I see you have a question about invoice INV-2026-0847. Let me look into that.").</p>
+
+            <h2>Sequential Workflows with ConversationPipeline</h2>
+
+            <p>Not all multi-agent scenarios are about routing to one agent or another. Some workflows are inherently sequential: an intake agent collects information, a qualification agent classifies the request, a specialist handles it, a resolution agent wraps up. Each agent does its part, then passes the conversation forward.</p>
+
+            <p><code>ConversationPipeline</code> models this as a series of <code>PipelineStage</code> definitions. Each stage specifies an agent, an optional phase, and transition conditions. The pipeline advances automatically when a stage's exit criteria are met.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPipeline, PipelineStage
+
+pipeline = ConversationPipeline(
+    stages=[
+        PipelineStage(
+            agent_id=<span class="st">"intake-agent"</span>,
+            phase=ConversationPhase.INTAKE,
+            exit_condition=<span class="st">"user_identified"</span>,
+        ),
+        PipelineStage(
+            agent_id=<span class="st">"qualification-agent"</span>,
+            phase=ConversationPhase.QUALIFICATION,
+            exit_condition=<span class="st">"intent_classified"</span>,
+        ),
+        PipelineStage(
+            agent_id=<span class="st">"specialist-agent"</span>,
+            phase=ConversationPhase.HANDLING,
+            exit_condition=<span class="st">"issue_resolved"</span>,
+        ),
+        PipelineStage(
+            agent_id=<span class="st">"followup-agent"</span>,
+            phase=ConversationPhase.FOLLOWUP,
+        ),
+    ],
+)</code></pre>
+
+            <p>The pipeline approach works well when the conversation has a predictable shape. For more dynamic scenarios &mdash; where the next agent depends on runtime conditions &mdash; the <code>ConversationRouter</code> with priority-based rules is the better fit. In practice, I often combine both: a pipeline for the overall structure, with routing rules that handle exceptions and escalations within each stage.</p>
+
+            <h2>Fallback Behavior</h2>
+
+            <p>What happens when no routing rule matches? Or when the active agent crashes? RoomKit handles this through two mechanisms.</p>
+
+            <p>First, the supervisor agent (if configured) always receives events. Even if routing fails completely, the supervisor can respond. It acts as a safety net &mdash; the agent of last resort that keeps the conversation alive while the system recovers.</p>
+
+            <p>Second, every non-active agent is muted by default. This means a routing failure does not accidentally broadcast a message to every agent in the system. Only the active agent and the supervisor see events. If the active agent becomes unresponsive, the supervisor can trigger a handoff to a fallback agent or escalate to a human operator.</p>
+
+            <p>This is a deliberate design choice. In a multi-agent system, silence is preferable to chaos. A user waiting a few seconds for a supervisor to pick up is a better experience than three agents responding simultaneously with conflicting answers.</p>
+
+            <h2>Putting It Together</h2>
+
+            <p>The orchestration layer in RoomKit is the connective tissue between agents. It answers three questions at every point in a conversation:</p>
+
+            <ol>
+                <li><strong>Who handles this?</strong> &mdash; <code>ConversationRouter</code> with priority-based <code>RoutingRule</code> evaluation.</li>
+                <li><strong>Where are we?</strong> &mdash; <code>ConversationPhase</code> lifecycle with explicit transitions and audit trails.</li>
+                <li><strong>What happens when things change?</strong> &mdash; <code>HandoffHandler</code> for agent-to-agent transfers, <code>ConversationPipeline</code> for sequential workflows, and supervisor oversight for safety.</li>
+            </ol>
+
+            <p>None of these components require you to use the others. You can use <code>ConversationRouter</code> alone if your routing needs are simple. You can add phases later when your workflows demand it. You can wire in handoffs only for the agent pairs that need them. The pieces compose without coupling.</p>
+
+            <hr>
+
+            <p><em>This article is part of a 9-part series on production-ready multi-agent architecture. Next up: <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a>.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; <a href="/blog/multi-agent-user-interaction/">Part 1: User Interaction</a> &middot; Part 2: Orchestration &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; <a href="/blog/multi-agent-storage/">Part 4: Storage</a> &middot; <a href="/blog/multi-agent-agents/">Part 5: Agents</a> &middot; <a href="/blog/multi-agent-integration/">Part 6: Integration</a> &middot; <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a> &middot; <a href="/blog/multi-agent-observability/">Part 8: Observability</a> &middot; <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a></em></p>
+
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

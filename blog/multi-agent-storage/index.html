@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 4: Storage — Persistent Memory for Multi-Agent Conversations - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit persists conversation history, agent state, and identity across sessions with ConversationStore, PostgresStore, and JSONB event storage.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-storage/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 4: Storage — Persistent Memory for Multi-Agent Conversations">
+    <meta property="og:description" content="How RoomKit persists conversation history, agent state, and identity across sessions with ConversationStore, PostgresStore, and JSONB event storage.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-storage/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 4: Storage — Persistent Memory for Multi-Agent Conversations">
+    <meta name="twitter:description" content="How RoomKit persists conversation history, agent state, and identity across sessions with ConversationStore, PostgresStore, and JSONB event storage.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 4: Storage — Persistent Memory for Multi-Agent Conversations",
+        "description": "How RoomKit persists conversation history, agent state, and identity across sessions with ConversationStore, PostgresStore, and JSONB event storage.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-storage/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-storage/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 4: Storage &mdash; Persistent Memory for Multi-Agent Conversations</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>8 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 4 of a 10-part series on multi-agent architecture. <a href="/blog/multi-agent-architecture-series/">Start with the series introduction</a>, or read the previous article on <a href="/blog/multi-agent-knowledge/">Knowledge</a>.</em></p>
+
+            <hr>
+
+            <p>Agents are stateless by default. An LLM processes a prompt, returns a completion, and forgets everything. If you want a conversation that lasts longer than a single request &mdash; and you do &mdash; you need to build the memory yourself.</p>
+
+            <p>This sounds trivial until you start counting what needs to be remembered. The conversation history, obviously. But also: which agent is currently active, how many handoffs have occurred, what phase the conversation is in, who the user is across different channels, what tasks agents have created, and what observations they have recorded along the way. Drop any of these and your multi-agent system degrades from "production-ready" to "impressive demo."</p>
+
+            <p>In <a href="/blog/multi-agent-knowledge/">Part 3</a>, we covered how agents acquire knowledge. This article covers where everything gets stored and how it survives between sessions, restarts, and deployments.</p>
+
+            <h2>The Problem: What Needs to Persist</h2>
+
+            <p>A multi-agent conversation generates several categories of data that all need different storage strategies:</p>
+
+            <ul>
+                <li><strong>Conversation events</strong> &mdash; every message, every agent response, every system notification, ordered and queryable</li>
+                <li><strong>Agent state</strong> &mdash; which agent is active, what phase the conversation is in, the history of handoffs</li>
+                <li><strong>Channel bindings</strong> &mdash; which channels are attached to which rooms, with what configuration</li>
+                <li><strong>Participant membership</strong> &mdash; who is in each room, when they joined, their roles</li>
+                <li><strong>Identity</strong> &mdash; resolving the same person across SMS, WhatsApp, email, and WebSocket</li>
+                <li><strong>Work products</strong> &mdash; tasks created by agents, observations recorded during processing</li>
+            </ul>
+
+            <p>Most frameworks punt on this. They give you an in-memory list of messages and call it "memory." That works until your process restarts, your server scales horizontally, or a customer comes back the next day expecting continuity.</p>
+
+            <h2>ConversationStore: The Abstract Interface</h2>
+
+            <p>RoomKit defines storage through a single abstract base class: <code>ConversationStore</code>. Every storage operation in the framework goes through this interface, which means you can swap implementations without touching any application code.</p>
+
+            <p>There are two built-in implementations:</p>
+
+            <ul>
+                <li><strong>InMemoryStore</strong> &mdash; dictionary-backed, zero dependencies, perfect for development and testing</li>
+                <li><strong>PostgresStore</strong> &mdash; production-grade, backed by PostgreSQL with asyncpg connection pooling</li>
+            </ul>
+
+            <p>The ABC covers everything: room lifecycle, event storage, channel bindings, participant management, identity resolution, tasks, and observations. If you want to back your storage with Redis, DynamoDB, or Google Cloud Memorystore, you implement the same interface and the rest of the framework does not care.</p>
+
+            <h2>PostgresStore: The Production Backend</h2>
+
+            <p>For production, <code>PostgresStore</code> manages 10 tables that cover the full lifecycle of multi-agent conversations:</p>
+
+            <ul>
+                <li><code>rooms</code> &mdash; room metadata, conversation state, timestamps</li>
+                <li><code>events</code> &mdash; the conversation timeline, JSONB content with GIN indexes</li>
+                <li><code>bindings</code> &mdash; channel-to-room attachment records</li>
+                <li><code>participants</code> &mdash; room membership tracking</li>
+                <li><code>identities</code> &mdash; resolved user identities</li>
+                <li><code>identity_addresses</code> &mdash; multi-channel address linking</li>
+                <li><code>tasks</code> &mdash; agent-created work items</li>
+                <li><code>observations</code> &mdash; agent-recorded findings</li>
+                <li><code>read_markers</code> &mdash; per-participant read positions</li>
+                <li><code>schema_version</code> &mdash; migration tracking</li>
+            </ul>
+
+            <p>Setting it up with connection pooling takes a handful of lines:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit
+<span class="kw">from</span> roomkit.stores <span class="kw">import</span> PostgresStore
+
+<span class="kw">async def</span> <span class="fn">create_app</span>():
+    <span class="cm"># PostgresStore with asyncpg connection pooling</span>
+    store = PostgresStore(
+        dsn=<span class="st">"postgresql://user:pass@localhost:5432/roomkit"</span>,
+        min_size=<span class="nu">5</span>,   <span class="cm"># minimum connections in pool</span>
+        max_size=<span class="nu">20</span>,  <span class="cm"># maximum connections in pool</span>
+    )
+    <span class="kw">await</span> store.initialize()  <span class="cm"># creates tables if they don't exist</span>
+
+    kit = RoomKit(store=store)
+
+    <span class="cm"># Everything from here uses PostgreSQL transparently</span>
+    <span class="kw">await</span> kit.create_room(room_id=<span class="st">"support-42"</span>)
+    <span class="kw">return</span> kit</code></pre>
+
+            <p>The <code>min_size</code> and <code>max_size</code> parameters control asyncpg's connection pool. Under load, the pool scales up to <code>max_size</code> connections and reclaims them when traffic drops. This matters in multi-agent systems where multiple agents in the same room might issue concurrent storage operations &mdash; you do not want them blocking each other on a single connection.</p>
+
+            <h2>Event Storage: The Conversation Timeline</h2>
+
+            <p>The event table is the heart of the storage layer. Every message, every agent response, every system action becomes an event with a monotonically increasing per-room index. This is not just an append log &mdash; it is an ordered, queryable timeline that agents use to reconstruct conversation context.</p>
+
+            <p>Events are stored as JSONB with GIN indexes on metadata fields. This means you can query events by type, by channel, by sender, or by arbitrary metadata without scanning the entire table.</p>
+
+            <pre><code class="code-content"><span class="cm"># Store events through the normal message flow</span>
+<span class="kw">await</span> kit.process_inbound(InboundMessage(
+    channel_id=<span class="st">"customer-ws"</span>,
+    sender_id=<span class="st">"customer-1"</span>,
+    content=TextContent(body=<span class="st">"I need to change my shipping address"</span>),
+))
+
+<span class="cm"># Query events back — ordered by room index</span>
+events = <span class="kw">await</span> kit.store.list_events(<span class="st">"support-42"</span>)
+<span class="kw">for</span> event <span class="kw">in</span> events:
+    print(<span class="st">f"[{event.index}] {event.source.channel_id}: {event.content.body}"</span>)
+
+<span class="cm"># Query with filters — only events from a specific channel</span>
+ai_events = <span class="kw">await</span> kit.store.list_events(
+    <span class="st">"support-42"</span>,
+    channel_id=<span class="st">"assistant"</span>,
+)
+
+<span class="cm"># Paginate through history — useful for long conversations</span>
+recent = <span class="kw">await</span> kit.store.list_events(
+    <span class="st">"support-42"</span>,
+    limit=<span class="nu">50</span>,
+    before_index=<span class="nu">200</span>,
+)</code></pre>
+
+            <p>Each event gets a room-scoped index that increases monotonically. This is critical for two reasons. First, it gives agents a stable ordering even when events arrive concurrently from multiple channels. Second, it enables idempotency &mdash; if a message gets processed twice (network retry, duplicate webhook), the store can detect and deduplicate it based on the idempotency key.</p>
+
+            <h2>Conversation State: Where Agent Coordination Lives</h2>
+
+            <p>In a multi-agent system, the conversation itself has state beyond just the message history. Which agent is currently active? How many handoffs have occurred? What phase is the conversation in? RoomKit tracks this as <code>ConversationState</code> stored in the room's metadata:</p>
+
+            <ul>
+                <li><code>phase</code> &mdash; the current stage of the conversation (e.g., "greeting", "triage", "resolution")</li>
+                <li><code>active_agent_id</code> &mdash; which agent currently owns the conversation</li>
+                <li><code>handoff_count</code> &mdash; how many times the conversation has been transferred between agents</li>
+                <li><code>phase_history</code> &mdash; an ordered record of every phase transition with timestamps</li>
+            </ul>
+
+            <p>This state lives in the room, not in any individual agent. That is a deliberate design decision. When Agent A hands off to Agent B, Agent B does not need to ask Agent A what happened &mdash; it reads the room metadata and picks up exactly where things left off. This decoupling is what makes agent handoffs reliable instead of fragile.</p>
+
+            <h2>Identity Resolution: One Person, Many Channels</h2>
+
+            <p>Here is a scenario that breaks most frameworks: a customer starts a conversation over SMS, follows up on WhatsApp, and then calls in by phone. Are these three separate customers or one person using three channels?</p>
+
+            <p>RoomKit's identity resolution links multiple addresses to a single identity. An identity has a canonical ID and a set of addresses, each associated with a channel type. When a message arrives, the store resolves the sender's address to an identity, creating a new one if no match exists.</p>
+
+            <pre><code class="code-content"><span class="cm"># Identity resolution links addresses across channels</span>
+identity = <span class="kw">await</span> kit.store.resolve_identity(
+    address=<span class="st">"+1-555-0123"</span>,
+    channel_type=<span class="st">"sms"</span>,
+)
+
+<span class="cm"># Link additional addresses to the same identity</span>
+<span class="kw">await</span> kit.store.link_address(
+    identity_id=identity.id,
+    address=<span class="st">"+1-555-0123"</span>,
+    channel_type=<span class="st">"whatsapp"</span>,
+)
+<span class="kw">await</span> kit.store.link_address(
+    identity_id=identity.id,
+    address=<span class="st">"jane.doe@example.com"</span>,
+    channel_type=<span class="st">"email"</span>,
+)
+
+<span class="cm"># Now any channel resolves to the same person</span>
+same_person = <span class="kw">await</span> kit.store.resolve_identity(
+    address=<span class="st">"jane.doe@example.com"</span>,
+    channel_type=<span class="st">"email"</span>,
+)
+<span class="kw">assert</span> same_person.id == identity.id  <span class="cm"># True — same identity</span></code></pre>
+
+            <p>This is stored in two tables: <code>identities</code> for the canonical record and <code>identity_addresses</code> for the address-to-identity mappings. The separation means you can add or remove addresses without touching the identity itself, and you can query all channels a person has used.</p>
+
+            <p>For multi-agent systems, identity resolution is what makes continuity possible. When the same customer reaches your system through a different channel, the orchestrator can pull their full conversation history across all rooms and channels, giving the active agent the complete picture instead of starting from zero.</p>
+
+            <h2>Channel Bindings, Participants, and Work Products</h2>
+
+            <p>Three more storage concerns round out the picture:</p>
+
+            <p><strong>Channel bindings</strong> track which channels are attached to which rooms. The store supports the full lifecycle: add, get, update, remove, and list. Each binding can carry its own configuration, which means the same channel type can behave differently in different rooms.</p>
+
+            <p><strong>Participant membership</strong> records who is in each room, when they joined, and their role. This is essential for multi-party conversations where human agents join and leave, and for auditing who had access to what information.</p>
+
+            <p><strong>Tasks and observations</strong> give agents structured storage for their work products. A triage agent can create a task ("escalate to billing"), a research agent can record observations ("customer has been a subscriber for 3 years"), and downstream agents can query these artifacts to inform their decisions. This is more structured than stuffing everything into the message timeline &mdash; tasks have status, priority, and ownership; observations have types and metadata.</p>
+
+            <h2>Why Not Redis? Why Not DynamoDB?</h2>
+
+            <p>PostgreSQL is the default production backend because conversations are inherently relational. Events belong to rooms. Rooms have participants. Participants have identities. Identities have addresses. Tasks reference rooms and agents. Trying to model this in a key-value store means reimplementing joins in application code, and doing it badly.</p>
+
+            <p>That said, the <code>ConversationStore</code> ABC exists precisely so you can bring your own backend. If your infrastructure is built on AWS and DynamoDB is your team's comfort zone, implement the interface and use it. If you need Redis for hot-path caching with PostgreSQL for durable storage, compose them. The framework does not impose a storage topology &mdash; it imposes a storage contract.</p>
+
+            <p>JSONB with GIN indexes gives you the best of both worlds for event data: the flexibility of document storage with the query power of a relational database. You can add arbitrary metadata to events without schema migrations, and the GIN index ensures those ad-hoc queries stay fast.</p>
+
+            <h2>Storage as Architecture</h2>
+
+            <p>The storage layer is not a detail you bolt on at the end. It is an architectural decision that shapes everything above it. How you store events determines how fast agents can reconstruct context. How you resolve identities determines whether your system recognizes returning customers. How you track conversation state determines whether agent handoffs are seamless or lossy.</p>
+
+            <p>RoomKit makes this explicit by putting storage at the foundation: every <code>RoomKit</code> instance takes a store, every operation flows through it, and the abstract interface means you can start with <code>InMemoryStore</code> in development and switch to <code>PostgresStore</code> in production without changing a line of application code.</p>
+
+            <p>In the next article, we will look at the agents themselves &mdash; the execution units that consume all this stored context to actually do useful work.</p>
+
+            <hr>
+
+            <p><em>This article is part of a 9-part series on production-ready multi-agent architecture. Next up: <a href="/blog/multi-agent-agents/">Part 5: Agents</a>.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; <a href="/blog/multi-agent-user-interaction/">Part 1: User Interaction</a> &middot; <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a> &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; Part 4: Storage &middot; <a href="/blog/multi-agent-agents/">Part 5: Agents</a> &middot; <a href="/blog/multi-agent-integration/">Part 6: Integration</a> &middot; <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a> &middot; <a href="/blog/multi-agent-observability/">Part 8: Observability</a> &middot; <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a></em></p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

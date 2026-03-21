@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 7: External Tools — Connecting Agents to the Real World - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit connects multi-agent systems to external services — SMS providers, voice APIs, email, CRM integrations, and custom tool handlers for any business system.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-external-tools/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 7: External Tools — Connecting Agents to the Real World">
+    <meta property="og:description" content="How RoomKit connects multi-agent systems to external services — SMS providers, voice APIs, email, CRM integrations, and custom tool handlers for any business system.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-external-tools/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 7: External Tools — Connecting Agents to the Real World">
+    <meta name="twitter:description" content="How RoomKit connects multi-agent systems to external services — SMS providers, voice APIs, email, CRM integrations, and custom tool handlers for any business system.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 7: External Tools — Connecting Agents to the Real World",
+        "description": "How RoomKit connects multi-agent systems to external services — SMS providers, voice APIs, email, CRM integrations, and custom tool handlers for any business system.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-external-tools/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-external-tools/"
+    }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 7: External Tools &mdash; Connecting Agents to the Real World</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>8 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 7 of a series on multi-agent architecture. Read the <a href="/blog/multi-agent-architecture-series/">series introduction</a> for the full roadmap, <a href="/blog/multi-agent-integration/">Part 6: Integration</a> for tool access control, or skip ahead to <a href="/blog/multi-agent-observability/">Part 8: Observability</a>.</em></p>
+
+            <hr>
+
+            <p>An agent that can only talk is a chatbot. An agent that can <em>do things</em> &mdash; look up a customer record, send an SMS confirmation, trigger a webhook to your billing system, initiate a voice call &mdash; that's an agent worth deploying.</p>
+
+            <p>But "connecting to external services" sounds deceptively simple. In practice, every external system comes with its own authentication, payload format, rate limits, error modes, and retry semantics. If your agents interact with the outside world through ad-hoc HTTP calls scattered across your codebase, you end up with the same N-integrations mess we saw with channels in <a href="/blog/multi-agent-user-interaction/">Part 1</a>, except now it's on the output side.</p>
+
+            <p>External tools are the seventh pillar of multi-agent architecture. In <a href="/blog/multi-agent-integration/">Part 6</a>, we covered tool access control &mdash; deciding <em>which</em> agent can use <em>which</em> tool, and under what constraints. This article covers the next layer: the actual execution environment. How do you connect agents to SMS providers, voice APIs, CRM systems, search engines, and arbitrary business databases in a way that's pluggable, testable, and doesn't become a maintenance nightmare?</p>
+
+            <h2>The Provider Ecosystem</h2>
+
+            <p>RoomKit doesn't ship a single SMS integration or a single voice integration. It ships a <strong>provider interface</strong> for each capability, with multiple implementations behind it. The same channel type &mdash; say, <code>SMSChannel</code> &mdash; can be backed by Twilio, Telnyx, Sinch, or VoiceMeUp. Swap the provider, keep the channel behavior.</p>
+
+            <p>Here's what the provider landscape looks like across the major categories:</p>
+
+            <p><strong>Messaging:</strong> SMS via Twilio, Telnyx, Sinch, and VoiceMeUp (all with delivery tracking, webhook handling, and MMS support). RCS via Twilio RCS and Telnyx RCS. WhatsApp via the WhatsApp Business API (with a mock provider available for testing). Facebook Messenger. Email via ElasticEmail, with SendGrid scaffolded for drop-in support.</p>
+
+            <p><strong>Voice:</strong> Streaming speech-to-text via Deepgram. Text-to-speech via ElevenLabs. Local STT/TTS via Sherpa-ONNX for on-premise or air-gapped deployments. Voice backends via FastRTC (WebSocket + VAD), RTP, and SIP. Realtime speech-to-speech via Gemini Live and OpenAI Realtime.</p>
+
+            <p><strong>LLM providers:</strong> Anthropic Claude, OpenAI, Google Gemini, and Mistral AI &mdash; each exposed as an intelligence channel that plugs into a room.</p>
+
+            <p><strong>Webhooks:</strong> <code>HTTPChannel</code> for delivering structured payloads to any external endpoint.</p>
+
+            <p>The key architectural decision: every provider implements the same interface for its category. A <code>TwilioSMSProvider</code> and a <code>TelnyxSMSProvider</code> both conform to the SMS provider contract. This means your room configuration, routing logic, and agent code never reference a specific vendor. You can switch from Twilio to Telnyx by changing one line of configuration, and your agents don't know the difference.</p>
+
+            <h2>Wiring It Together: Multiple Providers in One Room</h2>
+
+            <p>Real systems rarely use just one external service. A support room might need SMS for customer notifications, a voice channel for live calls, and an AI channel for the agent brain. Here's how that looks in practice:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, SMSChannel, AIChannel
+<span class="kw">from</span> roomkit.voice <span class="kw">import</span> VoiceChannel
+<span class="kw">from</span> roomkit.providers.twilio <span class="kw">import</span> TwilioSMSProvider
+<span class="kw">from</span> roomkit.providers.deepgram <span class="kw">import</span> DeepgramSTTProvider
+<span class="kw">from</span> roomkit.providers.elevenlabs <span class="kw">import</span> ElevenLabsTTSProvider
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicProvider
+<span class="kw">from</span> roomkit.voice.backends.fastrpc <span class="kw">import</span> FastRTCBackend
+
+kit = RoomKit()
+
+<span class="cm"># SMS — outbound confirmations and inbound customer messages</span>
+sms = SMSChannel(<span class="st">"notify-sms"</span>, provider=TwilioSMSProvider(
+    account_sid=os.environ[<span class="st">"TWILIO_SID"</span>],
+    auth_token=os.environ[<span class="st">"TWILIO_TOKEN"</span>],
+    from_number=<span class="st">"+15559876543"</span>,
+))
+
+<span class="cm"># Voice — live calls with streaming STT/TTS</span>
+voice = VoiceChannel(<span class="st">"live-voice"</span>,
+    stt=DeepgramSTTProvider(api_key=os.environ[<span class="st">"DG_KEY"</span>]),
+    tts=ElevenLabsTTSProvider(
+        api_key=os.environ[<span class="st">"EL_KEY"</span>],
+        voice_id=<span class="st">"rachel"</span>,
+    ),
+    backend=FastRTCBackend(host=<span class="st">"0.0.0.0"</span>, port=8765),
+)
+
+<span class="cm"># AI — the agent brain</span>
+ai = AIChannel(<span class="st">"support-agent"</span>, provider=AnthropicProvider(
+    model=<span class="st">"claude-sonnet-4-20250514"</span>,
+    system_prompt=<span class="st">"You are a support agent for Acme Corp..."</span>,
+))
+
+<span class="cm"># Register and attach everything to one room</span>
+<span class="kw">for</span> ch <span class="kw">in</span> (sms, voice, ai):
+    kit.register_channel(ch)
+
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"case-0421"</span>)
+<span class="kw">for</span> ch <span class="kw">in</span> (sms, voice, ai):
+    <span class="kw">await</span> kit.attach_channel(<span class="st">"case-0421"</span>, ch.id)</code></pre>
+
+            <p>Three providers, three protocols, one room. The AI agent hears everything &mdash; the SMS messages, the voice transcriptions &mdash; and can respond through any attached channel. When a customer calls in and the agent needs to send a confirmation code, it writes to the SMS channel. No separate integration code. No provider-specific logic in the agent.</p>
+
+            <h2>Custom Tool Handlers: Reaching Any External System</h2>
+
+            <p>Providers cover the communication channels, but agents also need to interact with systems that aren't channels at all: CRM lookups, database queries, search engines, SaaS platform APIs, internal microservices. This is where <code>tool_handler</code> functions come in.</p>
+
+            <p>A tool handler is an async function that takes structured arguments from the LLM and returns a JSON string. You register it on the AI channel alongside the tool's schema, and the LLM can invoke it during a conversation just like any built-in tool. The handler runs your code &mdash; any code &mdash; and feeds the result back to the agent.</p>
+
+            <pre><code class="code-content"><span class="kw">import</span> json
+<span class="kw">import</span> httpx
+
+<span class="kw">async def</span> <span class="fn">lookup_customer</span>(arguments: dict) -> str:
+    <span class="st">"""Look up a customer by email or phone in the CRM."""</span>
+    <span class="kw">async with</span> httpx.AsyncClient() <span class="kw">as</span> client:
+        resp = <span class="kw">await</span> client.get(
+            <span class="st">"https://crm.internal/api/v2/customers"</span>,
+            params={<span class="st">"q"</span>: arguments[<span class="st">"query"</span>]},
+            headers={<span class="st">"Authorization"</span>: <span class="st">f"Bearer </span>{os.environ[<span class="st">'CRM_TOKEN'</span>]}<span class="st">"</span>},
+            timeout=5.0,
+        )
+        resp.raise_for_status()
+        customers = resp.json()[<span class="st">"results"</span>]
+
+    <span class="kw">if not</span> customers:
+        <span class="kw">return</span> json.dumps({<span class="st">"found"</span>: <span class="kw">False</span>})
+
+    customer = customers[0]
+    <span class="kw">return</span> json.dumps({
+        <span class="st">"found"</span>: <span class="kw">True</span>,
+        <span class="st">"name"</span>: customer[<span class="st">"name"</span>],
+        <span class="st">"plan"</span>: customer[<span class="st">"subscription_plan"</span>],
+        <span class="st">"open_tickets"</span>: customer[<span class="st">"open_ticket_count"</span>],
+        <span class="st">"last_contact"</span>: customer[<span class="st">"last_contact_date"</span>],
+    })
+
+<span class="cm"># Register the tool on the AI channel</span>
+ai = AIChannel(<span class="st">"support-agent"</span>,
+    provider=AnthropicProvider(
+        model=<span class="st">"claude-sonnet-4-20250514"</span>,
+        system_prompt=<span class="st">"You are a support agent. Use lookup_customer to find customer records before answering account questions."</span>,
+    ),
+    tools=[{
+        <span class="st">"name"</span>: <span class="st">"lookup_customer"</span>,
+        <span class="st">"description"</span>: <span class="st">"Search the CRM for a customer by email or phone number."</span>,
+        <span class="st">"input_schema"</span>: {
+            <span class="st">"type"</span>: <span class="st">"object"</span>,
+            <span class="st">"properties"</span>: {
+                <span class="st">"query"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>, <span class="st">"description"</span>: <span class="st">"Email address or phone number to search for"</span>}
+            },
+            <span class="st">"required"</span>: [<span class="st">"query"</span>],
+        },
+    }],
+    tool_handler=lookup_customer,
+)</code></pre>
+
+            <p>The LLM decides when to call the tool based on the conversation context. When a customer asks "what plan am I on?", the agent calls <code>lookup_customer</code> with their email, gets the CRM data, and responds with specific account details. No hallucination, no guesswork &mdash; the agent retrieved real data from a real system.</p>
+
+            <p>This pattern extends to anything you can call from Python: database queries with SQLAlchemy, Elasticsearch searches, Stripe billing lookups, Jira ticket creation, Slack notifications. The tool handler is your escape hatch from the LLM sandbox into the real world. It's an async function returning a JSON string &mdash; what happens inside is entirely up to you.</p>
+
+            <h2>HTTPChannel: Webhooks to Anywhere</h2>
+
+            <p>Sometimes you need the reverse direction: instead of an agent calling out to an external system, you want the room's events to flow <em>into</em> an external system automatically. That's what <code>HTTPChannel</code> does. It attaches to a room like any other channel, but instead of connecting to a user, it delivers structured payloads to an HTTP endpoint.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HTTPChannel
+
+<span class="cm"># Push every room event to an analytics pipeline</span>
+analytics = HTTPChannel(<span class="st">"analytics-hook"</span>,
+    url=<span class="st">"https://analytics.internal/ingest/conversations"</span>,
+    headers={<span class="st">"Authorization"</span>: <span class="st">f"Bearer </span>{os.environ[<span class="st">'ANALYTICS_KEY'</span>]}<span class="st">"</span>},
+    events=[<span class="st">"message.created"</span>, <span class="st">"tool.called"</span>, <span class="st">"agent.handoff"</span>],
+)
+
+kit.register_channel(analytics)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"case-0421"</span>, <span class="st">"analytics-hook"</span>)
+
+<span class="cm"># Now every message, tool call, and agent handoff in room "case-0421"</span>
+<span class="cm"># is POSTed to your analytics endpoint as structured JSON.</span></code></pre>
+
+            <p>This is powerful for integration patterns where the external system is the consumer, not the provider. Feed conversation transcripts into a data warehouse. Push agent decisions to a compliance audit log. Send real-time events to a Slack channel for human oversight. The room broadcasts to HTTPChannel just like it broadcasts to SMS or WhatsApp &mdash; it's the same mechanism, aimed at a different target.</p>
+
+            <h2>Pluggable by Design</h2>
+
+            <p>The thread running through all of this is pluggability. Every provider conforms to an interface. Every tool handler follows the same signature. Every channel &mdash; whether it's delivering SMS, voice, or webhook payloads &mdash; implements the same lifecycle.</p>
+
+            <p>This matters for three reasons that hit hard in production:</p>
+
+            <p><strong>Testing.</strong> WhatsApp has a mock provider. You can run your entire multi-agent workflow against mock SMS, mock voice, and mock CRM endpoints without touching a real API. Your CI pipeline tests the full conversation flow, not just the LLM prompts. When something breaks, you know whether it's your logic or the provider's API.</p>
+
+            <p><strong>Migration.</strong> When you need to switch from Twilio to Telnyx for cost reasons, you change the provider instance. The room configuration, the agent logic, the hooks, the tool handlers &mdash; none of them change. I've done this migration in production. It took one line of code and a config update.</p>
+
+            <p><strong>Composition.</strong> Because providers and tool handlers share the same registration pattern, you can compose them freely. One room can have Twilio SMS for US numbers, Sinch for European numbers, Deepgram for STT, Sherpa-ONNX for on-premise voice, Claude for complex reasoning, and Gemini for fast classification &mdash; all coordinated by the same orchestration logic from <a href="/blog/multi-agent-orchestration/">Part 2</a>.</p>
+
+            <h2>Common Mistakes</h2>
+
+            <p>From working with teams building on RoomKit, I see the same mistakes with external tools:</p>
+
+            <p><strong>Putting provider logic in tool handlers.</strong> If your tool handler is constructing Twilio API calls directly, you've bypassed the provider abstraction. Use the channel to send messages; use tool handlers for non-channel systems like CRMs and databases.</p>
+
+            <p><strong>No timeouts on external calls.</strong> A tool handler that hangs for 30 seconds waiting on a slow API will stall the entire agent turn. Set explicit timeouts. Return a structured error when a service is unavailable. The agent can tell the user "I couldn't reach the billing system right now" &mdash; that's better than silence.</p>
+
+            <p><strong>Returning raw API responses.</strong> The LLM doesn't need a 200-field JSON blob from your CRM. Filter the response in the tool handler to only the fields the agent needs. Less data means fewer tokens, faster inference, and less chance the agent latches onto an irrelevant field.</p>
+
+            <p><strong>Skipping the mock providers in tests.</strong> If your test suite hits real Twilio or real Deepgram, your tests are slow, flaky, and expensive. Use the mock providers. Test the conversation flow, not the HTTP client.</p>
+
+            <h2>Why This Matters for Multi-Agent Systems</h2>
+
+            <p>In a single-agent system, external tool integration is already tricky. In a multi-agent system, it's critical infrastructure. Multiple agents might need the same CRM data but at different permission levels (covered in <a href="/blog/multi-agent-integration/">Part 6</a>). Tool calls need to be traced across agent boundaries (covered in <a href="/blog/multi-agent-observability/">Part 8</a>). And the tool execution environment needs to be reliable enough that agents can depend on it without defensive retry logic in every prompt.</p>
+
+            <p>RoomKit's external tools layer gives you three guarantees:</p>
+
+            <ol>
+                <li><strong>Provider-agnostic channels</strong>: swap SMS, voice, email, or LLM providers without touching agent code</li>
+                <li><strong>Structured tool execution</strong>: custom handlers with a consistent async interface, JSON in and JSON out, for any external system your agents need to reach</li>
+                <li><strong>Bidirectional integration</strong>: agents call out via tool handlers, and room events flow out via HTTPChannel &mdash; both directions covered by the same pluggable architecture</li>
+            </ol>
+
+            <p>Your agents need to do things in the real world. The external tools layer is how they do it without your codebase turning into a pile of provider-specific glue code.</p>
+
+            <hr>
+
+            <p><em>This article is part of a 9-part series on production-ready multi-agent architecture. Next up: <a href="/blog/multi-agent-observability/">Part 8: Observability</a>.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; <a href="/blog/multi-agent-user-interaction/">Part 1: User Interaction</a> &middot; <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a> &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; <a href="/blog/multi-agent-storage/">Part 4: Storage</a> &middot; <a href="/blog/multi-agent-agents/">Part 5: Agents</a> &middot; <a href="/blog/multi-agent-integration/">Part 6: Integration</a> &middot; Part 7: External Tools &middot; <a href="/blog/multi-agent-observability/">Part 8: Observability</a> &middot; <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a></em></p>
+
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="/js/main.js"></script>
+</body>
+</html>

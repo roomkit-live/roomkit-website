@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 6: Integration — Secure Tool Access with MCP and Policies - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit controls tool access in multi-agent systems — MCP integration, policy-based allow/deny, role overrides, and secure credential handling.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-integration/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 6: Integration — Secure Tool Access with MCP and Policies">
+    <meta property="og:description" content="How RoomKit controls tool access in multi-agent systems — MCP integration, policy-based allow/deny, role overrides, and secure credential handling.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-integration/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 6: Integration — Secure Tool Access with MCP and Policies">
+    <meta name="twitter:description" content="How RoomKit controls tool access in multi-agent systems — MCP integration, policy-based allow/deny, role overrides, and secure credential handling.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 6: Integration — Secure Tool Access with MCP and Policies",
+        "description": "How RoomKit controls tool access in multi-agent systems — MCP integration, policy-based allow/deny, role overrides, and secure credential handling.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-integration/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-integration/"
+    }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 6: Integration &mdash; Secure Tool Access with MCP and Policies</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>8 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 6 of a series on multi-agent architecture. Read the <a href="/blog/multi-agent-architecture-series/">series introduction</a> for context on the full architecture, <a href="/blog/multi-agent-agents/">Part 5: Agents</a> for how execution units are designed, or jump ahead to <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a>.</em></p>
+
+            <hr>
+
+            <p>Here is a scenario that keeps me up at night. You build a multi-agent customer support system. One agent handles billing inquiries. Another handles account management. Both need access to your internal APIs. You give them both the same set of tools because it is faster than thinking about permissions. Three weeks later, the billing agent &mdash; which should only read invoice data &mdash; calls the <code>delete_account</code> tool because a confused user asked it to "cancel everything." The LLM interpreted the instruction literally, had the capability available, and executed it.</p>
+
+            <p>This is not a hypothetical. In any system where agents have unrestricted tool access, it is a matter of time before a tool gets called in a context it was never designed for. The integration layer exists to prevent this. It is the permission boundary between what an agent <em>can</em> do and what it <em>should</em> do.</p>
+
+            <p>RoomKit treats tool access control as a first-class architectural concern: tool definitions follow a strict schema, policies enforce allow/deny rules at execution time, role overrides scope permissions per agent, and MCP provides a standardized protocol for connecting to external tool servers. None of this is optional in production.</p>
+
+            <h2>The Problem: Tools Without Boundaries</h2>
+
+            <p>Most agent frameworks treat tools as a flat list. You define functions, register them, and every agent in the system sees all of them. This works fine in a single-agent prototype. In a multi-agent system, it becomes a liability for three reasons.</p>
+
+            <p>First, <strong>blast radius</strong>. An agent with access to tools it does not need can cause damage that has nothing to do with its purpose. A search agent that can also write to the database is one hallucinated function call away from data corruption.</p>
+
+            <p>Second, <strong>prompt confusion</strong>. The more tools an agent sees, the harder it is for the LLM to pick the right one. I have seen agents call <code>update_user_profile</code> when they meant <code>search_users</code> simply because both appeared in a 40-tool list. Narrowing the visible tool set improves accuracy.</p>
+
+            <p>Third, <strong>credential exposure</strong>. If every tool shares the same runtime, a compromised or misbehaving agent can potentially access credentials intended for other tools. Isolation is not just about permissions &mdash; it is about limiting what is even reachable.</p>
+
+            <h2>AITool: Structured Tool Definitions</h2>
+
+            <p>Everything starts with how tools are defined. In RoomKit, every tool is an <code>AITool</code> instance with a name, description, and JSON Schema parameters. This is not just documentation &mdash; it is the contract that the LLM uses to generate valid function calls and that the policy engine uses to make access decisions.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> AITool
+
+search_tool = AITool(
+    name=<span class="st">"search_orders"</span>,
+    description=<span class="st">"Search customer orders by date range or status"</span>,
+    parameters={
+        <span class="st">"type"</span>: <span class="st">"object"</span>,
+        <span class="st">"properties"</span>: {
+            <span class="st">"customer_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+            <span class="st">"status"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>, <span class="st">"enum"</span>: [<span class="st">"pending"</span>, <span class="st">"shipped"</span>, <span class="st">"delivered"</span>]},
+        },
+        <span class="st">"required"</span>: [<span class="st">"customer_id"</span>],
+    },
+)
+
+delete_tool = AITool(
+    name=<span class="st">"delete_account"</span>,
+    description=<span class="st">"Permanently delete a customer account and all data"</span>,
+    parameters={
+        <span class="st">"type"</span>: <span class="st">"object"</span>,
+        <span class="st">"properties"</span>: {
+            <span class="st">"customer_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+            <span class="st">"confirmation"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+        },
+        <span class="st">"required"</span>: [<span class="st">"customer_id"</span>, <span class="st">"confirmation"</span>],
+    },
+)</code></pre>
+
+            <p>The schema is not decorative. It drives validation, policy matching, and documentation generation. Tools are bound to rooms via metadata, which means different rooms can expose different tool sets to the same agent &mdash; a natural way to scope capabilities by context.</p>
+
+            <h2>MCPToolProvider: Connecting to External Tool Servers</h2>
+
+            <p>Local tool handlers are fine for simple functions, but real systems integrate with external services: CRMs, databases, search engines, monitoring platforms. The Model Context Protocol (MCP) standardizes how agents discover and invoke tools hosted on remote servers.</p>
+
+            <p>RoomKit's <code>MCPToolProvider</code> connects to MCP-compliant servers over streaming HTTP or SSE transports. It fetches the tool catalog from the server, merges it with your local tools, and presents a unified interface to the AI channel. The key function here is <code>compose_tool_handlers()</code>, which takes your local handler and the MCP provider and produces a single handler that routes calls to the right place.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.mcp <span class="kw">import</span> MCPToolProvider, compose_tool_handlers
+<span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
+
+<span class="cm"># Connect to an MCP server that provides CRM tools</span>
+crm_mcp = MCPToolProvider(
+    url=<span class="st">"https://crm-tools.internal/mcp"</span>,
+    transport=<span class="st">"streamable_http"</span>,
+)
+
+<span class="cm"># Local tools defined in your codebase</span>
+<span class="kw">async def</span> <span class="fn">local_tool_handler</span>(tool_name, args, ctx):
+    <span class="kw">if</span> tool_name == <span class="st">"search_orders"</span>:
+        <span class="kw">return await</span> order_db.search(**args)
+    <span class="kw">if</span> tool_name == <span class="st">"get_shipping_status"</span>:
+        <span class="kw">return await</span> shipping_api.track(args[<span class="st">"tracking_id"</span>])
+
+<span class="cm"># Compose local + MCP tools into a single handler</span>
+combined_handler = compose_tool_handlers(
+    local_handler=local_tool_handler,
+    mcp_providers=[crm_mcp],
+)
+
+<span class="cm"># The AI channel sees all tools — local and remote — as one set</span>
+agent = AIChannel(
+    <span class="st">"support-agent"</span>,
+    provider=openai_provider,
+    tools=[search_tool, shipping_tool],  <span class="cm"># local tool definitions</span>
+    tool_handler=combined_handler,       <span class="cm"># merged handler</span>
+)</code></pre>
+
+            <p>When the agent calls <code>search_orders</code>, the composed handler routes it to your local function. When it calls <code>create_crm_ticket</code> (discovered from the MCP server), the handler forwards the call to the CRM server over the MCP transport. The agent does not know or care where the tool lives. That is the point.</p>
+
+            <h2>ToolPolicy: Allow/Deny at Execution Time</h2>
+
+            <p>Giving agents access to tools is step one. Controlling which agents can call which tools is step two, and this is where most frameworks fall short. RoomKit enforces tool access through <code>ToolPolicy</code>, which uses glob patterns to define what is allowed and what is blocked.</p>
+
+            <p>Policies are evaluated at execution time, not at tool discovery. This is a deliberate design decision. The agent still sees the tool in its catalog (so the LLM knows it exists and can reference it in conversation), but if the agent tries to call a blocked tool, RoomKit intercepts the call and returns an error message to the AI. The agent learns that the tool is unavailable and adjusts its behavior.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> ToolPolicy
+
+<span class="cm"># Billing agent: can search and read, cannot modify or delete</span>
+billing_policy = ToolPolicy(
+    allow=[<span class="st">"search_*"</span>, <span class="st">"get_*"</span>, <span class="st">"list_*"</span>],
+    deny=[<span class="st">"delete_*"</span>, <span class="st">"update_*"</span>, <span class="st">"create_*"</span>],
+)
+
+<span class="cm"># Admin agent: full access except destructive operations</span>
+admin_policy = ToolPolicy(
+    allow=[<span class="st">"*"</span>],
+    deny=[<span class="st">"delete_account"</span>, <span class="st">"drop_*"</span>],
+)</code></pre>
+
+            <p>The glob matching is straightforward: <code>*</code> matches any sequence of characters within a tool name. When both allow and deny patterns match a tool, deny wins. This follows the principle of least privilege &mdash; if there is any ambiguity, the tool is blocked.</p>
+
+            <p>One important exception: <strong>skill tools are never filtered by policy</strong>. The three built-in skill tools &mdash; <code>activate_skill()</code>, <code>read_skill_reference()</code>, and <code>run_skill_script()</code> &mdash; are always visible to every agent. Skills are RoomKit's mechanism for structured multi-step workflows, and blocking them would break the orchestration layer. Policy controls what domain tools an agent can invoke, not whether it can participate in the system's coordination protocol.</p>
+
+            <h2>RoleOverride: Per-Agent Permission Scoping</h2>
+
+            <p>Policies define the rules. <code>RoleOverride</code> applies them differently depending on who the agent is. This is where integration meets orchestration: different agents in the same room can have different tool permissions, enforced by their role.</p>
+
+            <p>RoleOverride supports two modes. <strong>Restrict</strong> mode intersects the role's tool set with the base policy &mdash; the agent can only use tools that both the role and the policy allow. This is a dual-constraint model, useful when you want a policy as a baseline and roles as further restrictions. <strong>Replace</strong> mode ignores the base policy entirely and uses only the role's tool set. This is useful for privileged roles like admin or supervisor that need capabilities outside the normal policy.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoleOverride, ToolPolicy
+
+<span class="cm"># Base policy for the room</span>
+base_policy = ToolPolicy(
+    allow=[<span class="st">"search_*"</span>, <span class="st">"get_*"</span>, <span class="st">"create_ticket"</span>],
+    deny=[<span class="st">"delete_*"</span>],
+)
+
+<span class="cm"># Tier-1 support: restrict mode — can only search (intersection with base)</span>
+tier1_override = RoleOverride(
+    role=<span class="st">"tier1_support"</span>,
+    mode=<span class="st">"restrict"</span>,
+    policy=ToolPolicy(allow=[<span class="st">"search_*"</span>, <span class="st">"get_*"</span>]),
+)
+
+<span class="cm"># Supervisor: replace mode — full access, bypasses base policy</span>
+supervisor_override = RoleOverride(
+    role=<span class="st">"supervisor"</span>,
+    mode=<span class="st">"replace"</span>,
+    policy=ToolPolicy(allow=[<span class="st">"*"</span>]),
+)</code></pre>
+
+            <p>When the tier-1 support agent tries to call <code>create_ticket</code>, it is blocked: the base policy allows it, but the role override in restrict mode only permits <code>search_*</code> and <code>get_*</code>. The intersection is enforced. When the supervisor agent calls <code>delete_account</code>, it succeeds: replace mode bypasses the base policy entirely.</p>
+
+            <p>This layered model &mdash; base policy plus role overrides &mdash; means you define the security posture once and customize per agent without duplicating rules.</p>
+
+            <h2>Secure Credential Handling</h2>
+
+            <p>Tool access control is not just about which tools an agent can call. It is also about how credentials flow through the system. In RoomKit, provider credentials use <code>SecretStr</code> types. This is a small but critical detail: <code>SecretStr</code> values are masked in logs, exception tracebacks, and debug output. You will never see an API key in a stack trace or an accidentally logged configuration dump.</p>
+
+            <p>At the transport boundary, webhook signatures are verified before any message enters the system. Telnyx uses ED25519 signature verification. Twilio and Sinch use HMAC-SHA1. Each provider implements its own verification scheme, and RoomKit checks signatures at ingestion &mdash; before the payload is deserialized, before it reaches any tool handler, and long before any agent sees it. A forged webhook never becomes a tool invocation.</p>
+
+            <h2>Putting It Together: The Integration Boundary</h2>
+
+            <p>The integration layer is where security and functionality intersect. Here is the mental model: tools flow inward from MCP servers and local handlers, get merged by <code>compose_tool_handlers()</code>, and are presented to the AI channel. When the agent calls a tool, the call flows outward through the policy engine. The policy checks the tool name against allow/deny patterns, applies any role override, and either permits execution or returns an error to the agent.</p>
+
+            <div class="ascii-diagram">[MCP Server] ──┐                                  ┌── [Allow] ──→ Execute
+                ├── compose_tool_handlers() ──→ Agent ──→ ToolPolicy ──┤
+[Local Tools] ──┘                                  └── [Deny]  ──→ Error to AI</div>
+
+            <p>This is not middleware. It is not an afterthought. It is the architectural decision that determines whether your multi-agent system is safe to deploy. Every tool call passes through the policy engine. There are no shortcuts, no backdoors, no "but this agent is trusted so we skip the check."</p>
+
+            <p>Well, almost. Skill tools bypass policy because they are part of the orchestration infrastructure, not domain functionality. That distinction matters: <code>activate_skill()</code> lets an agent start a workflow. <code>delete_account()</code> destroys data. They belong in different security tiers.</p>
+
+            <h2>Why This Matters for Multi-Agent Systems</h2>
+
+            <p>In a single-agent system, you might get away with giving the agent access to everything and relying on prompt engineering to prevent misuse. In a multi-agent system, you cannot. Each agent has a different role, different knowledge, different judgment. The billing agent should not have the same tools as the account management agent, even if they run in the same room.</p>
+
+            <p>RoomKit's integration layer enforces this structurally, not with prompts. Policies are code, not suggestions. Role overrides are configuration, not conventions. MCP tool access follows the same rules as local tools. And credentials never leak into contexts where they do not belong.</p>
+
+            <p>The next pillar &mdash; External Tools &mdash; covers what happens after the policy check passes: how tool calls are executed, sandboxed, timed out, and their results parsed. Integration decides <em>whether</em> a tool can be called. External tools decide <em>how</em>.</p>
+
+            <hr>
+
+            <p><em>This article is part of a 9-part series on production-ready multi-agent architecture. Next up: <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a>.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; <a href="/blog/multi-agent-user-interaction/">Part 1: User Interaction</a> &middot; <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a> &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; <a href="/blog/multi-agent-storage/">Part 4: Storage</a> &middot; <a href="/blog/multi-agent-agents/">Part 5: Agents</a> &middot; Part 6: Integration &middot; <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a> &middot; <a href="/blog/multi-agent-observability/">Part 8: Observability</a> &middot; <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a></em></p>
+
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 5: Agents — Supervisors, Specialists, and Delegation - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit models agents as execution units — supervisor oversight, specialized AI channels, background delegation, and multi-provider support across Anthropic, OpenAI, Gemini, and Mistral.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-agents/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 5: Agents — Supervisors, Specialists, and Delegation">
+    <meta property="og:description" content="How RoomKit models agents as execution units — supervisor oversight, specialized AI channels, background delegation, and multi-provider support across Anthropic, OpenAI, Gemini, and Mistral.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-agents/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 5: Agents — Supervisors, Specialists, and Delegation">
+    <meta name="twitter:description" content="How RoomKit models agents as execution units — supervisor oversight, specialized AI channels, background delegation, and multi-provider support across Anthropic, OpenAI, Gemini, and Mistral.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 5: Agents — Supervisors, Specialists, and Delegation",
+        "description": "How RoomKit models agents as execution units — supervisor oversight, specialized AI channels, background delegation, and multi-provider support across Anthropic, OpenAI, Gemini, and Mistral.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-agents/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-agents/"
+    }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 5: Agents &mdash; Supervisors, Specialists, and Delegation</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>10 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 5 of a series on multi-agent architecture. Read the <a href="/blog/multi-agent-architecture-series/">series introduction</a> for context on the full architecture, or go back to <a href="/blog/multi-agent-storage/">Part 4: Storage</a>.</em></p>
+
+            <hr>
+
+            <p>This is the pillar everyone wants to start with. Multiple AI agents with different roles, coordinating in real time, each bringing specialized expertise. The pitch is compelling, and the demos look impressive. Then you try to build it for real.</p>
+
+            <p>The questions pile up fast. How do you scope an agent's responsibility? How does one agent hand off to another without losing context? What happens when two agents want to respond at the same time? How do you run a background task without blocking the main conversation? And how do you mix providers &mdash; Claude for reasoning, Gemini for vision, Mistral for fast classification &mdash; without your codebase turning into a provider-specific mess?</p>
+
+            <p>These aren't hypothetical problems. I hit every one of them while building production multi-agent workflows with RoomKit. The solutions came from a single architectural decision: <strong>an agent is just a channel</strong>. Specifically, an <code>AIChannel</code> attached to a room. This sounds reductive, but it turns out to be exactly the right abstraction. It gives you isolation, composability, provider independence, and a natural coordination boundary &mdash; all from the same room model that handles user interaction.</p>
+
+            <h2>AIChannel: The Execution Unit</h2>
+
+            <p>In RoomKit, every agent is an <code>AIChannel</code>. Each channel carries its own configuration: the LLM provider, the system prompt, generation parameters, and tool definitions. When a message arrives in the room, the orchestration layer (covered in <a href="/blog/multi-agent-orchestration/">Part 2</a>) decides which channels receive it. The active channel generates a response. Non-active channels are muted.</p>
+
+            <p>This is a critical distinction. Muting does not mean the agent is shut down. A muted channel suppresses response events &mdash; it won't produce visible output &mdash; but it still preserves side effects. Tasks continue running, observations are recorded, and the agent stays aware of the conversation. It's the difference between an agent that's silent and an agent that doesn't exist.</p>
+
+            <p>Here's what a multi-agent room looks like in practice &mdash; a customer support system with a supervisor, a billing specialist, and a technical specialist:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, AIChannel
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicProvider
+<span class="kw">from</span> roomkit.providers.openai <span class="kw">import</span> OpenAIProvider
+<span class="kw">from</span> roomkit.providers.gemini <span class="kw">import</span> GeminiProvider
+
+kit = RoomKit()
+
+<span class="cm"># Supervisor: Claude for complex reasoning and oversight</span>
+supervisor = AIChannel(<span class="st">"supervisor"</span>, provider=AnthropicProvider(
+    api_key=ANTHROPIC_KEY,
+    model=<span class="st">"claude-sonnet-4-20250514"</span>,
+), config={
+    <span class="st">"system_prompt"</span>: (
+        <span class="st">"You are a support supervisor. You observe all exchanges "</span>
+        <span class="st">"between customers and specialist agents. Intervene only when "</span>
+        <span class="st">"an agent gives incorrect information, when the customer is "</span>
+        <span class="st">"frustrated, or when escalation is needed. Otherwise, stay silent."</span>
+    ),
+    <span class="st">"temperature"</span>: 0.3,
+    <span class="st">"max_tokens"</span>: 1024,
+})
+
+<span class="cm"># Billing specialist: GPT-4o for structured data extraction</span>
+billing = AIChannel(<span class="st">"billing-agent"</span>, provider=OpenAIProvider(
+    api_key=OPENAI_KEY,
+    model=<span class="st">"gpt-4o"</span>,
+), config={
+    <span class="st">"system_prompt"</span>: (
+        <span class="st">"You are a billing specialist. Handle invoice inquiries, "</span>
+        <span class="st">"payment issues, refund requests, and subscription changes. "</span>
+        <span class="st">"Always verify the customer's account before making changes."</span>
+    ),
+    <span class="st">"temperature"</span>: 0.1,
+    <span class="st">"max_tokens"</span>: 2048,
+})
+
+<span class="cm"># Technical specialist: Gemini for multimodal support (screenshots)</span>
+tech = AIChannel(<span class="st">"tech-agent"</span>, provider=GeminiProvider(
+    api_key=GEMINI_KEY,
+    model=<span class="st">"gemini-2.5-pro"</span>,
+), config={
+    <span class="st">"system_prompt"</span>: (
+        <span class="st">"You are a technical support specialist. Diagnose bugs, "</span>
+        <span class="st">"walk users through configuration steps, and analyze "</span>
+        <span class="st">"screenshots or error logs they share."</span>
+    ),
+    <span class="st">"temperature"</span>: 0.2,
+    <span class="st">"max_tokens"</span>: 4096,
+    <span class="st">"thinking_budget"</span>: 2048,
+})
+
+kit.register_channel(supervisor)
+kit.register_channel(billing)
+kit.register_channel(tech)
+
+<span class="cm"># Create the room and attach all agents</span>
+<span class="kw">await</span> kit.create_room(
+    room_id=<span class="st">"support-room-001"</span>,
+    supervisor_id=<span class="st">"supervisor"</span>,  <span class="cm"># always receives events</span>
+)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"support-room-001"</span>, <span class="st">"supervisor"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"support-room-001"</span>, <span class="st">"billing-agent"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"support-room-001"</span>, <span class="st">"tech-agent"</span>)</code></pre>
+
+            <p>Three agents, three providers, one room. Each agent has a scoped responsibility, its own system prompt, and independent generation parameters. The supervisor uses lower temperature for precise oversight. The tech agent gets a thinking budget for complex diagnostic reasoning. The billing agent uses minimal temperature for deterministic data operations.</p>
+
+            <h2>The Supervisor Pattern</h2>
+
+            <p>The <code>supervisor_id</code> parameter on the room is deceptively simple, but it changes everything about how multi-agent coordination works. A supervisor channel <strong>always receives events</strong>, regardless of routing. When the orchestrator routes a message to the billing agent, the supervisor still sees it. When the billing agent responds, the supervisor sees that too.</p>
+
+            <p>This is not the same as making the supervisor the "active" agent. The supervisor is muted during normal operation &mdash; it observes but doesn't produce responses. But because muting preserves side effects, the supervisor can still take action when it detects a problem: trigger an escalation, log an observation, or unmute itself to intervene directly.</p>
+
+            <p>The architecture looks like this:</p>
+
+            <div class="ascii-diagram">Customer Message
+       |
+       v
+  [Orchestrator] ──routing──> [Billing Agent]  (active, responds)
+       |
+       └──always──> [Supervisor]  (muted, observes, can intervene)
+       |
+       └──muted──> [Tech Agent]  (muted, idle)</div>
+
+            <p>The supervisor pattern solves a real problem: in any multi-agent system, you need a single point of accountability. Without it, agents operate in silos and nobody catches cross-agent mistakes. The supervisor is that accountability layer, and because it's just another <code>AIChannel</code>, it has its own prompt, provider, and tools &mdash; it can be as sophisticated or as lightweight as your use case demands.</p>
+
+            <h2>Tool Handlers: Giving Agents Capabilities</h2>
+
+            <p>An agent without tools is a chatbot. Tools are what turn an LLM into an execution unit &mdash; the ability to look up an account, process a refund, query a database, or call an external API. In RoomKit, tools are defined per channel through the <code>tool_handler</code> interface.</p>
+
+            <p>Each tool handler is an async function that receives structured arguments from the LLM and returns a JSON string. The framework handles the function-calling protocol for each provider &mdash; Anthropic's tool_use, OpenAI's function calling, Gemini's function declarations, Mistral's tool calls &mdash; so your tool implementation is provider-agnostic:</p>
+
+            <pre><code class="code-content"><span class="kw">import</span> json
+
+<span class="kw">async def</span> <span class="fn">billing_tools</span>(tool_name: str, args: dict) -> str:
+    <span class="kw">if</span> tool_name == <span class="st">"lookup_invoice"</span>:
+        invoice = <span class="kw">await</span> db.get_invoice(args[<span class="st">"invoice_id"</span>])
+        <span class="kw">return</span> json.dumps({
+            <span class="st">"id"</span>: invoice.id,
+            <span class="st">"amount"</span>: str(invoice.amount),
+            <span class="st">"status"</span>: invoice.status,
+            <span class="st">"due_date"</span>: invoice.due_date.isoformat(),
+        })
+
+    <span class="kw">if</span> tool_name == <span class="st">"process_refund"</span>:
+        result = <span class="kw">await</span> payments.refund(
+            invoice_id=args[<span class="st">"invoice_id"</span>],
+            amount=args.get(<span class="st">"amount"</span>),  <span class="cm"># None = full refund</span>
+            reason=args[<span class="st">"reason"</span>],
+        )
+        <span class="kw">return</span> json.dumps({
+            <span class="st">"refund_id"</span>: result.id,
+            <span class="st">"status"</span>: result.status,
+        })
+
+    <span class="kw">return</span> json.dumps({<span class="st">"error"</span>: <span class="st">f"Unknown tool: </span>{tool_name}<span class="st">"</span>})
+
+<span class="cm"># Attach the handler to the billing agent</span>
+billing = AIChannel(<span class="st">"billing-agent"</span>, provider=OpenAIProvider(
+    api_key=OPENAI_KEY,
+    model=<span class="st">"gpt-4o"</span>,
+), config={
+    <span class="st">"system_prompt"</span>: <span class="st">"You are a billing specialist..."</span>,
+    <span class="st">"tools"</span>: [
+        {
+            <span class="st">"name"</span>: <span class="st">"lookup_invoice"</span>,
+            <span class="st">"description"</span>: <span class="st">"Look up an invoice by ID"</span>,
+            <span class="st">"parameters"</span>: {
+                <span class="st">"type"</span>: <span class="st">"object"</span>,
+                <span class="st">"properties"</span>: {
+                    <span class="st">"invoice_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}
+                },
+                <span class="st">"required"</span>: [<span class="st">"invoice_id"</span>],
+            },
+        },
+        {
+            <span class="st">"name"</span>: <span class="st">"process_refund"</span>,
+            <span class="st">"description"</span>: <span class="st">"Process a refund for an invoice"</span>,
+            <span class="st">"parameters"</span>: {
+                <span class="st">"type"</span>: <span class="st">"object"</span>,
+                <span class="st">"properties"</span>: {
+                    <span class="st">"invoice_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                    <span class="st">"amount"</span>: {<span class="st">"type"</span>: <span class="st">"number"</span>},
+                    <span class="st">"reason"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                },
+                <span class="st">"required"</span>: [<span class="st">"invoice_id"</span>, <span class="st">"reason"</span>],
+            },
+        },
+    ],
+    <span class="st">"tool_handler"</span>: billing_tools,
+})</code></pre>
+
+            <p>The billing agent gets <code>lookup_invoice</code> and <code>process_refund</code>. The tech agent would get <code>query_logs</code> and <code>run_diagnostic</code>. The supervisor might get <code>escalate_to_human</code> and <code>flag_for_review</code>. Each agent's tool set defines its capability boundary &mdash; and that boundary is enforced by the framework, not by prompt instructions the LLM might ignore.</p>
+
+            <h2>Delegation: Background Task Execution</h2>
+
+            <p>Not every task belongs in the main conversation. A customer asks "Can you generate a detailed usage report for the last 90 days?" That could take thirty seconds to compile. You don't want the conversation blocked while the billing agent crunches numbers.</p>
+
+            <p>RoomKit solves this with the <code>DelegateHandler</code>. Delegation creates a <strong>child room</strong> linked to the parent, shares the relevant channels (same provider instance, different binding), and executes the task independently. The parent room continues handling the conversation while the child works in the background.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> DelegateHandler, DelegatedTask, Agent, HookTrigger
+
+<span class="cm"># Define a report-generation agent</span>
+report_agent = Agent(
+    agent_id=<span class="st">"report-generator"</span>,
+    provider=AnthropicProvider(
+        api_key=ANTHROPIC_KEY,
+        model=<span class="st">"claude-sonnet-4-20250514"</span>,
+    ),
+    system_prompt=(
+        <span class="st">"You generate usage reports. Query the database for the "</span>
+        <span class="st">"requested time period, format the data, and return a summary."</span>
+    ),
+    tool_handler=report_tools,
+)
+
+<span class="cm"># Fire-and-forget: delegate and continue the conversation</span>
+task: DelegatedTask = <span class="kw">await</span> kit.delegate(
+    room_id=<span class="st">"support-room-001"</span>,
+    agent=report_agent,
+    task=<span class="st">"Generate a usage report for account ACC-7742 covering the last 90 days"</span>,
+)
+<span class="cm"># Parent room is NOT blocked — conversation continues immediately</span>
+
+<span class="cm"># Or: blocking delegation with a timeout</span>
+task: DelegatedTask = <span class="kw">await</span> kit.delegate(
+    room_id=<span class="st">"support-room-001"</span>,
+    agent=report_agent,
+    task=<span class="st">"Look up the current balance for account ACC-7742"</span>,
+)
+result = <span class="kw">await</span> task.wait(timeout=30.0)  <span class="cm"># blocks until complete or timeout</span></code></pre>
+
+            <p>The child room shares channels from the parent &mdash; same provider instance, different binding. This means the delegated agent has access to the same tools and context as the parent, but operates in its own execution scope. When the task completes, the result flows back through the delegation lifecycle hooks.</p>
+
+            <p>Three hooks give you full visibility into the delegation lifecycle:</p>
+
+            <ul>
+                <li><strong><code>ON_TASK_DELEGATED</code></strong> &mdash; fires when a task is dispatched to a child room. Use it for logging, metrics, or notifying the user that background work has started.</li>
+                <li><strong><code>ON_TASK_COMPLETED</code></strong> &mdash; fires when the delegated agent finishes. The result is available on the event, and you can inject it back into the parent conversation.</li>
+                <li><strong><code>ON_TASK_REJECTED</code></strong> &mdash; fires when delegation fails (timeout, agent error, resource limit). Use it to notify the user or trigger a retry with a different agent.</li>
+            </ul>
+
+            <pre><code class="code-content"><span class="decorator">@kit.hook</span>(HookTrigger.ON_TASK_COMPLETED)
+<span class="kw">async def</span> <span class="fn">handle_report_ready</span>(event, ctx):
+    <span class="cm"># Inject the result back into the parent conversation</span>
+    <span class="kw">await</span> ctx.room.broadcast(
+        <span class="st">f"Your report is ready:\n\n</span>{event.result}<span class="st">"</span>
+    )
+
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_TASK_REJECTED)
+<span class="kw">async def</span> <span class="fn">handle_task_failure</span>(event, ctx):
+    <span class="kw">await</span> ctx.room.broadcast(
+        <span class="st">"I wasn't able to generate that report right now. "</span>
+        <span class="st">"Let me try a different approach."</span>
+    )</code></pre>
+
+            <p>This model is fundamentally different from "agent calls agent" patterns where one LLM makes an API call to another LLM. In RoomKit, delegation is a first-class operation with lifecycle management, timeout handling, and hook-based observability. The parent room doesn't lose track of what it spawned.</p>
+
+            <h2>Multi-Provider Support</h2>
+
+            <p>One of the practical benefits of the AIChannel model is that provider selection is per-agent, not per-system. You're not locked into a single LLM provider for your entire application. Each agent uses whichever provider best fits its role:</p>
+
+            <ul>
+                <li><strong>Anthropic Claude</strong> &mdash; reasoning-heavy tasks, supervisor oversight, nuanced conversation</li>
+                <li><strong>OpenAI GPT-4o</strong> &mdash; structured data extraction, function calling, broad general knowledge</li>
+                <li><strong>Google Gemini</strong> &mdash; multimodal inputs (image analysis, screenshot parsing), large context windows</li>
+                <li><strong>Mistral AI</strong> &mdash; fast classification, lightweight triage, cost-effective high-throughput tasks</li>
+            </ul>
+
+            <p>All four providers support function calling and vision through RoomKit's unified interface. You write your tool handler once, and it works regardless of which provider powers the agent. The framework translates between each provider's native tool-calling format &mdash; Anthropic's <code>tool_use</code> blocks, OpenAI's <code>function</code> definitions, Gemini's <code>functionDeclarations</code>, Mistral's tool calls &mdash; transparently.</p>
+
+            <p>This means you can swap providers per agent without touching your tool code, your routing logic, or your hooks. If Claude Sonnet handles your supervisor today but you want to try Gemini 2.5 Pro next week, you change one line &mdash; the provider constructor &mdash; and everything else stays the same.</p>
+
+            <h2>Why Agents Come Fifth</h2>
+
+            <p>I put agents at pillar five deliberately. Notice what we needed before we could get here: <a href="/blog/multi-agent-user-interaction/">user interaction</a> to normalize inputs, <a href="/blog/multi-agent-orchestration/">orchestration</a> to route messages between agents, <a href="/blog/multi-agent-knowledge/">knowledge</a> to give agents context, and <a href="/blog/multi-agent-storage/">storage</a> to persist state across turns. Without those four pillars, agents are just isolated LLM calls with no coordination, no memory, and no way to reach users.</p>
+
+            <p>With them in place, the agent layer becomes straightforward. An <code>AIChannel</code> is a configuration object &mdash; a system prompt, a provider, some tools, and generation parameters. The hard work of routing, state management, and user delivery is handled by the infrastructure underneath. The agent's only job is to think.</p>
+
+            <p>And that's exactly right. An agent should be the simplest part of your multi-agent system. If your agent code is complex, you're probably solving infrastructure problems inside the agent instead of in the framework where they belong.</p>
+
+            <hr>
+
+            <p><em>This article is part of a 9-part series on production-ready multi-agent architecture. Next up: <a href="/blog/multi-agent-integration/">Part 6: Integration</a>.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; <a href="/blog/multi-agent-user-interaction/">Part 1: User Interaction</a> &middot; <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a> &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; <a href="/blog/multi-agent-storage/">Part 4: Storage</a> &middot; Part 5: Agents &middot; <a href="/blog/multi-agent-integration/">Part 6: Integration</a> &middot; <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a> &middot; <a href="/blog/multi-agent-observability/">Part 8: Observability</a> &middot; <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a></em></p>
+
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="/js/main.js"></script>
+</body>
+</html>

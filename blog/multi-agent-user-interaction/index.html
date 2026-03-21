@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 1: User Interaction — Every Channel Is an Entry Point - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit handles user interaction across chat, voice, SMS, email, and WebSocket — normalizing every entry point into a unified conversation model.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-user-interaction/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 1: User Interaction — Every Channel Is an Entry Point">
+    <meta property="og:description" content="How RoomKit handles user interaction across chat, voice, SMS, email, and WebSocket — normalizing every entry point into a unified conversation model.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-user-interaction/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 1: User Interaction — Every Channel Is an Entry Point">
+    <meta name="twitter:description" content="How RoomKit handles user interaction across chat, voice, SMS, email, and WebSocket — normalizing every entry point into a unified conversation model.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 1: User Interaction — Every Channel Is an Entry Point",
+        "description": "How RoomKit handles user interaction across chat, voice, SMS, email, and WebSocket — normalizing every entry point into a unified conversation model.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-user-interaction/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-user-interaction/"
+    }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 1: User Interaction — Every Channel Is an Entry Point</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>8 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 1 of a series on multi-agent architecture. Read the <a href="/blog/multi-agent-architecture-series/">series introduction</a> for context on the full architecture, or jump ahead to <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a>.</em></p>
+
+            <hr>
+
+            <p>A user sends a WhatsApp message. Another calls a phone number. A third types into a web chat widget. A fourth replies to an email thread. All four are trying to reach the same system, but each arrives through a completely different protocol, with different payloads, different authentication, and different quirks.</p>
+
+            <p>In most codebases, this is where the mess starts. Each channel gets its own webhook handler, its own parsing logic, its own way of identifying the sender. Add a new channel? Copy-paste an existing handler, tweak the field names, cross your fingers. Six months later, you have six slightly-different implementations of the same business logic, and a bug fix in one doesn't propagate to the others.</p>
+
+            <p>In a multi-agent architecture, this gets worse. If the first layer of your system -- the user interaction layer -- doesn't normalize inputs, every downstream agent has to understand every channel format. That defeats the purpose of having agents at all.</p>
+
+            <p>RoomKit solves this at the foundation. User interaction is the first pillar: every channel produces the same data model, every message enters through the same pipeline, and by the time it reaches an agent, the channel of origin is metadata -- not a branching condition.</p>
+
+            <h2>The Problem: N Channels, N Codebases</h2>
+
+            <p>I've seen this pattern in every telecom and messaging system I've worked on. You start with SMS via Twilio. Then you add WhatsApp. Then voice. Then a web widget. Each integration looks something like this:</p>
+
+            <pre><code class="code-content"><span class="cm"># Twilio SMS webhook</span>
+<span class="kw">async def</span> <span class="fn">handle_twilio_sms</span>(request):
+    body = request.form[<span class="st">"Body"</span>]
+    sender = request.form[<span class="st">"From"</span>]
+    signature = request.headers[<span class="st">"X-Twilio-Signature"</span>]
+    validate_twilio_hmac(signature, request.url, request.form)
+    user = lookup_user_by_phone(sender)
+    <span class="kw">await</span> process_message(user, body, source=<span class="st">"sms"</span>)
+
+<span class="cm"># Telnyx SMS webhook</span>
+<span class="kw">async def</span> <span class="fn">handle_telnyx_sms</span>(request):
+    payload = <span class="kw">await</span> request.json()
+    body = payload[<span class="st">"data"</span>][<span class="st">"payload"</span>][<span class="st">"text"</span>]
+    sender = payload[<span class="st">"data"</span>][<span class="st">"payload"</span>][<span class="st">"from"</span>][<span class="st">"phone_number"</span>]
+    verify_telnyx_ed25519(request.headers, <span class="kw">await</span> request.body())
+    user = lookup_user_by_phone(sender)
+    <span class="kw">await</span> process_message(user, body, source=<span class="st">"sms"</span>)
+
+<span class="cm"># ...repeat for WhatsApp, Telegram, email, voice, WebSocket</span></code></pre>
+
+            <p>Different field names. Different signature algorithms (Twilio uses HMAC-SHA1, Telnyx uses ED25519). Different JSON structures. But the intent is identical: someone sent a message, verify it's legitimate, figure out who sent it, and process it.</p>
+
+            <p>Now multiply this by the number of channels a real system needs to support: SMS, WhatsApp, Telegram, Messenger, Teams, email, WebSocket, HTTP webhooks, voice, realtime voice. That's ten channel types, each with one or more providers. The if-chain approach doesn't scale.</p>
+
+            <h2>TransportChannel: One Abstraction, Ten Channels</h2>
+
+            <p>RoomKit's answer is the <code>TransportChannel</code> abstraction. Every channel type -- <code>SMSChannel</code>, <code>VoiceChannel</code>, <code>WebSocketChannel</code>, <code>WhatsAppChannel</code>, <code>TelegramChannel</code>, <code>EmailChannel</code>, <code>HTTPChannel</code>, <code>RealtimeVoiceChannel</code>, <code>MessengerChannel</code>, <code>TeamsChannel</code> -- implements the same interface. When a message arrives from any channel, it's normalized into a single <code>InboundMessage</code> model before anything else happens.</p>
+
+            <p>The channel handles provider-specific parsing and signature verification internally. By the time the message reaches your application code, you're working with a clean, uniform object:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> (
+    RoomKit, SMSChannel, WhatsAppChannel, RealtimeVoiceChannel,
+    InboundMessage, TextContent,
+)
+<span class="kw">from</span> roomkit.providers.twilio <span class="kw">import</span> TwilioSMSProvider
+<span class="kw">from</span> roomkit.providers.whatsapp <span class="kw">import</span> WhatsAppCloudProvider
+<span class="kw">from</span> roomkit.providers.gemini.realtime <span class="kw">import</span> GeminiLiveProvider
+
+kit = RoomKit()
+
+<span class="cm"># Three channels, three providers, one room</span>
+sms = SMSChannel(<span class="st">"support-sms"</span>, provider=TwilioSMSProvider(
+    account_sid=<span class="st">"AC..."</span>,
+    auth_token=<span class="st">"tok..."</span>,
+    from_number=<span class="st">"+15551234567"</span>,
+))
+whatsapp = WhatsAppChannel(<span class="st">"support-whatsapp"</span>, provider=WhatsAppCloudProvider(
+    phone_number_id=<span class="st">"123456"</span>,
+    access_token=<span class="st">"EAA..."</span>,
+))
+voice = RealtimeVoiceChannel(<span class="st">"support-voice"</span>, provider=GeminiLiveProvider(
+    api_key=<span class="st">"..."</span>,
+    model=<span class="st">"gemini-2.5-flash-native-audio-preview"</span>,
+))
+
+kit.register_channel(sms)
+kit.register_channel(whatsapp)
+kit.register_channel(voice)
+
+<span class="cm"># All three channels attach to the same room</span>
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"support-case-7742"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"support-case-7742"</span>, <span class="st">"support-sms"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"support-case-7742"</span>, <span class="st">"support-whatsapp"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"support-case-7742"</span>, <span class="st">"support-voice"</span>)</code></pre>
+
+            <p>A customer texting on SMS and another messaging on WhatsApp are now in the same conversation. The room is the convergence point. The channel is just the transport.</p>
+
+            <h2>InboundRouter: Resolving Where a Message Belongs</h2>
+
+            <p>When a webhook fires or a WebSocket frame arrives, the system needs to answer one question: which room does this message belong to?</p>
+
+            <p>That's the job of the <code>InboundRouter</code>. It takes a raw inbound message and resolves it to a room, creating one if needed. The routing logic is yours to define -- match on phone number, session ID, customer account, or any combination:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> InboundRouter, InboundMessage
+
+<span class="kw">class</span> <span class="fn">SupportRouter</span>(InboundRouter):
+    <span class="kw">async def</span> <span class="fn">resolve</span>(self, message: InboundMessage) -> str:
+        <span class="cm"># Look up existing open case by sender identity</span>
+        case = <span class="kw">await</span> self.db.find_open_case(message.sender_id)
+        <span class="kw">if</span> case:
+            <span class="kw">return</span> case.room_id
+
+        <span class="cm"># No open case — create a new room</span>
+        room_id = <span class="st">f"case-</span>{uuid4().hex[:8]}<span class="st">"</span>
+        <span class="kw">await</span> self.kit.create_room(room_id=room_id)
+        <span class="kw">await</span> self.kit.attach_channel(room_id, message.channel_id)
+        <span class="kw">return</span> room_id
+
+kit.set_inbound_router(SupportRouter(db=case_database))</code></pre>
+
+            <p>The router doesn't care whether the message came from SMS, WhatsApp, or a WebSocket. It receives the same <code>InboundMessage</code> regardless. This is the payoff of input normalization: routing logic is written once and works for every channel.</p>
+
+            <h2>Request Validation: Trust Nothing</h2>
+
+            <p>User interaction isn't just about receiving messages. It's about verifying them before they enter your system. RoomKit handles validation at three levels.</p>
+
+            <p><strong>Webhook signature verification</strong> happens inside the channel provider, before the message is even normalized. Telnyx webhooks are verified with ED25519. Twilio uses HMAC-SHA1. Each provider knows its own signature scheme. If verification fails, the message is rejected at the transport layer -- it never becomes an <code>InboundMessage</code>.</p>
+
+            <p><strong>Identity resolution</strong> maps raw sender identifiers (phone numbers, email addresses, WebSocket session IDs) to unified participant identities. The same person reaching out on SMS and WhatsApp resolves to a single participant in the room. This happens through a configurable identity resolution pipeline that you can extend with your own lookup logic.</p>
+
+            <p><strong>Content filtering</strong> via <code>BEFORE_BROADCAST</code> hooks gives you a final gate before a message enters the conversation. This is where you apply business rules -- profanity filters, rate limiting, compliance checks, PII redaction:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HookTrigger, HookResult
+
+<span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_BROADCAST)
+<span class="kw">async def</span> <span class="fn">validate_content</span>(event, ctx):
+    <span class="cm"># Block messages with PII</span>
+    <span class="kw">if</span> contains_pii(event.content.body):
+        <span class="kw">return</span> HookResult.block(<span class="st">"Message contains personal information"</span>)
+
+    <span class="cm"># Rate limit per sender: max 10 messages per minute</span>
+    count = <span class="kw">await</span> ctx.store.count_recent(
+        room_id=ctx.room.id,
+        sender_id=event.source.sender_id,
+        window_seconds=60,
+    )
+    <span class="kw">if</span> count > 10:
+        <span class="kw">return</span> HookResult.block(<span class="st">"Rate limit exceeded"</span>)
+
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>The hook runs identically whether the message arrived from a Telegram bot, an email, or a phone call transcription. One validation pipeline, every channel.</p>
+
+            <h2>The Room as Convergence Point</h2>
+
+            <p>This is the architectural insight that ties everything together. In RoomKit, the room is not a chat room in the UI sense. It's a conversation context. Multiple channels attach to the same room, which means:</p>
+
+            <ul>
+                <li>A customer on SMS and a support agent on a web dashboard share the same timeline</li>
+                <li>An AI agent attached as an intelligence channel sees messages from all transport channels</li>
+                <li>Hooks apply uniformly -- a content policy violation is caught whether the message came from WhatsApp or email</li>
+                <li>The event store captures a single, ordered history of the entire conversation across every channel</li>
+            </ul>
+
+            <div class="ascii-diagram">[SMS]       ──┐
+[WhatsApp]  ──┤
+[Voice]     ──┼──→ Room ──→ Hooks ──→ Broadcast ──→ [All Channels]
+[Telegram]  ──┤
+[WebSocket] ──┘</div>
+
+            <p>When a downstream agent needs to respond, it doesn't need to know which channel the user is on. It writes to the room, and RoomKit broadcasts to every attached channel. The agent's job is to think. The room's job is to deliver.</p>
+
+            <h2>Why This Matters for Multi-Agent Systems</h2>
+
+            <p>In a multi-agent architecture, the user interaction layer is the foundation everything else depends on. If agents have to parse channel-specific payloads, they become coupled to transport details. If routing is scattered across webhook handlers, adding a new channel means touching every agent. If validation is inconsistent, one channel becomes a backdoor.</p>
+
+            <p>RoomKit's user interaction layer guarantees three things to every downstream component:</p>
+
+            <ol>
+                <li><strong>Normalized input</strong>: every message is an <code>InboundMessage</code> with a consistent schema, regardless of origin</li>
+                <li><strong>Verified identity</strong>: webhook signatures are checked, sender identities are resolved, before the message reaches any agent</li>
+                <li><strong>Validated content</strong>: hooks have already applied your business rules by the time an agent processes the message</li>
+            </ol>
+
+            <p>This is what makes the orchestration layer (Part 2) possible. Agents don't negotiate with channels. They receive clean, validated, routed messages and focus on their actual job.</p>
+
+            <hr>
+
+            <p><em>This article is part of a 9-part series on production-ready multi-agent architecture. Next up: <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a>.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; Part 1: User Interaction &middot; <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a> &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; <a href="/blog/multi-agent-storage/">Part 4: Storage</a> &middot; <a href="/blog/multi-agent-agents/">Part 5: Agents</a> &middot; <a href="/blog/multi-agent-integration/">Part 6: Integration</a> &middot; <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a> &middot; <a href="/blog/multi-agent-observability/">Part 8: Observability</a> &middot; <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a></em></p>
+
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="/js/main.js"></script>
+</body>
+</html>

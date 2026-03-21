@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The 9 Pillars of Production-Ready Multi-Agent Systems - RoomKit Blog</title>
+    <meta name="description" content="Introduction to a 10-part series on multi-agent architecture. Not just multiple LLM calls — a real system requires orchestration, memory, tools, and evaluation.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-architecture-series/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="The 9 Pillars of Production-Ready Multi-Agent Systems">
+    <meta property="og:description" content="Introduction to a 10-part series on multi-agent architecture. Not just multiple LLM calls — a real system requires orchestration, memory, tools, and evaluation.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-architecture-series/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The 9 Pillars of Production-Ready Multi-Agent Systems">
+    <meta name="twitter:description" content="Introduction to a 10-part series on multi-agent architecture. Not just multiple LLM calls — a real system requires orchestration, memory, tools, and evaluation.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "The 9 Pillars of Production-Ready Multi-Agent Systems",
+        "description": "Introduction to a 10-part series on multi-agent architecture. Not just multiple LLM calls — a real system requires orchestration, memory, tools, and evaluation.",
+        "datePublished": "2026-03-21",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/multi-agent-architecture-series/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-architecture-series/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>The 9 Pillars of Production-Ready Multi-Agent Systems</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>6 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p>Everyone wants to build multi-agent systems right now. The pitch sounds simple: give multiple LLMs different roles, let them talk to each other, and watch the magic happen. But after spending months building and shipping real multi-agent workflows with RoomKit, I can tell you with certainty &mdash; <strong>the LLM calls are the easy part</strong>.</p>
+
+            <p>The hard part is everything around them: how users get in and out, how agents coordinate, where state lives, what tools are safe to expose, and how you know any of it is actually working. These are engineering problems, not AI problems, and ignoring them is why most multi-agent prototypes never make it to production.</p>
+
+            <p>This article introduces a 10-part series where we break down multi-agent architecture into its real building blocks and show how RoomKit addresses each one. The framework comes from a clear observation:</p>
+
+            <blockquote>
+                <p>Not just multiple LLM calls. A real system requires orchestration, memory, tools, and evaluation.</p>
+            </blockquote>
+
+            <p style="text-align: center;">
+                <img src="/blog/multi-agent-architecture-series/multi-agent-architecture.jpeg" alt="Multi-Agent Architecture: The 9 pillars of a production-ready multi-agent system — User Interaction, Orchestration, Knowledge, Storage, Agents, Integration, External Tools, Observability, and Evaluation" style="max-width: 100%; border-radius: 8px; margin: 1.5rem auto;">
+            </p>
+            <p style="text-align: center; font-size: 0.875rem; color: var(--color-text-secondary); margin-top: -0.5rem;">Source: <a href="https://www.odyss.ai/" target="_blank" rel="noopener">odyss.ai</a></p>
+
+            <hr>
+
+            <h2>Why 9 Pillars?</h2>
+
+            <p>When I started mapping out what a production multi-agent system actually needs, the same nine concerns kept showing up regardless of use case &mdash; whether it was a customer support bot, a voice assistant, or a multi-step research agent. Each concern is distinct, has its own failure modes, and demands its own design decisions.</p>
+
+            <p>Together, they form the complete lifecycle of a multi-agent interaction:</p>
+
+            <p><strong>User &rarr; Interaction &rarr; Orchestration &rarr; Agent &rarr; Tools &rarr; State &rarr; Response &rarr; Observability &amp; Evaluation</strong></p>
+
+            <p>Skip any one of them, and you end up with a demo that breaks under real traffic, loses context between turns, or silently produces wrong answers with no way to detect it. Let me walk through each pillar and what we will cover in the series.</p>
+
+            <hr>
+
+            <h2>The 9 Pillars</h2>
+
+            <h3>1. User Interaction &mdash; The Entry Point</h3>
+
+            <p>Before any agent does anything, a human needs to get in. Voice, text, WebSocket, API call &mdash; the interaction layer defines how users reach your system and how responses flow back to them. This is where latency budgets start and where most user frustration originates. In RoomKit, this maps directly to our channel abstraction: voice, SMS, email, and WebSocket are all first-class channels that attach to the same room.</p>
+
+            <p><a href="/blog/multi-agent-user-interaction/">Read Part 1: User Interaction &rarr;</a></p>
+
+            <h3>2. Orchestration &mdash; The Control Plane</h3>
+
+            <p>With multiple agents available, something has to decide who acts, when, and in what order. This is the orchestration layer &mdash; the control plane that routes tasks, manages handoffs, and prevents agents from stepping on each other. RoomKit 0.6 introduced explicit multi-agent orchestration with strategies like round-robin, priority-based, and custom routing, all built on the same room/channel model.</p>
+
+            <p><a href="/blog/multi-agent-orchestration/">Read Part 2: Orchestration &rarr;</a></p>
+
+            <h3>3. Knowledge &mdash; The Intelligence Backbone</h3>
+
+            <p>Agents are only as useful as what they know. The knowledge layer covers how you get the right information to the right agent at the right time &mdash; system prompts, RAG pipelines, structured context injection, and document grounding. Without it, agents hallucinate. With a bad implementation, they hallucinate confidently.</p>
+
+            <p><a href="/blog/multi-agent-knowledge/">Read Part 3: Knowledge &rarr;</a></p>
+
+            <h3>4. Storage &mdash; Persistent Memory</h3>
+
+            <p>Conversations span minutes. Workflows span hours. Customer relationships span months. The storage layer manages conversation history, agent state, user profiles, and any artifact that needs to survive beyond a single request-response cycle. RoomKit's room model naturally scopes storage: each room carries its own message history and metadata, and channels persist their state independently.</p>
+
+            <p><a href="/blog/multi-agent-storage/">Read Part 4: Storage &rarr;</a></p>
+
+            <h3>5. Agents &mdash; The Execution Units</h3>
+
+            <p>This is the pillar everyone wants to talk about first, but it only makes sense after you have the infrastructure around it. What makes a good agent? How do you scope responsibilities? When should one agent call another versus handle the task itself? We will dig into agent design patterns, the difference between reactive and proactive agents, and how RoomKit's AI channels let you compose agents with different LLM providers and system prompts in the same room.</p>
+
+            <p><a href="/blog/multi-agent-agents/">Read Part 5: Agents &rarr;</a></p>
+
+            <h3>6. Integration &mdash; Tool Access Control</h3>
+
+            <p>Agents need tools, but not all agents should have access to all tools. The integration layer is the permission boundary: it decides which agent can call which API, with what parameters, under what constraints. This is where security meets functionality, and getting it wrong can be catastrophic &mdash; imagine a billing agent with access to the delete-account API.</p>
+
+            <p><a href="/blog/multi-agent-integration/">Read Part 6: Integration &rarr;</a></p>
+
+            <h3>7. External Tools &mdash; The Execution Environment</h3>
+
+            <p>Once an agent has permission to use a tool, something needs to actually execute it. External tools cover the runtime: sandboxing, timeouts, retries, output parsing, and error handling. This is where MCP (Model Context Protocol) fits in. RoomKit supports MCP natively, giving agents structured access to external capabilities with proper lifecycle management.</p>
+
+            <p><a href="/blog/multi-agent-external-tools/">Read Part 7: External Tools &rarr;</a></p>
+
+            <h3>8. Observability &mdash; System Visibility</h3>
+
+            <p>You cannot fix what you cannot see. In a multi-agent system, a single user request might touch three agents, five tools, and two LLM providers before producing a response. Without observability, debugging is guesswork. We will cover tracing, logging, metrics, and how RoomKit's hook system gives you inspection points at every stage of the pipeline &mdash; before and after transcription, LLM inference, TTS, tool calls, and agent handoffs.</p>
+
+            <p><a href="/blog/multi-agent-observability/">Read Part 8: Observability &rarr;</a></p>
+
+            <h3>9. Evaluation &mdash; Continuous Improvement</h3>
+
+            <p>The final pillar closes the loop. How do you know your agents are getting better, not worse? Evaluation covers offline testing, online monitoring, regression detection, and feedback integration. Multi-agent systems are especially tricky here because the output quality depends on coordination between components, not just individual agent performance.</p>
+
+            <p><a href="/blog/multi-agent-evaluation/">Read Part 9: Evaluation &rarr;</a></p>
+
+            <hr>
+
+            <h2>Why This Matters Now</h2>
+
+            <p>We are past the "wow, LLMs can do things" phase. Teams are shipping multi-agent systems into production, and the gap between a working prototype and a reliable product is exactly these nine pillars. I have watched teams burn weeks debugging issues that boil down to missing orchestration logic, absent observability, or storage that does not survive a restart.</p>
+
+            <p>RoomKit was not designed as an "AI framework." It was designed as a <strong>multi-channel conversation framework</strong> that treats AI as just another channel. That architectural decision turns out to be exactly what multi-agent systems need: a room is a natural coordination boundary, channels enforce separation of concerns, and hooks give you the inspection points that observability and evaluation require.</p>
+
+            <h2>How to Read This Series</h2>
+
+            <p>Each article stands on its own, so you can jump to whichever pillar you are struggling with right now. But if you are starting from scratch, I recommend reading them in order &mdash; the pillars build on each other, and the design decisions in earlier layers constrain what is possible in later ones.</p>
+
+            <p>Every article follows the same structure: what the pillar is, why it matters, common mistakes, and how RoomKit handles it with concrete code examples. No hand-waving, no "left as an exercise for the reader."</p>
+
+            <p>Let's build systems that actually work.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

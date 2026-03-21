@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 9: Evaluation — Scoring and Improving Agent Conversations - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit evaluates and improves multi-agent conversations — observations, task tracking, phase audit trails, and feedback loops for continuous quality improvement.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-evaluation/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 9: Evaluation — Scoring and Improving Agent Conversations">
+    <meta property="og:description" content="How RoomKit evaluates and improves multi-agent conversations — observations, task tracking, phase audit trails, and feedback loops for continuous quality improvement.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-evaluation/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 9: Evaluation — Scoring and Improving Agent Conversations">
+    <meta name="twitter:description" content="How RoomKit evaluates and improves multi-agent conversations — observations, task tracking, phase audit trails, and feedback loops for continuous quality improvement.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 9: Evaluation — Scoring and Improving Agent Conversations",
+        "description": "How RoomKit evaluates and improves multi-agent conversations — observations, task tracking, phase audit trails, and feedback loops for continuous quality improvement.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-evaluation/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-evaluation/"
+    }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 9: Evaluation &mdash; Scoring and Improving Agent Conversations</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>8 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 9 of the <a href="/blog/multi-agent-architecture-series/">Multi-Agent Architecture series</a>. In <a href="/blog/multi-agent-observability/">Part 8</a> we covered observability &mdash; how to see what your system is doing. Today we close the loop: how do you know if what it is doing is actually <strong>good</strong>?</em></p>
+
+            <hr>
+
+            <h2>The Problem Nobody Wants to Talk About</h2>
+
+            <p>You shipped your multi-agent system. Agents are routing, handoffs are flowing, tools are executing. The observability dashboard is green. But here is the question that keeps me up at night: <strong>are the agents actually helping?</strong></p>
+
+            <p>Observability tells you the system is running. Evaluation tells you the system is working. There is a meaningful difference. A conversation can complete without errors, hit every checkpoint, resolve in under two minutes, and still leave the customer worse off than when they started &mdash; because the agent gave a confident, well-formatted, completely wrong answer.</p>
+
+            <p>Traditional software has test suites. You write assertions, run them, and get a binary pass/fail. Multi-agent conversations do not work that way. The output is natural language. The quality depends on context, tone, accuracy, and whether the agent actually solved the user's problem. You cannot <code>assertEqual</code> your way through that.</p>
+
+            <p>RoomKit approaches this with a combination of structured observations, task tracking, phase audit trails, and feedback loops that let you score conversations continuously &mdash; not just in a test harness, but in production.</p>
+
+            <h2>Observations: Structured Quality Judgments</h2>
+
+            <p>The core primitive for evaluation in RoomKit is the <code>Observation</code> model. An observation is a structured finding about a conversation &mdash; created by an evaluator (human or AI), attached to a specific room, and stored alongside the conversation data it describes.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.models <span class="kw">import</span> Observation
+
+<span class="cm"># A supervisor agent evaluates a support agent's response</span>
+observation = Observation(
+    category=<span class="st">"response_quality"</span>,
+    confidence=<span class="num">0.87</span>,
+    data={
+        <span class="st">"agent_id"</span>: <span class="st">"support-agent"</span>,
+        <span class="st">"issue"</span>: <span class="st">"Agent provided correct billing info but missed the refund eligibility window"</span>,
+        <span class="st">"severity"</span>: <span class="st">"medium"</span>,
+        <span class="st">"suggestion"</span>: <span class="st">"Check refund_policy tool before confirming timelines"</span>,
+    },
+)
+
+<span class="cm"># Store the observation on the room</span>
+<span class="kw">await</span> room.add_observation(observation)</code></pre>
+
+            <p>Each observation has three fields that matter. The <code>category</code> is a string you define &mdash; <code>"response_quality"</code>, <code>"hallucination_check"</code>, <code>"tone_assessment"</code>, <code>"policy_compliance"</code>, whatever dimensions matter for your system. The <code>confidence</code> is a float between 0 and 1, expressing how certain the evaluator is about the finding. And the <code>data</code> dict carries arbitrary structured context: which agent was evaluated, what the issue was, and what should change.</p>
+
+            <p>Observations are not metrics. They are not logs. They are <strong>judgment records</strong> &mdash; structured opinions about conversation quality that accumulate over time and feed back into the system.</p>
+
+            <h2>LLM-as-Judge: Automated Quality Scoring</h2>
+
+            <p>Creating observations manually does not scale. The pattern that works in production is LLM-as-judge: you dedicate a supervisor agent to evaluate other agents' responses in real time.</p>
+
+            <p>In RoomKit, the supervisor channel receives every event in the conversation, even when it is not the active responder. This makes it the natural home for evaluation logic. The supervisor watches the conversation, judges each response, and creates observations via tool calls.</p>
+
+            <pre><code class="code-content"><span class="cm"># Supervisor agent's system prompt includes evaluation instructions</span>
+supervisor_prompt = <span class="st">"""You are a quality supervisor. You observe every message
+in this conversation but do NOT respond to the user directly.
+
+After each agent response, evaluate it on these dimensions:
+- Accuracy: Did the agent provide correct information?
+- Completeness: Did the agent address the full question?
+- Tone: Was the response appropriate for the context?
+- Policy: Did the agent follow company guidelines?
+
+Use the create_observation tool to record your findings."""</span>
+
+<span class="cm"># The supervisor's tool for creating observations</span>
+<span class="kw">async def</span> <span class="fn">create_observation</span>(category: str, confidence: float, data: dict):
+    observation = Observation(
+        category=category,
+        confidence=confidence,
+        data=data,
+    )
+    <span class="kw">await</span> room.add_observation(observation)
+    <span class="kw">return</span> {<span class="st">"status"</span>: <span class="st">"recorded"</span>}</code></pre>
+
+            <p>The supervisor is just another AI channel in the room, but its purpose is purely evaluative. It does not answer user questions. It watches, scores, and records. Every response the support agent gives, the supervisor creates an observation with a category, a confidence score, and structured data explaining the judgment.</p>
+
+            <p>Over hundreds of conversations, these observations build a quality profile for each agent. You can aggregate by category to find patterns: maybe the billing agent scores well on accuracy but poorly on tone. Maybe the tech support agent is great at simple issues but hallucinates on edge cases. The observations tell you where to focus your prompt engineering.</p>
+
+            <h2>Hooks as Evaluation Checkpoints</h2>
+
+            <p>Not every evaluation needs an LLM. Some quality signals are structural &mdash; they come from how the conversation flows, not what was said. RoomKit's hook system fires at key moments where quality can be measured directly.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> HookTrigger
+<span class="kw">from</span> roomkit.models <span class="kw">import</span> Observation
+
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_PHASE_TRANSITION)
+<span class="kw">async def</span> <span class="fn">track_escalations</span>(event, ctx):
+    <span class="cm"># Flag conversations that escalate too quickly</span>
+    phase_history = ctx.conversation_state.phase_history
+    handling_phases = [p <span class="kw">for</span> p <span class="kw">in</span> phase_history <span class="kw">if</span> p.phase == <span class="st">"HANDLING"</span>]
+    escalation_phases = [p <span class="kw">for</span> p <span class="kw">in</span> phase_history <span class="kw">if</span> p.phase == <span class="st">"ESCALATION"</span>]
+
+    <span class="kw">if</span> len(escalation_phases) > 1:
+        <span class="kw">await</span> ctx.room.add_observation(Observation(
+            category=<span class="st">"escalation_pattern"</span>,
+            confidence=<span class="num">0.95</span>,
+            data={
+                <span class="st">"escalation_count"</span>: len(escalation_phases),
+                <span class="st">"handling_attempts"</span>: len(handling_phases),
+                <span class="st">"issue"</span>: <span class="st">"Multiple escalations indicate agent unable to resolve"</span>,
+            },
+        ))
+
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_HANDOFF)
+<span class="kw">async def</span> <span class="fn">track_handoff_quality</span>(event, ctx):
+    <span class="cm"># Measure how quickly agents hand off after receiving a conversation</span>
+    handoff_data = event.metadata
+    <span class="kw">await</span> ctx.room.add_observation(Observation(
+        category=<span class="st">"handoff_analysis"</span>,
+        confidence=<span class="num">0.90</span>,
+        data={
+            <span class="st">"source_agent"</span>: handoff_data[<span class="st">"source_agent"</span>],
+            <span class="st">"target_agent"</span>: handoff_data[<span class="st">"target_agent"</span>],
+            <span class="st">"reason"</span>: handoff_data.get(<span class="st">"reason"</span>, <span class="st">"unspecified"</span>),
+            <span class="st">"messages_before_handoff"</span>: handoff_data.get(<span class="st">"message_count"</span>, 0),
+        },
+    ))
+
+<span class="decorator">@kit.hook</span>(HookTrigger.ON_HANDOFF_REJECTED)
+<span class="kw">async def</span> <span class="fn">track_rejected_handoffs</span>(event, ctx):
+    <span class="cm"># Rejected handoffs are a strong quality signal</span>
+    <span class="kw">await</span> ctx.room.add_observation(Observation(
+        category=<span class="st">"handoff_rejected"</span>,
+        confidence=<span class="num">0.99</span>,
+        data={
+            <span class="st">"attempted_target"</span>: event.metadata[<span class="st">"target_agent"</span>],
+            <span class="st">"rejection_reason"</span>: event.metadata[<span class="st">"reason"</span>],
+            <span class="st">"issue"</span>: <span class="st">"Routing attempted handoff to unavailable or inappropriate agent"</span>,
+        },
+    ))</code></pre>
+
+            <p>Three hooks, three different quality signals &mdash; none requiring an LLM call. The <code>ON_PHASE_TRANSITION</code> hook examines <code>ConversationState.phase_history</code> to detect problematic patterns like repeated escalations. The <code>ON_HANDOFF</code> hook records context about every agent transfer. The <code>ON_HANDOFF_REJECTED</code> hook catches routing failures. Together, they build a structural quality profile of every conversation.</p>
+
+            <h2>Task Completion as an Evaluation Metric</h2>
+
+            <p>Observations capture qualitative judgments. But some evaluation is quantitative: did the agent actually finish what it was supposed to do?</p>
+
+            <p>RoomKit's <code>Task</code> model tracks discrete work items that agents perform during a conversation. Each task has a status &mdash; <code>pending</code>, <code>completed</code>, or <code>failed</code> &mdash; and task completion rates become a natural evaluation metric.</p>
+
+            <p>If a support agent creates a task to "process refund for order #4481" and that task stays in <code>pending</code> after the conversation ends, something went wrong. If an agent marks a task <code>completed</code> but the supervisor's observation flags inaccurate information, you have a discrepancy worth investigating. The combination of tasks and observations catches both omission errors (agent did not finish the work) and commission errors (agent finished but did it wrong).</p>
+
+            <h2>Feedback Loops: Observations Driving Routing</h2>
+
+            <p>Observations become powerful when they feed back into the system. The simplest feedback loop: use accumulated observation scores to influence routing decisions.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationRouter, RoutingRule, RoutingConditions
+
+<span class="kw">async def</span> <span class="fn">build_quality_aware_router</span>(room):
+    <span class="cm"># Pull recent observations for each agent</span>
+    observations = <span class="kw">await</span> room.get_observations()
+    agent_scores = {}
+    <span class="kw">for</span> obs <span class="kw">in</span> observations:
+        <span class="kw">if</span> obs.category == <span class="st">"response_quality"</span>:
+            agent_id = obs.data.get(<span class="st">"agent_id"</span>)
+            <span class="kw">if</span> agent_id:
+                agent_scores.setdefault(agent_id, []).append(obs.confidence)
+
+    <span class="cm"># Calculate average quality score per agent</span>
+    avg_scores = {
+        agent: sum(scores) / len(scores)
+        <span class="kw">for</span> agent, scores <span class="kw">in</span> agent_scores.items()
+    }
+
+    <span class="cm"># Build routing rules that prefer higher-scoring agents</span>
+    rules = []
+    <span class="kw">for</span> agent_id, score <span class="kw">in</span> sorted(avg_scores.items(), key=<span class="kw">lambda</span> x: x[1], reverse=<span class="kw">True</span>):
+        <span class="cm"># Lower priority number = higher preference</span>
+        priority = int((1 - score) * 100)
+        rules.append(RoutingRule(
+            agent_id=agent_id,
+            priority=max(priority, 1),
+            conditions=RoutingConditions(),
+        ))
+
+    <span class="kw">return</span> ConversationRouter(rules=rules)</code></pre>
+
+            <p>This is a basic version, but the principle scales. Agents with consistently high observation scores get lower priority numbers (higher preference). Agents with low scores get deprioritized. The router effectively learns which agents perform well and sends traffic accordingly.</p>
+
+            <p>You can make this more sophisticated: weight recent observations more heavily, factor in task completion rates, consider category-specific scores (an agent might score well on accuracy but poorly on tone &mdash; route formal requests to it, informal ones elsewhere). The observation data is structured, so the routing logic can be as nuanced as you need.</p>
+
+            <h2>Regression Tracking</h2>
+
+            <p>Individual conversation evaluation matters, but the real value is longitudinal. Are your agents getting better or worse over time?</p>
+
+            <p>Because observations are stored per-room with timestamps, you can track quality trends across your entire system. A prompt change that improves average accuracy scores by 5% shows up in the observation data. A provider model update that causes a regression in tone scores shows up too &mdash; and you catch it before customers start complaining.</p>
+
+            <p>The phase history adds another dimension. If average time-in-escalation is climbing, that is a systemic quality signal even if individual observation scores look fine. The circuit breaker state on your delivery channels tells a reliability story: if a channel is spending more time in <code>open</code> or <code>half-open</code> states, delivery failures are affecting the user experience regardless of how good the agent responses are.</p>
+
+            <p>Delivery results via <code>DeliveryResult</code> close the last gap. Every message sent through a channel returns a result with success/error status and the provider's message ID. A perfectly evaluated conversation means nothing if 20% of the responses never reached the user. Tracking delivery success rates alongside observation scores gives you the full picture.</p>
+
+            <h2>Designing Good Test Cases</h2>
+
+            <p>Evaluation in production is essential, but you also need repeatable test conversations to validate changes before they ship. A good evaluation test case is not a unit test &mdash; it is a scripted conversation with expected quality outcomes.</p>
+
+            <p>The approach I use with RoomKit: define a conversation scenario (a sequence of user messages), run it through the system, collect the observations the supervisor creates, and compare them against expected thresholds. If the accuracy observation drops below 0.8 after a prompt change, the change does not ship. If the escalation count for a scenario increases, investigate before deploying.</p>
+
+            <p>This is not binary pass/fail. It is threshold-based scoring with human review for edge cases. The observations provide the scores. The phase history provides the behavioral trace. Together, they give you enough signal to make deployment decisions with confidence.</p>
+
+            <hr>
+
+            <h2>Closing the Series</h2>
+
+            <p>This is Part 9, the final pillar. If you have followed the series from the <a href="/blog/multi-agent-architecture-series/">introduction</a>, we have walked the full path: from how users enter the system (interaction), through how agents are chosen (orchestration), what they know (knowledge), what they remember (storage), how they think (agents), what they can do (integration, external tools), how you watch them (observability), and now &mdash; how you judge and improve them (evaluation).</p>
+
+            <p>The through-line across all nine pillars is that multi-agent systems are engineering problems, not AI problems. The LLM call is one function. Everything around it &mdash; routing, state, tools, evaluation &mdash; is what determines whether your system works in production or just works in a demo.</p>
+
+            <p>RoomKit was built on the premise that conversations are the organizing primitive. Rooms scope state. Channels separate concerns. Hooks give you control points. Observations close the feedback loop. Each pillar maps to a concrete abstraction in the framework, and each abstraction composes with the others without coupling.</p>
+
+            <p>Build systems that actually work. Then prove that they do.</p>
+
+            <hr>
+
+            <p><em>This article is the final part of a 9-part series on production-ready multi-agent architecture. Read the <a href="/blog/multi-agent-architecture-series/">series introduction</a> for the full roadmap.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; <a href="/blog/multi-agent-user-interaction/">Part 1: User Interaction</a> &middot; <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a> &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; <a href="/blog/multi-agent-storage/">Part 4: Storage</a> &middot; <a href="/blog/multi-agent-agents/">Part 5: Agents</a> &middot; <a href="/blog/multi-agent-integration/">Part 6: Integration</a> &middot; <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a> &middot; <a href="/blog/multi-agent-observability/">Part 8: Observability</a> &middot; Part 9: Evaluation</em></p>
+
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Architecture, Part 8: Observability — Seeing Inside Your Multi-Agent System - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit provides full observability into multi-agent systems — OpenTelemetry integration, span hierarchies, token tracking, latency metrics, and agent traceability.">
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-agent-observability/">
+    <meta property="og:title" content="Multi-Agent Architecture, Part 8: Observability — Seeing Inside Your Multi-Agent System">
+    <meta property="og:description" content="How RoomKit provides full observability into multi-agent systems — OpenTelemetry integration, span hierarchies, token tracking, latency metrics, and agent traceability.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-agent-observability/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-21">
+    <meta property="article:author" content="Sylvain Boily">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Agent Architecture, Part 8: Observability — Seeing Inside Your Multi-Agent System">
+    <meta name="twitter:description" content="How RoomKit provides full observability into multi-agent systems — OpenTelemetry integration, span hierarchies, token tracking, latency metrics, and agent traceability.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Agent Architecture, Part 8: Observability — Seeing Inside Your Multi-Agent System",
+        "description": "How RoomKit provides full observability into multi-agent systems — OpenTelemetry integration, span hierarchies, token tracking, latency metrics, and agent traceability.",
+        "datePublished": "2026-03-21",
+        "author": { "@type": "Person", "name": "Sylvain Boily" },
+        "publisher": { "@type": "Organization", "name": "RoomKit", "url": "https://www.roomkit.live" },
+        "url": "https://www.roomkit.live/blog/multi-agent-observability/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-agent-observability/"
+    }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Agent Architecture, Part 8: Observability &mdash; Seeing Inside Your Multi-Agent System</h1>
+            <div class="blog-meta">
+                <span>March 21, 2026</span>
+                <span>&middot;</span>
+                <span>8 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>This is Part 8 of the <a href="/blog/multi-agent-architecture-series/">Multi-Agent Architecture series</a>. In <a href="/blog/multi-agent-external-tools/">Part 7</a> we covered external tools &mdash; how agents execute actions in the outside world. Today we tackle the question that keeps coming up once your system is running: what is actually happening inside it?</em></p>
+
+            <hr>
+
+            <h2>The Black Box Problem</h2>
+
+            <p>A user calls your voice assistant. The STT provider transcribes their speech. An inbound pipeline normalizes the message. The orchestrator routes it to one of three agents. That agent calls an LLM, which invokes two tools, which triggers a broadcast back through TTS to the user. Total wall time: 2.3 seconds. The user heard a response. Everything looks fine.</p>
+
+            <p>Except next Tuesday, the same flow takes 11 seconds. The user hangs up. Your team opens a ticket: "voice assistant is slow." Now what? Which of the six components in that chain got slower? Was it the STT provider? The LLM? A tool call that timed out and retried? Without observability, you are guessing. And in a multi-agent system with multiple LLM providers, multiple tool integrations, and conversations that span agents &mdash; guessing does not scale.</p>
+
+            <p>I have debugged enough production systems to know that the answer is never "add more logging." The answer is structured telemetry: spans with parent-child relationships, attributes with standardized names, and metrics that let you slice by session, agent, provider, and operation type. That is what RoomKit's telemetry layer provides out of the box.</p>
+
+            <h2>TelemetryProvider: Three Tiers for Three Stages</h2>
+
+            <p>RoomKit defines a <code>TelemetryProvider</code> ABC with three implementations, each designed for a different stage of your project lifecycle.</p>
+
+            <p><strong>NoopTelemetryProvider</strong> is the default. It does nothing &mdash; zero overhead, zero output. When you are prototyping and do not care about traces yet, you pay nothing for the telemetry infrastructure being there. Every span call is a no-op.</p>
+
+            <p><strong>ConsoleTelemetryProvider</strong> is for development. It prints spans and metrics to stderr in a human-readable format. When you are building locally and want to see the flow of a request without setting up a collector, this is what you reach for.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit
+<span class="kw">from</span> roomkit.telemetry <span class="kw">import</span> ConsoleTelemetryProvider
+
+kit = RoomKit(
+    telemetry=ConsoleTelemetryProvider(),
+)
+
+<span class="cm"># Every span now prints to stderr:</span>
+<span class="cm"># [SPAN] VOICE_SESSION session_id=sess-a1b2 room_id=room-7742 duration_ms=4312</span>
+<span class="cm">#   [SPAN] STT_TRANSCRIBE provider=deepgram ttfb_ms=180 duration_ms=620</span>
+<span class="cm">#   [SPAN] INBOUND_PIPELINE frame_count=1 bytes_processed=2048</span>
+<span class="cm">#     [SPAN] LLM_GENERATE provider=openai model=gpt-4o input_tokens=340 output_tokens=89 ttfb_ms=410</span>
+<span class="cm">#       [SPAN] LLM_TOOL_CALL tool=lookup_order duration_ms=120</span>
+<span class="cm">#     [SPAN] BROADCAST targets=3 duration_ms=12</span>
+<span class="cm">#       [SPAN] DELIVERY channel=voice-out duration_ms=45</span>
+<span class="cm">#       [SPAN] TTS_SYNTHESIZE provider=elevenlabs ttfb_ms=95 duration_ms=310</span></code></pre>
+
+            <p>That output alone tells you more about a single request than most logging setups will tell you in a week. You can see the full span hierarchy, every provider involved, and exactly where the time went.</p>
+
+            <p><strong>OpenTelemetryProvider</strong> is for production. It bridges RoomKit's internal telemetry to the OpenTelemetry SDK, which means your spans flow directly into whatever backend you already use &mdash; Jaeger, Grafana Tempo, Datadog, Honeycomb. No custom exporters, no proprietary format. Standard OTel.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit
+<span class="kw">from</span> roomkit.telemetry <span class="kw">import</span> OpenTelemetryProvider
+<span class="kw">from</span> opentelemetry.sdk.trace <span class="kw">import</span> TracerProvider
+<span class="kw">from</span> opentelemetry.sdk.trace.export <span class="kw">import</span> BatchSpanProcessor
+<span class="kw">from</span> opentelemetry.exporter.otlp.proto.grpc.trace_exporter <span class="kw">import</span> OTLPSpanExporter
+
+<span class="cm"># Standard OTel setup</span>
+tracer_provider = TracerProvider()
+tracer_provider.add_span_processor(
+    BatchSpanProcessor(OTLPSpanExporter(endpoint=<span class="st">"http://jaeger:4317"</span>))
+)
+
+<span class="cm"># Bridge RoomKit telemetry to OTel</span>
+kit = RoomKit(
+    telemetry=OpenTelemetryProvider(tracer_provider=tracer_provider),
+)
+
+<span class="cm"># Every RoomKit span is now an OTel span</span>
+<span class="cm"># session_id, room_id, and all attributes propagate automatically</span>
+<span class="cm"># View traces in Jaeger, Grafana, or any OTel-compatible backend</span></code></pre>
+
+            <p>The key design decision here is that RoomKit does not depend on the OpenTelemetry SDK. The <code>OpenTelemetryProvider</code> is the bridge. If you never import it, you never pull in the OTel dependency. If you do, you get full compatibility with zero adapter code.</p>
+
+            <h2>SpanKind: A Vocabulary for Multi-Agent Tracing</h2>
+
+            <p>Generic spans with string names are barely better than log lines. What makes RoomKit's telemetry useful is <code>SpanKind</code> &mdash; a set of constants that categorize every operation in the system. Each span has a kind, and that kind tells you exactly what layer of the architecture you are looking at:</p>
+
+            <ul>
+                <li><strong>STT_TRANSCRIBE</strong>, <strong>TTS_SYNTHESIZE</strong> &mdash; speech-to-text and text-to-speech provider calls</li>
+                <li><strong>LLM_GENERATE</strong>, <strong>LLM_TOOL_CALL</strong> &mdash; LLM inference and tool invocations</li>
+                <li><strong>HOOK_SYNC</strong>, <strong>HOOK_ASYNC</strong> &mdash; synchronous and asynchronous hook executions</li>
+                <li><strong>INBOUND_PIPELINE</strong> &mdash; the full inbound message processing chain</li>
+                <li><strong>BROADCAST</strong>, <strong>DELIVERY</strong> &mdash; fan-out to channels and individual channel delivery</li>
+                <li><strong>VOICE_SESSION</strong> &mdash; the top-level span for a complete voice interaction</li>
+                <li><strong>STORE_QUERY</strong> &mdash; storage layer reads and writes</li>
+                <li><strong>REALTIME_SESSION</strong>, <strong>REALTIME_TURN</strong>, <strong>REALTIME_TOOL_CALL</strong> &mdash; realtime voice session lifecycle</li>
+            </ul>
+
+            <p>These are not arbitrary strings. They form a hierarchy. A <code>VOICE_SESSION</code> span contains <code>STT_TRANSCRIBE</code>, <code>INBOUND_PIPELINE</code>, <code>LLM_GENERATE</code>, <code>BROADCAST</code>, and <code>TTS_SYNTHESIZE</code> as children. A <code>BROADCAST</code> contains one <code>DELIVERY</code> per target channel. An <code>LLM_GENERATE</code> may contain one or more <code>LLM_TOOL_CALL</code> spans. The hierarchy mirrors the actual execution flow, so when you open a trace in Jaeger, you see the architecture of the request, not a flat list of events.</p>
+
+            <div class="ascii-diagram">VOICE_SESSION (4312ms)
+  |-- STT_TRANSCRIBE (620ms, ttfb=180ms)
+  |-- INBOUND_PIPELINE (1840ms)
+  |     |-- HOOK_SYNC: validate_content (3ms)
+  |     |-- LLM_GENERATE (1420ms, tokens_in=340, tokens_out=89)
+  |     |     |-- LLM_TOOL_CALL: lookup_order (120ms)
+  |     |     |-- LLM_TOOL_CALL: check_inventory (95ms)
+  |-- BROADCAST (357ms)
+        |-- DELIVERY: voice-out (45ms)
+        |-- TTS_SYNTHESIZE (310ms, ttfb=95ms)</div>
+
+            <h2>Attributes That Answer Real Questions</h2>
+
+            <p>Every span carries typed attributes. These are not free-form key-value pairs you hope someone remembers to populate &mdash; they are standardized fields that RoomKit sets automatically on every span of the appropriate kind.</p>
+
+            <p><strong>DURATION_MS</strong> is on every span. <strong>TTFB_MS</strong> (time-to-first-byte) is on LLM, STT, and TTS spans &mdash; this is the metric that matters most for perceived responsiveness. A TTS call that takes 800ms total but streams the first audio chunk at 95ms feels instant. One that buffers for 800ms before sending anything feels broken. TTFB separates the two.</p>
+
+            <p><strong>LLM_INPUT_TOKENS</strong> and <strong>LLM_OUTPUT_TOKENS</strong> are on every <code>LLM_GENERATE</code> span. This gives you token-level cost attribution per session, per agent, per room. When your monthly LLM bill spikes, you can query your trace backend and find out exactly which agent, which conversation, and which prompt is responsible.</p>
+
+            <p>For realtime sessions, you get <strong>uptime_s</strong> and <strong>turn_count</strong>. For pipelines, <strong>frame_count</strong> and <strong>bytes_processed</strong>. For deliveries, <strong>duration_ms</strong> per channel. Every metric is scoped to a span, and every span is scoped to a session and room.</p>
+
+            <h2>Context Propagation with ContextVars</h2>
+
+            <p>In an async Python system, correlating operations to a session is not trivial. RoomKit uses <code>contextvars.ContextVar</code> to propagate <code>session_id</code> and <code>room_id</code> through the entire call stack. When a voice session starts, these values are set once. Every span created within that async context &mdash; STT, LLM, hooks, broadcasts &mdash; automatically inherits them. No manual threading of IDs through function signatures. No middleware that might miss a code path.</p>
+
+            <p>This means you can filter every trace in your backend by session or room and get the complete picture: every operation, every provider call, every hook execution, every delivery. One query. Full context.</p>
+
+            <h2>FrameworkEvent: When Things Go Wrong</h2>
+
+            <p>Spans tell you what happened during normal operation. <code>FrameworkEvent</code> emissions tell you what happened when things broke. RoomKit emits structured events for failure conditions that matter in production:</p>
+
+            <ul>
+                <li><strong>event_blocked</strong> &mdash; a hook blocked a message, with the hook name and reason attached</li>
+                <li><strong>delivery_failed</strong> &mdash; a channel delivery failed, with the error and target channel</li>
+                <li><strong>chain_depth_exceeded</strong> &mdash; an agent chain hit the recursion limit, preventing infinite loops</li>
+                <li><strong>process_timeout</strong> &mdash; an operation exceeded its time budget</li>
+            </ul>
+
+            <p>Blocked events are especially important in multi-agent systems. When a <code>BEFORE_BROADCAST</code> hook blocks a message, the telemetry records <code>status=BLOCKED</code>, the name of the hook that blocked it, and the reason string. This creates an audit trail. If a customer reports that "the bot never responded," you can search for blocked events on their session and find out exactly which hook stopped the message and why.</p>
+
+            <h2>Testing with MockTelemetryProvider</h2>
+
+            <p>Observability is not just for production. RoomKit includes <code>MockTelemetryProvider</code> specifically for testing. It captures every span and metric in memory so you can assert on them in your test suite.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.telemetry <span class="kw">import</span> MockTelemetryProvider, SpanKind
+
+<span class="kw">async def</span> <span class="fn">test_llm_token_tracking</span>():
+    telemetry = MockTelemetryProvider()
+    kit = RoomKit(telemetry=telemetry)
+
+    <span class="cm"># ... run a conversation that triggers LLM inference ...</span>
+
+    <span class="cm"># Assert on captured spans</span>
+    llm_spans = telemetry.get_spans(kind=SpanKind.LLM_GENERATE)
+    <span class="kw">assert</span> len(llm_spans) == <span class="num">1</span>
+    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"input_tokens"</span>] > <span class="num">0</span>
+    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"output_tokens"</span>] > <span class="num">0</span>
+    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].attributes[<span class="st">"ttfb_ms"</span>] < <span class="num">5000</span>
+
+    <span class="cm"># Assert on the span hierarchy</span>
+    session_spans = telemetry.get_spans(kind=SpanKind.VOICE_SESSION)
+    <span class="kw">assert</span> llm_spans[<span class="num">0</span>].parent_id == session_spans[<span class="num">0</span>].span_id
+
+    <span class="cm"># Assert that no events were blocked</span>
+    blocked = telemetry.get_events(status=<span class="st">"BLOCKED"</span>)
+    <span class="kw">assert</span> len(blocked) == <span class="num">0</span></code></pre>
+
+            <p>This is the kind of test that catches regressions before they hit production. If a refactor accidentally breaks token tracking or changes the span hierarchy, your tests fail. Observability becomes a contract, not a best-effort annotation.</p>
+
+            <h2>What You Can Answer</h2>
+
+            <p>With RoomKit's telemetry in place, you can answer the questions that actually come up in production multi-agent systems:</p>
+
+            <ul>
+                <li><strong>Where is the latency?</strong> &mdash; Sort spans by <code>DURATION_MS</code> within a session. The slowest span is your bottleneck.</li>
+                <li><strong>Which provider is slow?</strong> &mdash; Filter <code>STT_TRANSCRIBE</code>, <code>LLM_GENERATE</code>, or <code>TTS_SYNTHESIZE</code> spans by provider and compare <code>TTFB_MS</code> distributions.</li>
+                <li><strong>How much is this costing?</strong> &mdash; Aggregate <code>LLM_INPUT_TOKENS</code> and <code>LLM_OUTPUT_TOKENS</code> by agent, room, or time window.</li>
+                <li><strong>Why did the user not get a response?</strong> &mdash; Search for <code>event_blocked</code> or <code>delivery_failed</code> events on their session.</li>
+                <li><strong>Which agent handled this conversation?</strong> &mdash; The <code>session_id</code> and <code>room_id</code> on every span give you full agent traceability across the entire conversation.</li>
+                <li><strong>Is the system degrading?</strong> &mdash; Track <code>TTFB_MS</code> percentiles over time. A creeping P95 tells you something is wrong before users start complaining.</li>
+            </ul>
+
+            <p>None of this requires custom instrumentation. You set a <code>TelemetryProvider</code> when you create your <code>RoomKit</code> instance, and every component in the framework reports its telemetry through it. Swap <code>ConsoleTelemetryProvider</code> for <code>OpenTelemetryProvider</code> when you move to staging. The traces get richer, but the code stays identical.</p>
+
+            <hr>
+
+            <p><em>This article is part of a 9-part series on production-ready multi-agent architecture. Next up: <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a>.</em></p>
+
+            <p><em>Series: <a href="/blog/multi-agent-architecture-series/">Introduction</a> &middot; <a href="/blog/multi-agent-user-interaction/">Part 1: User Interaction</a> &middot; <a href="/blog/multi-agent-orchestration/">Part 2: Orchestration</a> &middot; <a href="/blog/multi-agent-knowledge/">Part 3: Knowledge</a> &middot; <a href="/blog/multi-agent-storage/">Part 4: Storage</a> &middot; <a href="/blog/multi-agent-agents/">Part 5: Agents</a> &middot; <a href="/blog/multi-agent-integration/">Part 6: Integration</a> &middot; <a href="/blog/multi-agent-external-tools/">Part 7: External Tools</a> &middot; Part 8: Observability &middot; <a href="/blog/multi-agent-evaluation/">Part 9: Evaluation</a></em></p>
+
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
