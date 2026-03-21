@@ -98,202 +98,217 @@
 
             <p>A single-agent system is simple. Every message goes to the same agent, every response comes back through the same path. But the moment you add a second agent, you face a decision that compounds with every agent after it: <strong>who handles this message?</strong></p>
 
-            <p>In production systems I have worked on, I have seen this solved with nested if-chains, keyword matching, regex dispatchers, and one memorable case where the routing logic was a 400-line function that nobody dared touch. All of these approaches share the same problem &mdash; they encode routing decisions as imperative code instead of treating routing as a first-class concern with its own data model.</p>
+            <p>RoomKit solves this with <strong>orchestration strategies</strong> &mdash; declarative patterns that wire routing, handoff tools, and conversation state automatically. You pick a strategy, give it your agents, and the framework handles the rest.</p>
 
-            <p>RoomKit takes a different approach. Routing is declarative, priority-based, and phase-aware. You describe <em>when</em> each agent should activate, and the framework evaluates the rules at runtime.</p>
+            <h2>Four Strategies, Zero Boilerplate</h2>
 
-            <h2>ConversationRouter and RoutingRules</h2>
-
-            <p>The central piece is <code>ConversationRouter</code>. You give it a list of <code>RoutingRule</code> objects, each with a target agent, a set of <code>RoutingConditions</code>, and a numeric priority. When an event arrives, the router evaluates every rule in priority order and activates the first match.</p>
-
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> (
-    ConversationRouter,
-    RoutingRule,
-    RoutingConditions,
-    ConversationPhase,
-)
-
-router = ConversationRouter(
-    rules=[
-        <span class="cm"># Priority 1: billing questions go to the billing agent</span>
-        RoutingRule(
-            agent_id=<span class="st">"billing-agent"</span>,
-            priority=<span class="num">1</span>,
-            conditions=RoutingConditions(
-                intents={<span class="st">"billing"</span>, <span class="st">"invoice"</span>, <span class="st">"payment"</span>},
-            ),
-        ),
-        <span class="cm"># Priority 2: technical issues during handling phase</span>
-        RoutingRule(
-            agent_id=<span class="st">"tech-support-agent"</span>,
-            priority=<span class="num">2</span>,
-            conditions=RoutingConditions(
-                intents={<span class="st">"bug"</span>, <span class="st">"error"</span>, <span class="st">"not_working"</span>},
-                phases={ConversationPhase.HANDLING},
-            ),
-        ),
-        <span class="cm"># Priority 10: catch-all general assistant</span>
-        RoutingRule(
-            agent_id=<span class="st">"general-agent"</span>,
-            priority=<span class="num">10</span>,
-            conditions=RoutingConditions(),
-        ),
-    ],
-    supervisor_id=<span class="st">"supervisor-agent"</span>,
-)
-
-<span class="cm"># Select the right agent for an incoming event</span>
-target = router.select_agent(event, context, state)
-<span class="cm"># Returns "billing-agent", "tech-support-agent", or "general-agent"</span></code></pre>
-
-            <p>A few things to notice. The <code>conditions</code> object supports multiple matching dimensions: intent sets, conversation phases, channel types, and even a custom callable. An empty <code>RoutingConditions()</code> matches everything &mdash; making it a natural catch-all at a low priority. The priority number is evaluated ascending, so priority 1 beats priority 10.</p>
-
-            <h3>Intent Classification</h3>
-
-            <p>The router does not classify intents itself &mdash; that is not its job. It reads the <code>intent</code> field from <code>event.metadata["intent"]</code> and matches it against the <code>intents</code> set in each rule. This means you can use whatever intent classification strategy fits your system: an LLM call, a local classifier, a keyword extractor, or a hardcoded value from upstream logic. The router stays decoupled from the classification mechanism.</p>
-
-            <p>In practice, I wire intent classification into a hook that runs before routing. The hook enriches the event metadata, and the router consumes it. Clean separation. If I want to swap from a keyword-based classifier to an LLM-based one, the routing rules stay identical.</p>
-
-            <h2>Conversation Phases</h2>
-
-            <p>Not every routing decision depends on what the user said. Some depend on <em>where the conversation is</em> in its lifecycle. A message during intake ("Hi, I need help") requires a different agent than the same message during escalation ("I already explained this three times").</p>
-
-            <p>RoomKit models this with <code>ConversationPhase</code>, a lifecycle enum with six stages:</p>
-
-            <div class="ascii-diagram">INTAKE --> QUALIFICATION --> HANDLING --> ESCALATION --> RESOLUTION --> FOLLOWUP</div>
+            <p>RoomKit ships four built-in orchestration strategies. Each one represents a common multi-agent pattern:</p>
 
             <ul>
-                <li><strong>INTAKE</strong> &mdash; Initial contact. Collect basic information, identify the user.</li>
-                <li><strong>QUALIFICATION</strong> &mdash; Determine what the user needs. Classify the request.</li>
-                <li><strong>HANDLING</strong> &mdash; Active work on the request by the appropriate agent.</li>
-                <li><strong>ESCALATION</strong> &mdash; The current agent cannot resolve the issue. Transfer to a higher-tier agent or a human.</li>
-                <li><strong>RESOLUTION</strong> &mdash; The issue is resolved. Confirm with the user.</li>
-                <li><strong>FOLLOWUP</strong> &mdash; Post-resolution check-in. Satisfaction survey, related offers.</li>
+                <li><strong>Pipeline</strong> &mdash; agents are chained linearly (triage &rarr; handler &rarr; resolver)</li>
+                <li><strong>Swarm</strong> &mdash; every agent can hand off to every other agent, no fixed order</li>
+                <li><strong>Supervisor</strong> &mdash; one manager delegates tasks to worker agents in background rooms</li>
+                <li><strong>Loop</strong> &mdash; a producer and reviewer cycle until the output is approved</li>
             </ul>
 
-            <p>Phase transitions are explicit. An agent or a hook triggers a transition, and the router re-evaluates which agent should be active for the new phase.</p>
+            <p>Let's start with the most common one.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPhase, ConversationState
+            <h2>Pipeline: Linear Agent Chains</h2>
 
-<span class="cm"># Current state tracks phase, active agent, and history</span>
-state = ConversationState(
-    phase=ConversationPhase.HANDLING,
-    active_agent_id=<span class="st">"general-agent"</span>,
+            <p>A support pipeline where conversations flow from triage to handler to resolver &mdash; three agents, each passing the conversation forward when their part is done:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> Agent, Pipeline, RoomKit, WebSocketChannel, InboundMessage, TextContent
+<span class="kw">from</span> roomkit.memory.sliding_window <span class="kw">import</span> SlidingWindowMemory
+<span class="kw">from</span> roomkit.orchestration.handoff <span class="kw">import</span> HandoffMemoryProvider
+<span class="kw">from</span> roomkit.orchestration.state <span class="kw">import</span> get_conversation_state
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider, AnthropicConfig
+
+<span class="cm"># Define agents with role and description (used in handoff context)</span>
+triage = Agent(
+    <span class="st">"agent-triage"</span>,
+    provider=AnthropicAIProvider(config=AnthropicConfig(model=<span class="st">"claude-sonnet-4-20250514"</span>)),
+    role=<span class="st">"Triage receptionist"</span>,
+    description=<span class="st">"Routes incoming requests to the right specialist"</span>,
+    system_prompt=<span class="st">"You triage incoming requests. Hand off to the handler when you understand the issue."</span>,
+    memory=HandoffMemoryProvider(SlidingWindowMemory(max_events=50)),
+)
+handler = Agent(
+    <span class="st">"agent-handler"</span>,
+    provider=AnthropicAIProvider(config=AnthropicConfig(model=<span class="st">"claude-sonnet-4-20250514"</span>)),
+    role=<span class="st">"Request handler"</span>,
+    description=<span class="st">"Handles and resolves customer requests"</span>,
+    system_prompt=<span class="st">"You handle customer requests. Hand off to the resolver when done."</span>,
+    memory=HandoffMemoryProvider(SlidingWindowMemory(max_events=50)),
+)
+resolver = Agent(
+    <span class="st">"agent-resolver"</span>,
+    provider=AnthropicAIProvider(config=AnthropicConfig(model=<span class="st">"claude-sonnet-4-20250514"</span>)),
+    role=<span class="st">"Resolution specialist"</span>,
+    description=<span class="st">"Confirms resolution and closes requests"</span>,
+    system_prompt=<span class="st">"You confirm resolution and close requests."</span>,
+    memory=HandoffMemoryProvider(SlidingWindowMemory(max_events=50)),
 )
 
-<span class="cm"># An agent decides it cannot handle the issue</span>
-new_state = state.transition(
-    to_phase=ConversationPhase.ESCALATION,
-    to_agent=<span class="st">"senior-agent"</span>,
-    reason=<span class="st">"Customer requesting refund above agent's authorized limit"</span>,
+<span class="cm"># Pipeline strategy: triage -> handler -> resolver</span>
+kit = RoomKit(
+    orchestration=Pipeline(agents=[triage, handler, resolver]),
 )
 
-<span class="cm"># new_state.phase_history now contains the transition record</span>
-<span class="cm"># The router re-evaluates: escalation-phase rules now match</span></code></pre>
+<span class="cm"># Create room — agents, routing, handoff tools, and state are wired automatically</span>
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"support-room"</span>)</code></pre>
 
-            <p>The <code>reason</code> parameter is stored in the <code>phase_history</code> as a <code>PhaseTransition</code> record, so you always have an audit trail of why the conversation moved from one phase to another. The <code>transition()</code> method returns a new <code>ConversationState</code> &mdash; the pattern is immutable, so each state change is explicit and traceable.</p>
+            <p>That last line &mdash; <code>create_room()</code> &mdash; does all the heavy lifting. Under the hood, the <code>Pipeline</code> strategy:</p>
 
-            <h2>The Supervisor Pattern</h2>
+            <ol>
+                <li>Registers all three agents on the <code>RoomKit</code> instance</li>
+                <li>Attaches them to the room as intelligence channels</li>
+                <li>Installs a <code>BEFORE_BROADCAST</code> hook that routes events to the active agent</li>
+                <li>Injects a <code>handoff_conversation</code> tool into each agent (constrained to only reachable targets)</li>
+                <li>Initializes <code>ConversationState</code> with the first agent active</li>
+            </ol>
 
-            <p>In a multi-agent system, you often need one agent that always knows what is happening &mdash; regardless of which specialist is currently active. RoomKit supports this through the <code>supervisor_id</code> parameter.</p>
+            <p>No manual router setup. No handoff handler configuration. No tool injection. The strategy composes all the low-level primitives for you.</p>
 
-            <p>When you designate an agent as supervisor, it receives every event in the conversation, even when it is not the active agent. The active agent handles the user-facing response; the supervisor observes, logs, and can intervene when necessary.</p>
+            <h2>Handoffs: The Agent Decides</h2>
 
-            <p>The supervisor pattern solves a class of problems that are hard to address with pure routing: quality monitoring, compliance checks, SLA enforcement, and graceful degradation when a specialist agent fails. The supervisor is always watching, always receiving context, and always able to step in.</p>
+            <p>When the triage agent determines that a user has a billing issue, it calls the <code>handoff_conversation</code> tool &mdash; a tool that the framework injected automatically:</p>
 
-            <p>Non-active, non-supervisor agents are filtered out at the event router level &mdash; events are simply not dispatched to them, so they do not consume LLM tokens or processing time. This keeps the system efficient even with dozens of registered agents.</p>
-
-            <h2>Handoffs: Agent-to-Agent Transfers</h2>
-
-            <p>Routing handles the initial assignment, but conversations are not static. A billing agent might discover the user actually has a technical problem. A general agent might realize the question requires a specialist. The user might explicitly ask to "talk to someone else."</p>
-
-            <p>This is where <code>HandoffHandler</code> comes in. A handoff is a structured transfer from one agent to another, with context injection so the receiving agent does not start from zero. The handler takes the <code>RoomKit</code> instance and the <code>ConversationRouter</code>, along with optional configuration like agent aliases and allowed transitions.</p>
-
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> HandoffHandler
-
-handoff = HandoffHandler(
-    kit=kit,
-    router=router,
-    agent_aliases={<span class="st">"billing"</span>: <span class="st">"billing-agent"</span>, <span class="st">"tech"</span>: <span class="st">"tech-support-agent"</span>},
-    allowed_transitions={
-        <span class="st">"general-agent"</span>: {<span class="st">"billing-agent"</span>, <span class="st">"tech-support-agent"</span>},
-        <span class="st">"billing-agent"</span>: {<span class="st">"tech-support-agent"</span>, <span class="st">"general-agent"</span>},
+            <pre><code class="code-content"><span class="cm"># The AI agent calls this tool during its response.</span>
+<span class="cm"># In production, the LLM decides when to hand off based on its system prompt.</span>
+<span class="cm"># For demonstration, we invoke it directly:</span>
+result = <span class="kw">await</span> triage.tool_handler(
+    <span class="st">"handoff_conversation"</span>,
+    {
+        <span class="st">"target"</span>: <span class="st">"agent-handler"</span>,
+        <span class="st">"reason"</span>: <span class="st">"Billing issue needs specialist"</span>,
+        <span class="st">"summary"</span>: <span class="st">"User has a billing question about their account."</span>,
     },
 )
 
-<span class="cm"># Execute the handoff (called by the agent via a tool)</span>
-result = <span class="kw">await</span> handoff.handle(
-    room_id=<span class="st">"support-case-7742"</span>,
-    calling_agent_id=<span class="st">"general-agent"</span>,
-    arguments={
-        <span class="st">"target"</span>: <span class="st">"billing"</span>,
-        <span class="st">"reason"</span>: <span class="st">"User asked about invoice discrepancy"</span>,
-        <span class="st">"summary"</span>: <span class="st">"Customer has a billing question about INV-2026-0847"</span>,
-    },
-)</code></pre>
+<span class="cm"># State is updated automatically</span>
+room = <span class="kw">await</span> kit.get_room(<span class="st">"support-room"</span>)
+state = get_conversation_state(room)
+print(state.phase)            <span class="cm"># "agent-handler"</span>
+print(state.active_agent_id)  <span class="cm"># "agent-handler"</span>
+print(state.handoff_count)    <span class="cm"># 1</span>
 
-            <p>During a handoff, the handler updates the <code>ConversationState</code>, transitions the phase if configured, and activates the target agent. The <code>allowed_transitions</code> map controls which agents can hand off to which &mdash; preventing unintended routing loops. Agent aliases let the AI use friendly names like "billing" instead of full IDs.</p>
+<span class="cm"># Next user message automatically routes to the handler</span>
+<span class="kw">await</span> kit.process_inbound(InboundMessage(
+    channel_id=<span class="st">"ws-user"</span>,
+    sender_id=<span class="st">"user"</span>,
+    content=TextContent(body=<span class="st">"My last invoice looks wrong."</span>),
+))
+<span class="cm"># handler responds — triage is silent</span></code></pre>
 
-            <p>This is the difference between a handoff that frustrates users ("Can you explain your issue again?") and one that feels seamless ("I see you have a question about invoice INV-2026-0847. Let me look into that.").</p>
+            <p>The handoff updates <code>ConversationState</code>, transitions the phase, and stamps the event metadata so the router sends subsequent messages to the new agent. The <code>summary</code> field is injected into the receiving agent's context via <code>HandoffMemoryProvider</code>, so it knows what happened before it took over. The user never has to repeat themselves.</p>
 
-            <h2>Sequential Workflows with ConversationPipeline</h2>
+            <h2>Swarm: Free-Form Agent Routing</h2>
 
-            <p>Not all multi-agent scenarios are about routing to one agent or another. Some workflows are inherently sequential: an intake agent collects information, a qualification agent classifies the request, a specialist handles it, a resolution agent wraps up. Each agent does its part, then passes the conversation forward.</p>
+            <p>Pipelines are great when the flow is predictable. But sometimes any agent should be able to reach any other agent &mdash; a sales agent discovers a support issue, a support agent finds a billing error, a billing agent needs to loop back to sales. The <code>Swarm</code> strategy enables this:</p>
 
-            <p><code>ConversationPipeline</code> models this as a series of <code>PipelineStage</code> definitions. Each stage specifies a phase, an agent, and optionally the next stage to advance to. Stages can also define which previous stages they allow returning to, enabling loops when needed.</p>
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> Agent, Swarm, RoomKit
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration <span class="kw">import</span> ConversationPipeline, PipelineStage
+kit = RoomKit(
+    orchestration=Swarm(
+        agents=[sales, support, billing],
+        entry=<span class="st">"agent-sales"</span>,  <span class="cm"># first agent to handle messages</span>
+    ),
+)
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"conversation-001"</span>)</code></pre>
 
-pipeline = ConversationPipeline(
-    stages=[
-        PipelineStage(
-            phase=ConversationPhase.INTAKE,
-            agent_id=<span class="st">"intake-agent"</span>,
-            next=ConversationPhase.QUALIFICATION,
-            description=<span class="st">"Collect user information and identify the request"</span>,
-        ),
-        PipelineStage(
-            phase=ConversationPhase.QUALIFICATION,
-            agent_id=<span class="st">"qualification-agent"</span>,
-            next=ConversationPhase.HANDLING,
-            can_return_to={ConversationPhase.INTAKE},
-        ),
-        PipelineStage(
-            phase=ConversationPhase.HANDLING,
-            agent_id=<span class="st">"specialist-agent"</span>,
-            next=ConversationPhase.FOLLOWUP,
-        ),
-        PipelineStage(
-            phase=ConversationPhase.FOLLOWUP,
-            agent_id=<span class="st">"followup-agent"</span>,
-        ),
-    ],
-    supervisor_id=<span class="st">"supervisor-agent"</span>,
-)</code></pre>
+            <p>In a swarm, every agent gets a <code>handoff_conversation</code> tool that can target any other agent in the group. There are no phase constraints &mdash; routing uses sticky affinity (the active agent keeps handling until it explicitly hands off). This is the pattern you want when conversations are unpredictable and agents need full flexibility.</p>
 
-            <p>The pipeline approach works well when the conversation has a predictable shape. The <code>next</code> field defines the forward progression, while <code>can_return_to</code> allows controlled backward transitions. For more dynamic scenarios &mdash; where the next agent depends on runtime conditions &mdash; the <code>ConversationRouter</code> with priority-based rules is the better fit. In practice, I often combine both: a pipeline for the overall structure, with routing rules that handle exceptions and escalations within each stage.</p>
+            <h2>Supervisor: Delegation to Background Workers</h2>
 
-            <h2>Fallback Behavior</h2>
+            <p>Sometimes you don't want agents taking turns in the same conversation. You want a manager that talks to the user and delegates work to background agents running in isolated rooms. The <code>Supervisor</code> strategy handles this:</p>
 
-            <p>What happens when no routing rule matches? Or when the active agent crashes? RoomKit handles this through two mechanisms.</p>
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> Agent, Supervisor, RoomKit
 
-            <p>First, the supervisor agent (if configured) always receives events. Even if routing fails completely, the supervisor can respond. It acts as a safety net &mdash; the agent of last resort that keeps the conversation alive while the system recovers.</p>
+kit = RoomKit(
+    orchestration=Supervisor(
+        supervisor=manager,
+        workers=[researcher, coder],
+    ),
+)
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"project-room"</span>)
 
-            <p>Second, every non-active agent is muted by default. This means a routing failure does not accidentally broadcast a message to every agent in the system. Only the active agent and the supervisor see events. If the active agent becomes unresponsive, the supervisor can trigger a handoff to a fallback agent or escalate to a human operator.</p>
+<span class="cm"># The manager gets delegate_to_researcher and delegate_to_coder tools.</span>
+<span class="cm"># Workers run in child rooms — isolated from the user conversation.</span>
+<span class="cm"># Results flow back to the manager via the delegation lifecycle.</span></code></pre>
+
+            <p>Only the supervisor is attached to the user's room. Workers execute in child rooms via <code>kit.delegate()</code>, so their work doesn't pollute the main conversation timeline. The supervisor gets auto-generated <code>delegate_to_&lt;worker&gt;</code> tools &mdash; one per worker &mdash; instead of <code>handoff_conversation</code>.</p>
+
+            <h2>Loop: Producer-Reviewer Cycles</h2>
+
+            <p>Some workflows need iteration. A writer drafts content, a reviewer evaluates it, the writer revises, the reviewer approves. The <code>Loop</code> strategy models this:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> Agent, Loop, RoomKit
+
+kit = RoomKit(
+    orchestration=Loop(
+        agent=writer,
+        reviewer=reviewer,
+        max_iterations=<span class="num">3</span>,  <span class="cm"># safety limit</span>
+    ),
+)
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"draft-review"</span>)
+
+<span class="cm"># writer produces -> reviewer evaluates</span>
+<span class="cm"># reviewer can hand off back to writer (with feedback) or call approve_output</span>
+<span class="cm"># Loop continues until approved or max_iterations reached</span></code></pre>
+
+            <p>The reviewer gets both a <code>handoff_conversation</code> tool (to send it back for revision) and an <code>approve_output</code> tool (to end the cycle). Loop state is tracked in <code>ConversationState.context</code> &mdash; iteration count, approval status &mdash; so you always know where the cycle stands.</p>
+
+            <h2>Conversation State and Phase History</h2>
+
+            <p>Every strategy uses the same state model under the hood. <code>ConversationState</code> tracks the current phase, the active agent, the handoff count, and a full audit trail of every transition:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.orchestration.state <span class="kw">import</span> get_conversation_state
+
+room = <span class="kw">await</span> kit.get_room(<span class="st">"support-room"</span>)
+state = get_conversation_state(room)
+
+print(state.phase)            <span class="cm"># current phase (e.g., "agent-handler")</span>
+print(state.active_agent_id)  <span class="cm"># which agent owns the conversation</span>
+print(state.handoff_count)    <span class="cm"># total handoffs so far</span>
+
+<span class="cm"># Full transition audit trail</span>
+<span class="kw">for</span> t <span class="kw">in</span> state.phase_history:
+    print(<span class="st">f"  </span>{t.from_phase}<span class="st"> -> </span>{t.to_phase}<span class="st"> (</span>{t.reason}<span class="st">)"</span>)</code></pre>
+
+            <p>State is stored in <code>Room.metadata["_conversation_state"]</code> and persists across server restarts. Every transition is recorded as a <code>PhaseTransition</code> with <code>from_phase</code>, <code>to_phase</code>, <code>from_agent</code>, <code>to_agent</code>, <code>reason</code>, and a timestamp. This is your audit trail when debugging why a customer ended up talking to the wrong agent at 2 AM.</p>
+
+            <h2>How It Works Under the Hood</h2>
+
+            <p>All four strategies compose the same low-level primitives:</p>
+
+            <ul>
+                <li><strong><code>ConversationRouter</code></strong> &mdash; installed as a <code>BEFORE_BROADCAST</code> hook (priority &minus;100) that stamps <code>_routed_to</code> on event metadata. The event router filters out non-targeted agents.</li>
+                <li><strong><code>HandoffHandler</code></strong> &mdash; processes <code>handoff_conversation</code> tool calls. Updates state, validates allowed transitions, records phase history.</li>
+                <li><strong><code>ConversationPipeline</code></strong> &mdash; defines stage ordering with <code>PipelineStage</code> objects. Controls forward progression (<code>next</code>) and backward loops (<code>can_return_to</code>).</li>
+                <li><strong><code>ConversationState</code></strong> &mdash; immutable state model. Each transition creates a new instance with the updated phase and appended history.</li>
+            </ul>
+
+            <p>You can use these primitives directly if the built-in strategies don't fit your use case. But for most multi-agent scenarios, a strategy gives you production-ready orchestration in three lines of code.</p>
+
+            <h2>Non-Active Agent Filtering</h2>
+
+            <p>In a room with three agents, only one is active at a time. Non-active, non-supervisor agents are filtered out at the event router level &mdash; events are simply not dispatched to them, so they do not consume LLM tokens or processing time. The supervisor (if configured) always receives events for oversight, but its responses are suppressed unless it explicitly intervenes.</p>
 
             <p>This is a deliberate design choice. In a multi-agent system, silence is preferable to chaos. A user waiting a few seconds for a supervisor to pick up is a better experience than three agents responding simultaneously with conflicting answers.</p>
 
-            <h2>Putting It Together</h2>
+            <h2>Choosing a Strategy</h2>
 
-            <p>The orchestration layer in RoomKit is the connective tissue between agents. It answers three questions at every point in a conversation:</p>
+            <p>The four strategies cover the most common multi-agent patterns:</p>
 
-            <ol>
-                <li><strong>Who handles this?</strong> &mdash; <code>ConversationRouter</code> with priority-based <code>RoutingRule</code> evaluation.</li>
-                <li><strong>Where are we?</strong> &mdash; <code>ConversationPhase</code> lifecycle with explicit transitions and audit trails.</li>
-                <li><strong>What happens when things change?</strong> &mdash; <code>HandoffHandler</code> for agent-to-agent transfers, <code>ConversationPipeline</code> for sequential workflows, and supervisor oversight for safety.</li>
-            </ol>
+            <ul>
+                <li><strong>Pipeline</strong> when the conversation has a predictable flow &mdash; triage, handle, resolve</li>
+                <li><strong>Swarm</strong> when any agent might need to reach any other &mdash; dynamic conversations</li>
+                <li><strong>Supervisor</strong> when one agent coordinates background work &mdash; research, analysis, generation</li>
+                <li><strong>Loop</strong> when output needs iterative refinement &mdash; drafting, code review, quality checks</li>
+            </ul>
 
-            <p>None of these components require you to use the others. You can use <code>ConversationRouter</code> alone if your routing needs are simple. You can add phases later when your workflows demand it. You can wire in handoffs only for the agent pairs that need them. The pieces compose without coupling.</p>
+            <p>Each strategy is a few lines of configuration. The framework handles agent registration, channel attachment, routing hooks, handoff tool injection, and state management. You focus on your agents' prompts and tools. The orchestration layer takes care of the rest.</p>
 
             <hr>
 
