@@ -41,6 +41,7 @@ gather:
 	cp -R ../roomkit/src       $(BUILD_DIR)/src
 	cp    ../roomkit/pyproject.toml $(BUILD_DIR)/pyproject.toml
 	cp    ../roomkit/llms.txt  $(BUILD_DIR)/llms.txt
+	cp    ../roomkit/llms-full.txt $(BUILD_DIR)/llms-full.txt
 
 	# Documentation from roomkit-docs
 	cp -R ../roomkit-docs/docs/. $(BUILD_DIR)/docs/

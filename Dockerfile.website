@@ -50,8 +50,11 @@ server {
         add_header Cache-Control "public, immutable";
     }
 
-    # Serve llms.txt at root
+    # Serve llms.txt and llms-full.txt at root
     location = /llms.txt {
+        default_type text/plain;
+    }
+    location = /llms-full.txt {
         default_type text/plain;
     }
 
@@ -85,8 +88,9 @@ COPY website/ /usr/share/nginx/html/
 # Copy built documentation
 COPY --from=docs-builder /build/site /usr/share/nginx/html/docs
 
-# Copy llms.txt to root
+# Copy llms.txt and llms-full.txt to root
 COPY llms.txt /usr/share/nginx/html/
+COPY llms-full.txt /usr/share/nginx/html/
 
 # Expose port
 EXPOSE 80
