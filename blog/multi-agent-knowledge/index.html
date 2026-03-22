@@ -158,78 +158,69 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
 
             <p>That's intentional. <code>SlidingWindowMemory</code> is the starting point, not the ceiling. When you need more, you implement your own <code>MemoryProvider</code>.</p>
 
-            <h2>Custom Retrieval: Vector Search and Hybrid RAG</h2>
+            <h2>RetrievalMemory: Built-In Knowledge Integration</h2>
 
-            <p>Here's where the architecture pays off. Because <code>MemoryProvider</code> is a simple ABC, you can plug in any retrieval strategy &mdash; vector search, hybrid RAG, summarization, or a combination. The AI channel doesn't care how you built the context, only that you return a <code>MemoryResult</code> with the events and pre-built messages the LLM should see.</p>
+            <p>For most use cases, you don't need to implement <code>MemoryProvider</code> from scratch. RoomKit ships <code>RetrievalMemory</code> &mdash; a provider that wraps an inner memory (like <code>SlidingWindowMemory</code>) and automatically searches one or more <code>KnowledgeSource</code> backends on every AI turn. Conversation history comes from the inner provider. Relevant knowledge comes from the sources. Both are assembled into a single context.</p>
 
-            <p>Here's a real-world example: a memory provider that queries pgvector for relevant documentation and combines it with recent conversation history. Since RoomKit already uses PostgreSQL for storage via <code>PostgresStore</code>, adding pgvector keeps your entire stack on one database &mdash; no separate vector service to deploy and maintain.</p>
+            <p>The built-in <code>PostgresKnowledgeSource</code> uses PostgreSQL's full-text search (<code>tsvector</code> with <code>ts_rank_cd</code>) &mdash; keyword-based retrieval that runs on the same database as your <code>PostgresStore</code>. No separate vector service, no extra infrastructure.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.memory <span class="kw">import</span> MemoryProvider, MemoryResult
-<span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AIMessage
-<span class="kw">from</span> roomkit.models.event <span class="kw">import</span> RoomEvent
-<span class="kw">from</span> roomkit.models.context <span class="kw">import</span> RoomContext
-<span class="kw">import</span> asyncpg
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.memory <span class="kw">import</span> RetrievalMemory, SlidingWindowMemory
+<span class="kw">from</span> roomkit.knowledge <span class="kw">import</span> KnowledgeSource, KnowledgeResult
+<span class="kw">from</span> roomkit.knowledge.postgres <span class="kw">import</span> PostgresKnowledgeSource
+<span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
 
-<span class="kw">class</span> <span class="fn">PgVectorRAGMemory</span>(MemoryProvider):
-    <span class="st">"""RAG memory using pgvector — same PostgreSQL as your ConversationStore."""</span>
+<span class="cm"># PostgresKnowledgeSource — full-text search on the same DB as PostgresStore</span>
+pg_knowledge = PostgresKnowledgeSource(
+    dsn=<span class="st">"postgresql://user:pass@localhost:5432/roomkit"</span>,
+)
+<span class="kw">await</span> pg_knowledge.init()  <span class="cm"># creates knowledge_documents table + GIN index</span>
 
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, store, pool: asyncpg.Pool,
-                 max_history: int = <span class="num">20</span>, max_docs: int = <span class="num">5</span>):
-        self.store = store
-        self.pool = pool  <span class="cm"># reuse the same asyncpg pool as PostgresStore</span>
-        self.max_history = max_history
-        self.max_docs = max_docs
+<span class="cm"># Index some documents (e.g., during startup or ingestion pipeline)</span>
+<span class="kw">await</span> pg_knowledge.index(
+    <span class="st">"Refunds are available within 30 days of purchase. Contact support."</span>,
+    metadata={<span class="st">"source"</span>: <span class="st">"refund_policy"</span>},
+)
+<span class="kw">await</span> pg_knowledge.index(
+    <span class="st">"Enterprise plans include priority support and a dedicated account manager."</span>,
+    metadata={<span class="st">"source"</span>: <span class="st">"pricing_guide"</span>},
+)
 
-    <span class="kw">async def</span> <span class="fn">_embed</span>(self, text: str) -> list[float]:
-        <span class="cm"># Your embedding function (OpenAI, Cohere, local model, etc.)</span>
-        <span class="kw">return await</span> get_embedding(text)
+<span class="cm"># RetrievalMemory wraps SlidingWindowMemory + knowledge sources</span>
+memory = RetrievalMemory(
+    sources=[pg_knowledge],
+    inner=SlidingWindowMemory(max_events=50),
+    max_results=<span class="num">5</span>,
+)
 
-    <span class="kw">async def</span> <span class="fn">retrieve</span>(
-        self,
-        room_id: str,
-        current_event: RoomEvent,
-        context: RoomContext,
-        *,
-        channel_id: str | None = None,
-    ) -> MemoryResult:
-        <span class="cm"># 1. Get recent conversation history</span>
-        events = <span class="kw">await</span> self.store.list_events(
-            room_id, limit=self.max_history
-        )
+<span class="cm"># Wire it to an AI channel</span>
+agent = AIChannel(<span class="st">"support-agent"</span>,
+    provider=anthropic_provider,
+    system_prompt=<span class="st">"You are a customer support agent."</span>,
+    memory=memory,
+)</code></pre>
 
-        <span class="cm"># 2. Use the last user message as the retrieval query</span>
-        last_user_msg = next(
-            (e.content.body <span class="kw">for</span> e <span class="kw">in</span> reversed(events)
-             <span class="kw">if</span> e.source.channel_id != channel_id),
-            <span class="kw">None</span>
-        )
-        <span class="kw">if not</span> last_user_msg:
-            <span class="kw">return</span> MemoryResult(events=events)
+            <p>On every AI turn, <code>RetrievalMemory</code> extracts the user's message, queries all sources concurrently, deduplicates results by content, and prepends the top matches as context before the conversation history. The agent sees <code>[Relevant context from knowledge sources]</code> followed by the conversation &mdash; no explicit RAG plumbing in your agent code.</p>
 
-        <span class="cm"># 3. Query pgvector for relevant documents</span>
-        embedding = <span class="kw">await</span> self._embed(last_user_msg)
+            <p>The <code>KnowledgeSource</code> interface is pluggable. <code>PostgresKnowledgeSource</code> handles keyword search. For semantic search, implement the same interface backed by pgvector, Pinecone, or any vector store. You can pass multiple sources to <code>RetrievalMemory</code> &mdash; results from all of them are merged and ranked.</p>
+
+            <pre><code class="code-content"><span class="cm"># Custom knowledge source — same interface, any backend</span>
+<span class="kw">class</span> <span class="fn">PgVectorSource</span>(KnowledgeSource):
+    <span class="kw">async def</span> <span class="fn">search</span>(self, query: str, *, room_id: str | None = None,
+                      limit: int = 5) -> list[KnowledgeResult]:
+        embedding = <span class="kw">await</span> get_embedding(query)
         rows = <span class="kw">await</span> self.pool.fetch(
-            <span class="st">"""SELECT content, 1 - (embedding &lt;=&gt; $1) AS similarity
-               FROM knowledge_docs
-               ORDER BY embedding &lt;=&gt; $1
-               LIMIT $2"""</span>,
-            str(embedding), self.max_docs,
+            <span class="st">"SELECT content, 1 - (embedding &lt;=&gt; $1) AS score FROM docs ORDER BY embedding &lt;=&gt; $1 LIMIT $2"</span>,
+            str(embedding), limit,
         )
+        <span class="kw">return</span> [KnowledgeResult(content=r[<span class="st">"content"</span>], score=r[<span class="st">"score"</span>], source=<span class="st">"pgvector"</span>) <span class="kw">for</span> r <span class="kw">in</span> rows]
 
-        <span class="cm"># 4. Inject retrieved documents as a pre-built AI message</span>
-        doc_context = <span class="st">"\n\n"</span>.join(row[<span class="st">"content"</span>] <span class="kw">for</span> row <span class="kw">in</span> rows)
+<span class="cm"># Combine keyword + semantic search in one memory provider</span>
+memory = RetrievalMemory(
+    sources=[pg_knowledge, PgVectorSource(pool=shared_pool)],
+    inner=SlidingWindowMemory(max_events=50),
+)</code></pre>
 
-        <span class="kw">return</span> MemoryResult(
-            messages=[AIMessage(
-                role=<span class="st">"user"</span>,
-                content=<span class="st">f"Relevant documentation:\n\n{doc_context}"</span>,
-            )],
-            events=events,
-        )</code></pre>
-
-            <p>The pattern is straightforward: retrieve recent history from the event store, embed the latest user message, query pgvector for similar documents, and assemble both into a single <code>MemoryResult</code>. Since you're already running PostgreSQL for <code>PostgresStore</code>, adding the <code>vector</code> extension gives you semantic search without a separate infrastructure dependency. The <code>messages</code> field holds pre-built AI messages (like retrieved documents), while <code>events</code> holds raw room events that the AI channel converts automatically.</p>
-
-            <p>You can extend this in any direction. Summarize older history instead of truncating it. Filter documents by metadata (customer tier, product line). Use a different vector store if your scale requires it &mdash; the <code>MemoryProvider</code> boundary gives you full control without touching the AI channel's internals.</p>
+            <p>Both sources run concurrently. Results are merged, deduplicated, and ranked. The agent gets the best of keyword and semantic search without knowing either exists.</p>
 
             <h2>HandoffMemoryProvider: Context Across Agent Boundaries</h2>
 

@@ -110,47 +110,59 @@
 
             <p>Third, <strong>credential exposure</strong>. If every tool shares the same runtime, a compromised or misbehaving agent can potentially access credentials intended for other tools. Isolation is not just about permissions &mdash; it is about limiting what is even reachable.</p>
 
-            <h2>AITool: Structured Tool Definitions</h2>
+            <h2>The Tool Protocol</h2>
 
-            <p>Everything starts with how tools are defined. In RoomKit, every tool is an <code>AITool</code> instance with a name, description, and JSON Schema parameters. This is not just documentation &mdash; it is the contract that the LLM uses to generate valid function calls and that the policy engine uses to make access decisions.</p>
+            <p>Everything starts with how tools are defined. In RoomKit, a tool is any class that implements the <code>Tool</code> protocol: a <code>.definition</code> property (name, description, JSON Schema parameters) and an async <code>.handler()</code> method. The definition is the contract the LLM uses to generate valid function calls and that the policy engine uses to make access decisions.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AITool
+            <pre><code class="code-content"><span class="kw">class</span> <span class="fn">SearchOrders</span>:
+    @property
+    <span class="kw">def</span> <span class="fn">definition</span>(self) -> dict:
+        <span class="kw">return</span> {
+            <span class="st">"name"</span>: <span class="st">"search_orders"</span>,
+            <span class="st">"description"</span>: <span class="st">"Search customer orders by date range or status"</span>,
+            <span class="st">"parameters"</span>: {
+                <span class="st">"type"</span>: <span class="st">"object"</span>,
+                <span class="st">"properties"</span>: {
+                    <span class="st">"customer_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                    <span class="st">"status"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>, <span class="st">"enum"</span>: [<span class="st">"pending"</span>, <span class="st">"shipped"</span>, <span class="st">"delivered"</span>]},
+                },
+                <span class="st">"required"</span>: [<span class="st">"customer_id"</span>],
+            },
+        }
 
-search_tool = AITool(
-    name=<span class="st">"search_orders"</span>,
-    description=<span class="st">"Search customer orders by date range or status"</span>,
-    parameters={
-        <span class="st">"type"</span>: <span class="st">"object"</span>,
-        <span class="st">"properties"</span>: {
-            <span class="st">"customer_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
-            <span class="st">"status"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>, <span class="st">"enum"</span>: [<span class="st">"pending"</span>, <span class="st">"shipped"</span>, <span class="st">"delivered"</span>]},
-        },
-        <span class="st">"required"</span>: [<span class="st">"customer_id"</span>],
-    },
-)
+    <span class="kw">async def</span> <span class="fn">handler</span>(self, name: str, arguments: dict) -> str:
+        orders = <span class="kw">await</span> db.search_orders(**arguments)
+        <span class="kw">return</span> json.dumps([o.to_dict() <span class="kw">for</span> o <span class="kw">in</span> orders])
 
-delete_tool = AITool(
-    name=<span class="st">"delete_account"</span>,
-    description=<span class="st">"Permanently delete a customer account and all data"</span>,
-    parameters={
-        <span class="st">"type"</span>: <span class="st">"object"</span>,
-        <span class="st">"properties"</span>: {
-            <span class="st">"customer_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
-            <span class="st">"confirmation"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
-        },
-        <span class="st">"required"</span>: [<span class="st">"customer_id"</span>, <span class="st">"confirmation"</span>],
-    },
-)</code></pre>
+<span class="kw">class</span> <span class="fn">DeleteAccount</span>:
+    @property
+    <span class="kw">def</span> <span class="fn">definition</span>(self) -> dict:
+        <span class="kw">return</span> {
+            <span class="st">"name"</span>: <span class="st">"delete_account"</span>,
+            <span class="st">"description"</span>: <span class="st">"Permanently delete a customer account and all data"</span>,
+            <span class="st">"parameters"</span>: {
+                <span class="st">"type"</span>: <span class="st">"object"</span>,
+                <span class="st">"properties"</span>: {
+                    <span class="st">"customer_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                    <span class="st">"confirmation"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                },
+                <span class="st">"required"</span>: [<span class="st">"customer_id"</span>, <span class="st">"confirmation"</span>],
+            },
+        }
 
-            <p>The schema is not decorative. It drives validation, policy matching, and documentation generation. Tools are bound to rooms via metadata, which means different rooms can expose different tool sets to the same agent &mdash; a natural way to scope capabilities by context.</p>
+    <span class="kw">async def</span> <span class="fn">handler</span>(self, name: str, arguments: dict) -> str:
+        <span class="kw">await</span> db.delete_account(arguments[<span class="st">"customer_id"</span>])
+        <span class="kw">return</span> json.dumps({<span class="st">"deleted"</span>: <span class="kw">True</span>})</code></pre>
+
+            <p>The schema is not decorative. It drives validation, policy matching, and documentation generation. The policy engine matches tool <strong>names</strong> against allow/deny patterns &mdash; <code>"search_orders"</code> matches <code>"search_*"</code>, while <code>"delete_account"</code> matches <code>"delete_*"</code>. Tools are passed as instances to <code>AIChannel(tools=[SearchOrders(), DeleteAccount()])</code>.</p>
 
             <h2>MCPToolProvider: Connecting to External Tool Servers</h2>
 
             <p>Local tool handlers are fine for simple functions, but real systems integrate with external services: CRMs, databases, search engines, monitoring platforms. The Model Context Protocol (MCP) standardizes how agents discover and invoke tools hosted on remote servers.</p>
 
-            <p>RoomKit's <code>MCPToolProvider</code> connects to MCP-compliant servers over streaming HTTP or SSE transports. It fetches the tool catalog from the server, merges it with your local tools, and presents a unified interface to the AI channel. The key function here is <code>compose_tool_handlers()</code>, which takes your local handler and the MCP provider and produces a single handler that routes calls to the right place.</p>
+            <p>RoomKit's <code>MCPToolProvider</code> connects to MCP-compliant servers over streaming HTTP or SSE transports. It fetches the tool catalog from the server and exposes the tools as standard <code>Tool</code> objects. You pass both local tools and MCP tools in the same <code>tools</code> list &mdash; the framework composes their handlers automatically.</p>
 
-            <pre><code class="code-content"><span class="kw">from</span> roomkit.tools <span class="kw">import</span> MCPToolProvider, compose_tool_handlers
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.tools <span class="kw">import</span> MCPToolProvider
 <span class="kw">from</span> roomkit <span class="kw">import</span> AIChannel
 
 <span class="cm"># Connect to an MCP server that provides CRM tools</span>
@@ -159,28 +171,18 @@ crm_mcp = MCPToolProvider(
     transport=<span class="st">"streamable_http"</span>,
 )
 
-<span class="cm"># Local tools defined in your codebase</span>
-<span class="kw">async def</span> <span class="fn">local_tool_handler</span>(tool_name: str, args: dict) -> str:
-    <span class="kw">if</span> tool_name == <span class="st">"search_orders"</span>:
-        <span class="kw">return await</span> order_db.search(**args)
-    <span class="kw">if</span> tool_name == <span class="st">"get_shipping_status"</span>:
-        <span class="kw">return await</span> shipping_api.track(args[<span class="st">"tracking_id"</span>])
-
-<span class="cm"># Compose local + MCP handlers into a single handler</span>
-combined_handler = compose_tool_handlers(
-    local_tool_handler,
-    crm_mcp.tool_handler,
-)
-
-<span class="cm"># The AI channel sees all tools — local and remote — as one set</span>
+<span class="cm"># Mix local Tool objects with MCP tools in the same list</span>
 agent = AIChannel(
     <span class="st">"support-agent"</span>,
     provider=openai_provider,
-    tools=[search_tool, shipping_tool],  <span class="cm"># local tool definitions</span>
-    tool_handler=combined_handler,       <span class="cm"># merged handler</span>
+    tools=[
+        SearchOrders(),      <span class="cm"># local Tool object</span>
+        ShippingStatus(),    <span class="cm"># local Tool object</span>
+        *crm_mcp.tools(),    <span class="cm"># MCP tools discovered from server</span>
+    ],
 )</code></pre>
 
-            <p>When the agent calls <code>search_orders</code>, the composed handler routes it to your local function. When it calls <code>create_crm_ticket</code> (discovered from the MCP server), the handler forwards the call to the CRM server over the MCP transport. The agent does not know or care where the tool lives. That is the point.</p>
+            <p>When the agent calls <code>search_orders</code>, the local handler runs. When it calls <code>create_crm_ticket</code> (discovered from the MCP server), the MCP handler forwards the call to the CRM server over the transport. The agent does not know or care where the tool lives. That is the point.</p>
 
             <h2>ToolPolicy: Allow/Deny at Execution Time</h2>
 

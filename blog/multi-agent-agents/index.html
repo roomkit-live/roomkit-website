@@ -195,70 +195,67 @@ router = ConversationRouter(supervisor_id=<span class="st">"supervisor"</span>)
 
             <p>The supervisor pattern solves a real problem: in any multi-agent system, you need a single point of accountability. Without it, agents operate in silos and nobody catches cross-agent mistakes. The supervisor is that accountability layer, and because it's just another <code>AIChannel</code>, it has its own prompt, provider, and tools &mdash; it can be as sophisticated or as lightweight as your use case demands.</p>
 
-            <h2>Tool Handlers: Giving Agents Capabilities</h2>
+            <h2>Tools: Giving Agents Capabilities</h2>
 
-            <p>An agent without tools is a chatbot. Tools are what turn an LLM into an execution unit &mdash; the ability to look up an account, process a refund, query a database, or call an external API. In RoomKit, tools are defined per channel through the <code>tool_handler</code> interface.</p>
+            <p>An agent without tools is a chatbot. Tools are what turn an LLM into an execution unit &mdash; the ability to look up an account, process a refund, query a database, or call an external API. In RoomKit, tools follow a simple protocol: a class with a <code>.definition</code> property (the JSON Schema the LLM sees) and an async <code>.handler()</code> method (the code that runs).</p>
 
-            <p>Each tool handler is an async function that receives structured arguments from the LLM and returns a JSON string. The framework handles the function-calling protocol for each provider &mdash; Anthropic's tool_use, OpenAI's function calling, Gemini's function declarations, Mistral's tool calls &mdash; so your tool implementation is provider-agnostic:</p>
+            <p>The framework handles the function-calling protocol for each provider &mdash; Anthropic's tool_use, OpenAI's function calling, Gemini's function declarations, Mistral's tool calls &mdash; so your tool implementation is provider-agnostic:</p>
 
             <pre><code class="code-content"><span class="kw">import</span> json
 
-<span class="kw">async def</span> <span class="fn">billing_tools</span>(tool_name: str, args: dict) -> str:
-    <span class="kw">if</span> tool_name == <span class="st">"lookup_invoice"</span>:
-        invoice = <span class="kw">await</span> db.get_invoice(args[<span class="st">"invoice_id"</span>])
-        <span class="kw">return</span> json.dumps({
-            <span class="st">"id"</span>: invoice.id,
-            <span class="st">"amount"</span>: str(invoice.amount),
-            <span class="st">"status"</span>: invoice.status,
-            <span class="st">"due_date"</span>: invoice.due_date.isoformat(),
-        })
+<span class="kw">class</span> <span class="fn">LookupInvoice</span>:
+    <span class="st">"""Tool protocol: .definition property + async .handler() method."""</span>
 
-    <span class="kw">if</span> tool_name == <span class="st">"process_refund"</span>:
-        result = <span class="kw">await</span> payments.refund(
-            invoice_id=args[<span class="st">"invoice_id"</span>],
-            amount=args.get(<span class="st">"amount"</span>),  <span class="cm"># None = full refund</span>
-            reason=args[<span class="st">"reason"</span>],
-        )
-        <span class="kw">return</span> json.dumps({
-            <span class="st">"refund_id"</span>: result.id,
-            <span class="st">"status"</span>: result.status,
-        })
-
-    <span class="kw">return</span> json.dumps({<span class="st">"error"</span>: <span class="st">f"Unknown tool: </span>{tool_name}<span class="st">"</span>})
-
-<span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AITool
-
-<span class="cm"># Attach the handler to the billing agent</span>
-billing = AIChannel(<span class="st">"billing-agent"</span>,
-    provider=OpenAIAIProvider(config=OpenAIConfig(model=<span class="st">"gpt-4o"</span>)),
-    system_prompt=<span class="st">"You are a billing specialist..."</span>,
-    tool_handler=billing_tools,
-    tools=[
-        AITool(
-            name=<span class="st">"lookup_invoice"</span>,
-            description=<span class="st">"Look up an invoice by ID"</span>,
-            parameters={
+    @property
+    <span class="kw">def</span> <span class="fn">definition</span>(self) -> dict:
+        <span class="kw">return</span> {
+            <span class="st">"name"</span>: <span class="st">"lookup_invoice"</span>,
+            <span class="st">"description"</span>: <span class="st">"Look up an invoice by ID"</span>,
+            <span class="st">"parameters"</span>: {
                 <span class="st">"type"</span>: <span class="st">"object"</span>,
                 <span class="st">"properties"</span>: {
                     <span class="st">"invoice_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}
                 },
                 <span class="st">"required"</span>: [<span class="st">"invoice_id"</span>],
             },
-        ),
-        AITool(
-            name=<span class="st">"process_refund"</span>,
-            description=<span class="st">"Process a refund for an invoice"</span>,
-            parameters={
+        }
+
+    <span class="kw">async def</span> <span class="fn">handler</span>(self, name: str, arguments: dict) -> str:
+        invoice = <span class="kw">await</span> db.get_invoice(arguments[<span class="st">"invoice_id"</span>])
+        <span class="kw">return</span> json.dumps({
+            <span class="st">"id"</span>: invoice.id,
+            <span class="st">"amount"</span>: str(invoice.amount),
+            <span class="st">"status"</span>: invoice.status,
+        })
+
+<span class="kw">class</span> <span class="fn">ProcessRefund</span>:
+    @property
+    <span class="kw">def</span> <span class="fn">definition</span>(self) -> dict:
+        <span class="kw">return</span> {
+            <span class="st">"name"</span>: <span class="st">"process_refund"</span>,
+            <span class="st">"description"</span>: <span class="st">"Process a refund for an invoice"</span>,
+            <span class="st">"parameters"</span>: {
                 <span class="st">"type"</span>: <span class="st">"object"</span>,
                 <span class="st">"properties"</span>: {
                     <span class="st">"invoice_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
-                    <span class="st">"amount"</span>: {<span class="st">"type"</span>: <span class="st">"number"</span>},
                     <span class="st">"reason"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
                 },
                 <span class="st">"required"</span>: [<span class="st">"invoice_id"</span>, <span class="st">"reason"</span>],
             },
-        ),
-    ],
+        }
+
+    <span class="kw">async def</span> <span class="fn">handler</span>(self, name: str, arguments: dict) -> str:
+        result = <span class="kw">await</span> payments.refund(
+            invoice_id=arguments[<span class="st">"invoice_id"</span>],
+            reason=arguments[<span class="st">"reason"</span>],
+        )
+        <span class="kw">return</span> json.dumps({<span class="st">"refund_id"</span>: result.id, <span class="st">"status"</span>: result.status})
+
+<span class="cm"># Pass tool instances directly — definition and handler are extracted automatically</span>
+billing = AIChannel(<span class="st">"billing-agent"</span>,
+    provider=OpenAIAIProvider(config=OpenAIConfig(model=<span class="st">"gpt-4o"</span>)),
+    system_prompt=<span class="st">"You are a billing specialist..."</span>,
+    tools=[LookupInvoice(), ProcessRefund()],
 )</code></pre>
 
             <p>The billing agent gets <code>lookup_invoice</code> and <code>process_refund</code>. The tech agent would get <code>query_logs</code> and <code>run_diagnostic</code>. The supervisor might get <code>escalate_to_human</code> and <code>flag_for_review</code>. Each agent's tool set defines its capability boundary &mdash; and that boundary is enforced by the framework, not by prompt instructions the LLM might ignore.</p>
@@ -281,7 +278,7 @@ report_agent = AIChannel(<span class="st">"report-generator"</span>,
         <span class="st">"You generate usage reports. Query the database for the "</span>
         <span class="st">"requested time period, format the data, and return a summary."</span>
     ),
-    tool_handler=report_tools,
+    tools=report_tools,  <span class="cm"># list of Tool objects</span>
 )
 kit.register_channel(report_agent)
 
