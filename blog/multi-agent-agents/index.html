@@ -182,14 +182,16 @@ router = ConversationRouter(supervisor_id=<span class="st">"supervisor"</span>)
 
             <p>The architecture looks like this:</p>
 
-            <div class="ascii-diagram">Customer Message
-       |
-       v
-  [Orchestrator] ──routing──> [Billing Agent]  (active, responds)
-       |
-       └──always──> [Supervisor]  (muted, observes, can intervene)
-       |
-       └──muted──> [Tech Agent]  (muted, idle)</div>
+            <pre><code class="code-content">Customer Message
+       │
+       ▼
+  Orchestrator
+       │
+       ├── routing ──▶ [Billing Agent]   ✓ active, responds
+       │
+       ├── always ───▶ [Supervisor]      👁 observes, can intervene
+       │
+       └── filtered ─▶ [Tech Agent]      ✗ not dispatched, idle</code></pre>
 
             <p>The supervisor pattern solves a real problem: in any multi-agent system, you need a single point of accountability. Without it, agents operate in silos and nobody catches cross-agent mistakes. The supervisor is that accountability layer, and because it's just another <code>AIChannel</code>, it has its own prompt, provider, and tools &mdash; it can be as sophisticated or as lightweight as your use case demands.</p>
 

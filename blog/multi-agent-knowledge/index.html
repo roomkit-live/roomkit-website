@@ -162,22 +162,27 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
 
             <p>Here's where the architecture pays off. Because <code>MemoryProvider</code> is a simple ABC, you can plug in any retrieval strategy &mdash; vector search, hybrid RAG, summarization, or a combination. The AI channel doesn't care how you built the context, only that you return a <code>MemoryResult</code> with the events and pre-built messages the LLM should see.</p>
 
-            <p>Here's a real-world example: a memory provider that queries a vector database for relevant documentation and combines it with recent conversation history.</p>
+            <p>Here's a real-world example: a memory provider that queries pgvector for relevant documentation and combines it with recent conversation history. Since RoomKit already uses PostgreSQL for storage via <code>PostgresStore</code>, adding pgvector keeps your entire stack on one database &mdash; no separate vector service to deploy and maintain.</p>
 
             <pre><code class="code-content"><span class="kw">from</span> roomkit.memory <span class="kw">import</span> MemoryProvider, MemoryResult
 <span class="kw">from</span> roomkit.providers.ai.base <span class="kw">import</span> AIMessage
 <span class="kw">from</span> roomkit.models.event <span class="kw">import</span> RoomEvent
 <span class="kw">from</span> roomkit.models.context <span class="kw">import</span> RoomContext
-<span class="kw">import</span> chromadb
+<span class="kw">import</span> asyncpg
 
-<span class="kw">class</span> <span class="fn">VectorRAGMemory</span>(MemoryProvider):
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, store, collection_name: str, max_history: int = <span class="num">20</span>,
-                 max_docs: int = <span class="num">5</span>):
+<span class="kw">class</span> <span class="fn">PgVectorRAGMemory</span>(MemoryProvider):
+    <span class="st">"""RAG memory using pgvector — same PostgreSQL as your ConversationStore."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, store, pool: asyncpg.Pool,
+                 max_history: int = <span class="num">20</span>, max_docs: int = <span class="num">5</span>):
         self.store = store
-        self.client = chromadb.HttpClient()
-        self.collection = self.client.get_collection(collection_name)
+        self.pool = pool  <span class="cm"># reuse the same asyncpg pool as PostgresStore</span>
         self.max_history = max_history
         self.max_docs = max_docs
+
+    <span class="kw">async def</span> <span class="fn">_embed</span>(self, text: str) -> list[float]:
+        <span class="cm"># Your embedding function (OpenAI, Cohere, local model, etc.)</span>
+        <span class="kw">return await</span> get_embedding(text)
 
     <span class="kw">async def</span> <span class="fn">retrieve</span>(
         self,
@@ -187,7 +192,7 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
         *,
         channel_id: str | None = None,
     ) -> MemoryResult:
-        <span class="cm"># 1. Get recent conversation history from the store</span>
+        <span class="cm"># 1. Get recent conversation history</span>
         events = <span class="kw">await</span> self.store.list_events(
             room_id, limit=self.max_history
         )
@@ -201,19 +206,20 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
         <span class="kw">if not</span> last_user_msg:
             <span class="kw">return</span> MemoryResult(events=events)
 
-        <span class="cm"># 3. Query the vector database</span>
-        results = self.collection.query(
-            query_texts=[last_user_msg],
-            n_results=self.max_docs,
+        <span class="cm"># 3. Query pgvector for relevant documents</span>
+        embedding = <span class="kw">await</span> self._embed(last_user_msg)
+        rows = <span class="kw">await</span> self.pool.fetch(
+            <span class="st">"""SELECT content, 1 - (embedding &lt;=&gt; $1) AS similarity
+               FROM knowledge_docs
+               ORDER BY embedding &lt;=&gt; $1
+               LIMIT $2"""</span>,
+            str(embedding), self.max_docs,
         )
 
         <span class="cm"># 4. Inject retrieved documents as a pre-built AI message</span>
-        doc_context = <span class="st">"\n\n"</span>.join(
-            doc <span class="kw">for</span> doc <span class="kw">in</span> results[<span class="st">"documents"</span>][<span class="num">0</span>]
-        )
+        doc_context = <span class="st">"\n\n"</span>.join(row[<span class="st">"content"</span>] <span class="kw">for</span> row <span class="kw">in</span> rows)
 
         <span class="kw">return</span> MemoryResult(
-            <span class="cm"># Pre-built messages are prepended, events appended</span>
             messages=[AIMessage(
                 role=<span class="st">"user"</span>,
                 content=<span class="st">f"Relevant documentation:\n\n{doc_context}"</span>,
@@ -221,9 +227,9 @@ researcher = AIChannel(<span class="st">"research-agent"</span>,
             events=events,
         )</code></pre>
 
-            <p>The pattern is straightforward: retrieve recent history from the event store, use the latest user message to query your vector database, and assemble both into a single <code>MemoryResult</code>. The <code>messages</code> field holds pre-built AI messages (like retrieved documents), while <code>events</code> holds raw room events that the AI channel converts automatically. The agent sees conversation history <em>and</em> relevant documentation, without anyone dumping the entire knowledge base into the prompt.</p>
+            <p>The pattern is straightforward: retrieve recent history from the event store, embed the latest user message, query pgvector for similar documents, and assemble both into a single <code>MemoryResult</code>. Since you're already running PostgreSQL for <code>PostgresStore</code>, adding the <code>vector</code> extension gives you semantic search without a separate infrastructure dependency. The <code>messages</code> field holds pre-built AI messages (like retrieved documents), while <code>events</code> holds raw room events that the AI channel converts automatically.</p>
 
-            <p>You can extend this in any direction. Summarize older history instead of truncating it. Query multiple vector collections. Add metadata filtering based on the user's account or the agent's role. The <code>MemoryProvider</code> boundary gives you full control without touching the AI channel's internals.</p>
+            <p>You can extend this in any direction. Summarize older history instead of truncating it. Filter documents by metadata (customer tier, product line). Use a different vector store if your scale requires it &mdash; the <code>MemoryProvider</code> boundary gives you full control without touching the AI channel's internals.</p>
 
             <h2>HandoffMemoryProvider: Context Across Agent Boundaries</h2>
 
