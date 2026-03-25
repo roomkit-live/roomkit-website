@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where RoomKit Fits in the Voice AI Production Framework Landscape - RoomKit Blog</title>
+    <meta name="description" content="WebRTC.ventures compared Bedrock, Vertex, LiveKit, and Pipecat for production voice AI. Here's the missing fifth architecture: multi-channel conversation rooms.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/where-roomkit-fits-voice-ai-production/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Where RoomKit Fits in the Voice AI Production Framework Landscape">
+    <meta property="og:description" content="WebRTC.ventures compared Bedrock, Vertex, LiveKit, and Pipecat for production voice AI. Here's the missing fifth architecture: multi-channel conversation rooms.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/where-roomkit-fits-voice-ai-production/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-24">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Where RoomKit Fits in the Voice AI Production Framework Landscape">
+    <meta name="twitter:description" content="WebRTC.ventures compared Bedrock, Vertex, LiveKit, and Pipecat for production voice AI. Here's the missing fifth architecture: multi-channel conversation rooms.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Where RoomKit Fits in the Voice AI Production Framework Landscape",
+        "description": "WebRTC.ventures compared Bedrock, Vertex, LiveKit, and Pipecat for production voice AI. Here's the missing fifth architecture: multi-channel conversation rooms.",
+        "datePublished": "2026-03-24",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/where-roomkit-fits-voice-ai-production/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/where-roomkit-fits-voice-ai-production/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Where RoomKit Fits in the Voice AI Production Framework Landscape</h1>
+            <div class="blog-meta">
+                <span>March 24, 2026</span>
+                <span>&middot;</span>
+                <span>12 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p>Alberto Gonzalez at WebRTC.ventures recently published an excellent comparison of <a href="https://webrtc.ventures/2026/03/choosing-a-voice-ai-agent-production-framework/" target="_blank" rel="noopener">four production voice AI frameworks</a>: Amazon Bedrock Agents, Google Vertex AI, LiveKit Agents, and Pipecat Flows. The article frames the choice along two axes: <strong>cloud-native governance</strong> (Bedrock, Vertex) versus <strong>voice-native RTC</strong> (LiveKit, Pipecat), with hybrid architectures in between.</p>
+
+            <p>It's a well-drawn map. But it's missing a territory.</p>
+
+            <p>All four frameworks in that comparison assume the conversation is a <em>voice call</em>. The agent talks, the user talks, the call ends. What happens when that same conversation needs to continue over SMS? When a telehealth follow-up arrives by email? When a financial advisor sends a document via WhatsApp while still on the call? None of the four frameworks address this &mdash; because they weren't designed to.</p>
+
+            <p>RoomKit was.</p>
+
+            <hr>
+
+            <h2>The Fifth Architecture: Rooms and Channels</h2>
+
+            <p>The WebRTC.ventures article identifies four architectural approaches:</p>
+
+            <ul>
+                <li><strong>Bedrock/AgentCore</strong> &mdash; orchestration layers on top of foundation models, with IAM-aligned governance</li>
+                <li><strong>Vertex AI/ADK</strong> &mdash; ML lifecycle management with structured agent workflows and model selection</li>
+                <li><strong>LiveKit Agents</strong> &mdash; an agent joins a WebRTC room as a participant, with a built-in media server</li>
+                <li><strong>Pipecat Flows</strong> &mdash; composable frame-based pipelines with structured flow control</li>
+            </ul>
+
+            <p>RoomKit takes a fundamentally different approach. A conversation is a <strong>room</strong>. Every communication medium &mdash; SMS, Email, WhatsApp, Voice, Telegram, Teams, AI &mdash; is a <strong>channel</strong> in that room. Messages flow through channels into rooms and are broadcast to all attached channels, with automatic content transcoding between formats.</p>
+
+            <p>Voice isn't the product. Voice is one channel in a multi-channel conversation.</p>
+
+            <p>This isn't just a philosophical distinction. It changes what's easy, what's possible, and what you get for free:</p>
+
+            <ul>
+                <li>A voice call that drops resumes seamlessly over SMS &mdash; same room, same context, same participant identity</li>
+                <li>An AI agent's response broadcasts to the voice channel <em>and</em> sends a text summary to the patient's WhatsApp &mdash; in one event</li>
+                <li>A compliance hook that runs on every message applies uniformly to voice transcriptions, SMS, and email &mdash; one policy, all channels</li>
+                <li>Every event across every channel is sequentially indexed in one store &mdash; one audit trail per conversation</li>
+            </ul>
+
+            <hr>
+
+            <h2>Production Comparison: Adding a Fifth Column</h2>
+
+            <p>The original article evaluates frameworks on production concerns that matter in regulated environments. Here's where RoomKit fits in that matrix:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concern</th>
+                        <th>Bedrock / Vertex</th>
+                        <th>LiveKit</th>
+                        <th>Pipecat</th>
+                        <th>RoomKit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Architecture</strong></td>
+                        <td>Cloud orchestration layer</td>
+                        <td>WebRTC room + agent participant</td>
+                        <td>Frame-based pipeline</td>
+                        <td>Multi-channel room + channel bindings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Governance</strong></td>
+                        <td>IAM, CloudTrail, model guardrails</td>
+                        <td>Self-hosted media server</td>
+                        <td>Custom middleware</td>
+                        <td>34+ hook triggers (sync/async), per-channel permissions, role-based access</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Media transport</strong></td>
+                        <td>Requires separate stack</td>
+                        <td>Built-in WebRTC + SIP</td>
+                        <td>Daily.co (WebRTC)</td>
+                        <td>FastRTC (WebRTC), SIP, RTP, WebSocket, local mic</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Compliance / Audit</strong></td>
+                        <td>Cloud-native logging</td>
+                        <td>Per-session metrics</td>
+                        <td>Custom logging</td>
+                        <td>Unified event store (PostgreSQL), all channels in one audit trail, WAV recording</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Voice pipeline</strong></td>
+                        <td>N/A (not voice-native)</td>
+                        <td>Session-managed (VAD, STT, TTS)</td>
+                        <td>Linear frame chain (40+ services)</td>
+                        <td>12-stage audio pipeline: AEC, AGC, denoiser, VAD, DTMF, diarization, turn detection</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AI providers</strong></td>
+                        <td>AWS models + Bedrock marketplace</td>
+                        <td>OpenAI, Deepgram, Cartesia, etc.</td>
+                        <td>40+ integrations</td>
+                        <td>Anthropic, OpenAI, Gemini, Mistral, Azure + 6 realtime (OpenAI, Gemini Live, ElevenLabs, Grok)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Non-voice channels</strong></td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td>SMS, Email, WhatsApp, Telegram, Teams, Messenger, RCS, WebSocket, HTTP</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Self-hosting</strong></td>
+                        <td>Cloud-only</td>
+                        <td>Open-source media server</td>
+                        <td>Self-hostable</td>
+                        <td>Fully self-hostable, no external dependencies for core</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Install</strong></td>
+                        <td>AWS SDK + console setup</td>
+                        <td><code>pip install livekit-agents</code></td>
+                        <td><code>pip install pipecat-ai</code></td>
+                        <td><code>pip install roomkit</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h2>Where This Matters: Real Production Scenarios</h2>
+
+            <p>The WebRTC.ventures article correctly observes that voice AI agents are now deployed in <em>"regulated and mission-critical environments such as telecom platforms, telehealth systems, emergency response workflows, and financial infrastructure."</em> In those environments, conversations rarely stay in one channel.</p>
+
+            <h3>Telehealth</h3>
+
+            <p>A patient calls in. The voice agent conducts an intake, transcribes the conversation, and routes to a provider. After the call, a summary goes to the patient's WhatsApp. Appointment reminders arrive via SMS. Lab results are emailed. All of this is one conversation in one room &mdash; with one compliance audit trail, one identity, and one set of permission policies.</p>
+
+            <h3>Financial Services</h3>
+
+            <p>An advisor speaks with a client over voice while the AI agent simultaneously sends a portfolio document via email. The client asks a follow-up question over WhatsApp the next day. The agent has full context because the room persists. Every interaction &mdash; voice transcript, WhatsApp message, email &mdash; is indexed in PostgreSQL with sequential event ordering.</p>
+
+            <h3>Contact Centers</h3>
+
+            <p>A customer starts on the IVR (SIP/RTP backend). The voice agent handles tier-1 support. If the call drops or the customer prefers text, the conversation continues over SMS or web chat (WebSocket) &mdash; same room, same AI agent, no context loss. Supervisors observe via hooks without joining the room.</p>
+
+            <p>In each of these scenarios, Bedrock or Vertex can power the AI reasoning. LiveKit or Pipecat can handle the voice transport. But none of them orchestrate the <em>conversation</em> across channels. That's the gap RoomKit fills.</p>
+
+            <hr>
+
+            <h2>Complementary, Not Competing</h2>
+
+            <p>RoomKit is not a replacement for any of the four frameworks in the WebRTC.ventures comparison. It operates at a different layer:</p>
+
+            <ul>
+                <li><strong>Bedrock / Vertex</strong> are AI orchestration platforms. RoomKit already integrates with their models via its AI provider system &mdash; Anthropic (Claude on Bedrock), OpenAI, Gemini (on Vertex), Mistral. Use them as the intelligence layer inside RoomKit's AIChannel.</li>
+                <li><strong>LiveKit</strong> is a media server. RoomKit's FastRTC backend handles WebRTC transport, and its SIP backend handles telephony. If you're already invested in LiveKit's infrastructure, RoomKit's voice channel can sit on top of it.</li>
+                <li><strong>Pipecat</strong> is a voice pipeline framework. RoomKit's AudioPipeline follows a similar staged approach (12 processing stages from AEC to turn detection) but embeds it inside a channel that coexists with SMS, Email, and WhatsApp in the same room.</li>
+            </ul>
+
+            <p>The hybrid approach the WebRTC.ventures article recommends &mdash; <em>"cloud enterprise guardrails and managed models alongside a dedicated media-first real-time stack"</em> &mdash; is exactly how RoomKit is designed to be deployed. Use Bedrock for model governance. Use LiveKit or RTP for media transport. Use RoomKit to tie the conversation together across every channel the customer uses.</p>
+
+            <hr>
+
+            <h2>What It Looks Like in Code</h2>
+
+            <p>Here's a production-style multi-channel voice agent: voice + SMS fallback + AI intelligence + compliance hooks.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> (
+    RoomKit, VoiceChannel, AIChannel, SMSChannel,
+    ChannelCategory, HookTrigger, HookResult,
+)
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicProvider, AnthropicConfig
+<span class="kw">from</span> roomkit.providers.twilio <span class="kw">import</span> TwilioSMSProvider, TwilioConfig
+<span class="kw">from</span> roomkit.voice.backends.sip <span class="kw">import</span> SIPVoiceBackend, SIPConfig
+<span class="kw">from</span> roomkit.voice.pipeline <span class="kw">import</span> AudioPipelineConfig
+<span class="kw">from</span> roomkit.voice.pipeline.vad.silero <span class="kw">import</span> SileroVADProvider
+<span class="kw">from</span> roomkit.voice.stt.deepgram <span class="kw">import</span> DeepgramSTTProvider, DeepgramSTTConfig
+<span class="kw">from</span> roomkit.voice.tts.elevenlabs <span class="kw">import</span> ElevenLabsTTSProvider, ElevenLabsTTSConfig
+<span class="kw">from</span> roomkit.store.postgres <span class="kw">import</span> PostgresStore
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># Production storage &mdash; every event persisted with sequential indexing</span>
+    store = PostgresStore(dsn=<span class="st">"postgresql://..."</span>)
+    kit = RoomKit(store=store)
+
+    <span class="cm"># Voice channel: SIP backend + full audio pipeline</span>
+    voice = VoiceChannel(<span class="st">"voice"</span>,
+        backend=SIPVoiceBackend(SIPConfig(listen_port=5060)),
+        stt=DeepgramSTTProvider(DeepgramSTTConfig(model=<span class="st">"nova-3"</span>)),
+        tts=ElevenLabsTTSProvider(ElevenLabsTTSConfig(voice_id=<span class="st">"..."</span>)),
+        pipeline=AudioPipelineConfig(vad=SileroVADProvider()),
+    )
+
+    <span class="cm"># SMS channel: fallback when voice drops or for follow-ups</span>
+    sms = SMSChannel(<span class="st">"sms"</span>, provider=TwilioSMSProvider(TwilioConfig(
+        account_sid=<span class="st">"..."</span>, auth_token=<span class="st">"..."</span>, from_number=<span class="st">"+1..."</span>,
+    )))
+
+    <span class="cm"># AI channel: Claude as the intelligence layer</span>
+    ai = AIChannel(<span class="st">"ai"</span>,
+        provider=AnthropicProvider(AnthropicConfig(model=<span class="st">"claude-sonnet-4-5-20250514"</span>)),
+        system_prompt=<span class="st">"You are a patient intake assistant for a telehealth clinic."</span>,
+    )
+
+    kit.register_channel(voice)
+    kit.register_channel(sms)
+    kit.register_channel(ai)
+
+    <span class="cm"># Create room &mdash; all channels share the same conversation</span>
+    room = <span class="kw">await</span> kit.create_room(room_id=<span class="st">"intake-2026-03-24-001"</span>)
+    <span class="kw">await</span> kit.attach_channel(room.room_id, <span class="st">"voice"</span>)
+    <span class="kw">await</span> kit.attach_channel(room.room_id, <span class="st">"sms"</span>)
+    <span class="kw">await</span> kit.attach_channel(room.room_id, <span class="st">"ai"</span>, category=ChannelCategory.INTELLIGENCE)
+
+    <span class="cm"># Compliance hook: runs on EVERY message across ALL channels</span>
+    <span class="decorator">@kit.hook</span>(HookTrigger.BEFORE_BROADCAST)
+    <span class="kw">async def</span> <span class="fn">redact_pii</span>(event, ctx):
+        <span class="cm"># Your PII redaction logic here &mdash; applies to voice transcripts,</span>
+        <span class="cm"># SMS messages, and AI responses equally</span>
+        <span class="kw">return</span> HookResult.allow()
+
+    <span class="cm"># Voice-specific hook: send SMS summary after each voice turn</span>
+    <span class="decorator">@kit.hook</span>(HookTrigger.ON_TURN_COMPLETE)
+    <span class="kw">async def</span> <span class="fn">sms_summary</span>(event, ctx):
+        <span class="kw">await</span> kit.send_direct(room.room_id, <span class="st">"sms"</span>,
+            content=<span class="st">f"Call summary: {event.text}"</span>,
+            participant_id=ctx.participant_id,
+        )
+        <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>What stands out: the voice channel, SMS channel, and AI channel all live in the same room. The <code>BEFORE_BROADCAST</code> hook applies uniformly &mdash; voice transcripts, SMS messages, and AI responses all pass through the same compliance pipeline. The <code>ON_TURN_COMPLETE</code> hook sends an SMS summary after each voice exchange. If the voice call drops, the patient can continue the conversation over SMS with full context.</p>
+
+            <hr>
+
+            <h2>The Voice Pipeline Isn't an Afterthought</h2>
+
+            <p>Because the WebRTC.ventures article focuses on production voice deployments, it's worth addressing the voice subsystem directly. RoomKit's audio pipeline has 12 processing stages:</p>
+
+            <p><strong>Inbound</strong> (microphone to STT):<br>
+            Resampler &rarr; Recorder &rarr; AEC (Speex) &rarr; AGC &rarr; Denoiser (RNNoise/GTCRN) &rarr; VAD (Silero/TEN-VAD) &rarr; Diarization + DTMF</p>
+
+            <p><strong>Outbound</strong> (TTS to speaker):<br>
+            PostProcessors &rarr; Recorder &rarr; AEC reference feed &rarr; Resampler</p>
+
+            <p>The pipeline is capability-aware: AEC and AGC stages auto-skip when the backend reports <code>NATIVE_AEC</code> or <code>NATIVE_AGC</code> capabilities. Four interruption strategies (IMMEDIATE, CONFIRMED, SEMANTIC, DISABLED) handle barge-in with configurable thresholds. Semantic turn detection uses backchannel analysis to distinguish "uh-huh" from real interruptions.</p>
+
+            <p>Voice backends include FastRTC (WebRTC/WebSocket), SIP (full call signaling with codec negotiation), RTP (direct UDP for PBX integration), and local microphone for development. For speech-to-speech scenarios, RoomKit supports 6 realtime AI providers: OpenAI Realtime, Gemini Live, ElevenLabs Conversational AI, xAI Grok, Personaplex, and Anam.</p>
+
+            <p>This is a production-grade voice pipeline. The difference is that it lives inside a channel abstraction that coexists with every other communication medium in the same room.</p>
+
+            <hr>
+
+            <h2>Updated Decision Tree</h2>
+
+            <p>Extending the WebRTC.ventures article's recommendations:</p>
+
+            <p><strong>"I need cloud-native governance with IAM and model guardrails"</strong><br>
+            &rarr; Bedrock or Vertex. Use their models inside RoomKit's AIChannel if you also need multi-channel.</p>
+
+            <p><strong>"I need a WebRTC-first voice agent with a media server"</strong><br>
+            &rarr; LiveKit Agents. Strongest choice for pure voice with built-in SIP and observability.</p>
+
+            <p><strong>"I need the widest ecosystem of voice AI services"</strong><br>
+            &rarr; Pipecat Flows. 40+ integrations, client SDKs on every platform.</p>
+
+            <p><strong>"I need voice + SMS + Email + WhatsApp in one conversation"</strong><br>
+            &rarr; RoomKit. The only framework where voice is a channel in a multi-channel room.</p>
+
+            <p><strong>"I need a unified audit trail across voice, text, and email"</strong><br>
+            &rarr; RoomKit. PostgresStore indexes every event across every channel with sequential ordering.</p>
+
+            <p><strong>"I need compliance hooks that apply to all communication channels"</strong><br>
+            &rarr; RoomKit. 34+ hook triggers with sync/async execution, applied uniformly across voice, SMS, Email, WhatsApp, and AI.</p>
+
+            <p><strong>"I need a hybrid: cloud AI + voice-native RTC + multi-channel"</strong><br>
+            &rarr; RoomKit with Bedrock/Vertex models as AI providers and FastRTC or SIP as the voice backend. This is the hybrid the WebRTC.ventures article recommends, extended to cover non-voice channels.</p>
+
+            <hr>
+
+            <h2>Trade-offs</h2>
+
+            <p>In the spirit of honesty:</p>
+
+            <ul>
+                <li><strong>Ecosystem size</strong> &mdash; Pipecat has 40+ service integrations and client SDKs for React, Swift, Kotlin, and C++. LiveKit has a mature open-source media server battle-tested at scale. RoomKit's ecosystem is younger and narrower. If you only need voice and want the broadest provider choice, Pipecat or LiveKit will get you there faster.</li>
+                <li><strong>Managed infrastructure</strong> &mdash; Bedrock and Vertex offer fully managed cloud infrastructure with enterprise SLAs. RoomKit is a library you deploy yourself. If your team wants a managed service with a console, RoomKit isn't that.</li>
+                <li><strong>Visual tooling</strong> &mdash; LiveKit has a playground and session dashboard. TEN Framework (not in the WebRTC.ventures comparison) has a visual graph designer. RoomKit doesn't have a visual builder &mdash; it's code-first.</li>
+                <li><strong>WebRTC at scale</strong> &mdash; LiveKit's media server handles large-scale WebRTC routing and SFU concerns out of the box. RoomKit's FastRTC backend is lighter &mdash; it handles WebRTC transport, not a full SFU.</li>
+            </ul>
+
+            <p>These are real trade-offs. RoomKit wins when the conversation spans multiple channels, when you need unified compliance and audit across all of them, or when voice is one part of a larger multi-channel system. It's not the right tool for every voice AI deployment.</p>
+
+            <hr>
+
+            <h2>Conclusion</h2>
+
+            <p>The WebRTC.ventures article draws a useful map of the production voice AI landscape: cloud-native governance on one side, voice-native RTC on the other, hybrid architectures in the middle. All four frameworks are strong choices for their respective use cases.</p>
+
+            <p>RoomKit adds a new axis to that map: <strong>multi-channel conversation orchestration</strong>. Not "voice AI framework that can also do chat" &mdash; a conversation framework where voice, SMS, Email, WhatsApp, Telegram, Teams, and AI are all first-class channels in the same room, with unified hooks, permissions, identity resolution, and event storage.</p>
+
+            <p>In regulated, mission-critical environments where conversations span channels &mdash; telehealth, financial services, contact centers &mdash; that's not a nice-to-have. It's the architecture the problem demands.</p>
+
+            <hr>
+
+            <p><em>Further reading:</em></p>
+
+            <ul>
+                <li><a href="https://webrtc.ventures/2026/03/choosing-a-voice-ai-agent-production-framework/" target="_blank" rel="noopener">Bedrock vs Vertex vs LiveKit vs Pipecat (WebRTC.ventures)</a></li>
+                <li><a href="/blog/choosing-the-right-conversational-ai-framework/">RoomKit, Pipecat, TEN Framework, LiveKit Agents: Choosing the Right Framework</a></li>
+                <li><a href="https://github.com/roomkit-live/roomkit" target="_blank" rel="noopener">RoomKit on GitHub</a></li>
+                <li><a href="/docs/">RoomKit Documentation</a></li>
+            </ul>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
