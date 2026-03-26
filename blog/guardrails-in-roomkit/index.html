@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardrails in RoomKit: Composable Safety for Multi-Channel AI - RoomKit Blog</title>
+    <meta name="description" content="How RoomKit turns AI safety from a monolithic afterthought into layered, composable primitives you wire together like middleware.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/guardrails-in-roomkit/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Guardrails in RoomKit: Composable Safety for Multi-Channel AI">
+    <meta property="og:description" content="How RoomKit turns AI safety from a monolithic afterthought into layered, composable primitives you wire together like middleware.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/guardrails-in-roomkit/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-03-26">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Guardrails in RoomKit: Composable Safety for Multi-Channel AI">
+    <meta name="twitter:description" content="How RoomKit turns AI safety from a monolithic afterthought into layered, composable primitives you wire together like middleware.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Guardrails in RoomKit: Composable Safety for Multi-Channel AI",
+        "description": "How RoomKit turns AI safety from a monolithic afterthought into layered, composable primitives you wire together like middleware.",
+        "datePublished": "2026-03-26",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/guardrails-in-roomkit/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/guardrails-in-roomkit/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Guardrails in RoomKit: Composable Safety for Multi-Channel AI</h1>
+            <div class="blog-meta">
+                <span>March 26, 2026</span>
+                <span>&middot;</span>
+                <span>18 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><em>How RoomKit turns AI safety from a monolithic afterthought into layered, composable primitives you wire together like middleware.</em></p>
+
+            <hr>
+
+            <p>If you've built AI-powered applications, you know the pattern: you ship the happy path first, then bolt on safety checks as an afterthought: a regex here, a moderation API there, a prayer to the demo gods everywhere else.</p>
+
+            <p>RoomKit takes a different approach. Guardrails aren't a feature you add later. They're composable primitives (hooks, policies, rate limits, circuit breakers) that you stack at every stage of the message lifecycle. Think of them as middleware for AI safety, except the pipeline has seven distinct interception points, not just "before" and "after."</p>
+
+            <h2>The Pipeline</h2>
+
+            <p>Every message in RoomKit flows through a well-defined pipeline. Guardrails can intercept at each stage:</p>
+
+            <pre><code class="code-content">Inbound Message
+  &rarr; [Input Guardrails]        &larr; Block, modify, or redact before AI sees it
+  &rarr; AI Channel processing
+    &rarr; [Tool Guardrails]       &larr; Control which tools AI can call
+    &rarr; [Processing Limits]     &larr; Prevent runaway loops and token burn
+  &rarr; [Output Guardrails]       &larr; Filter AI responses before delivery
+  &rarr; EventRouter.broadcast()
+    &rarr; [Channel Guardrails]    &larr; Per-channel rate limits and permissions
+  &rarr; [Audit]                   &larr; Async observation for compliance</code></pre>
+
+            <p>The key insight: <strong>the same hook mechanism handles both input and output filtering.</strong> RoomKit's <code>BEFORE_BROADCAST</code> hook fires for every event entering the broadcast pipeline, whether it comes from a user or from an AI channel re-entering with its response. You distinguish them by checking the event source.</p>
+
+            <h2>Layer 1: Input Guardrails</h2>
+
+            <p>Input guardrails intercept messages <em>before</em> they reach AI channels. They use <code>BEFORE_BROADCAST</code> hooks with synchronous execution, running in priority order. Each hook returns one of three results:</p>
+
+            <ul>
+                <li><strong><code>HookResult.allow()</code></strong>: let the event through</li>
+                <li><strong><code>HookResult.block(reason)</code></strong>: stop propagation entirely</li>
+                <li><strong><code>HookResult.modify(event)</code></strong>: replace the event with a modified copy</li>
+            </ul>
+
+            <h3>Blocking Harmful Content</h3>
+
+            <p>The simplest guardrail is a content filter. Here's one that blocks messages containing prohibited words:</p>
+
+            <pre><code class="code-content">@kit.hook(HookTrigger.BEFORE_BROADCAST, name=<span class="st">"toxicity_filter"</span>, priority=0)
+<span class="kw">async def</span> toxicity_filter(event: RoomEvent, ctx: RoomContext) -&gt; HookResult:
+    <span class="kw">if</span> isinstance(event.content, TextContent):
+        blocked_words = {<span class="st">"badword"</span>, <span class="st">"spam"</span>, <span class="st">"scam"</span>}
+        words = set(event.content.body.lower().split())
+        <span class="kw">if</span> words &amp; blocked_words:
+            <span class="kw">return</span> HookResult.block(
+                reason=<span class="st">f"Blocked: prohibited words {words &amp; blocked_words}"</span>
+            )
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>When blocked, the reason is stored in the <code>InboundResult</code> returned by <code>kit.process_inbound()</code>, so your application layer knows exactly why a message was rejected.</p>
+
+            <h3>Redacting PII</h3>
+
+            <p>Sometimes you don't want to block a message, you want to sanitize it. PII redaction is a classic example: the user's intent is fine, but they accidentally included a phone number or SSN.</p>
+
+            <pre><code class="code-content">PII_PATTERNS = {
+    <span class="st">"phone"</span>: re.compile(<span class="st">r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"</span>),
+    <span class="st">"ssn"</span>: re.compile(<span class="st">r"\b\d{3}-\d{2}-\d{4}\b"</span>),
+    <span class="st">"email"</span>: re.compile(<span class="st">r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"</span>),
+    <span class="st">"credit_card"</span>: re.compile(<span class="st">r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b"</span>),
+}
+
+@kit.hook(HookTrigger.BEFORE_BROADCAST, name=<span class="st">"pii_redactor"</span>, priority=1)
+<span class="kw">async def</span> pii_redactor(event: RoomEvent, ctx: RoomContext) -&gt; HookResult:
+    <span class="kw">if not</span> isinstance(event.content, TextContent):
+        <span class="kw">return</span> HookResult.allow()
+
+    text = event.content.body
+    changed = False
+    <span class="kw">for</span> label, pattern <span class="kw">in</span> PII_PATTERNS.items():
+        new_text = pattern.sub(<span class="st">f"[{label.upper()}_REDACTED]"</span>, text)
+        <span class="kw">if</span> new_text != text:
+            text = new_text
+            changed = True
+
+    <span class="kw">if</span> changed:
+        modified = event.model_copy(update={<span class="st">"content"</span>: TextContent(body=text)})
+        <span class="kw">return</span> HookResult.modify(modified)
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>Notice the priority ordering: the toxicity filter runs at priority 0, PII redaction at priority 1. Blocked messages are never processed further, so there's no point redacting PII in a message that's already been rejected.</p>
+
+            <h3>Jailbreak Detection</h3>
+
+            <p>Pattern-based jailbreak detection is the first line of defense. It won't catch sophisticated attempts, but it handles the obvious ones:</p>
+
+            <pre><code class="code-content">JAILBREAK_PATTERNS = [
+    <span class="st">"ignore previous instructions"</span>,
+    <span class="st">"you are now"</span>,
+    <span class="st">"pretend you are"</span>,
+    <span class="st">"act as if you have no restrictions"</span>,
+    <span class="st">"bypass your guidelines"</span>,
+]
+
+@kit.hook(HookTrigger.BEFORE_BROADCAST, name=<span class="st">"jailbreak_detector"</span>, priority=0)
+<span class="kw">async def</span> jailbreak_detector(event: RoomEvent, ctx: RoomContext) -&gt; HookResult:
+    <span class="kw">if</span> isinstance(event.content, TextContent):
+        text = event.content.body.lower()
+        <span class="kw">for</span> pattern <span class="kw">in</span> JAILBREAK_PATTERNS:
+            <span class="kw">if</span> pattern <span class="kw">in</span> text:
+                <span class="kw">return</span> HookResult.block(reason=<span class="st">f"Jailbreak attempt: '{pattern}'"</span>)
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>For production systems, you'll want to call an external moderation API (OpenAI Moderation, AWS Bedrock Guardrails, LlamaGuard) inside the hook for ML-powered classification. RoomKit hooks support <code>timeout</code> parameters to prevent slow external services from blocking the pipeline:</p>
+
+            <pre><code class="code-content">@kit.hook(
+    HookTrigger.BEFORE_BROADCAST,
+    name=<span class="st">"openai_moderation"</span>,
+    priority=0,
+    timeout=5.0,  <span class="cm"># Don't let slow APIs stall the pipeline</span>
+)
+<span class="kw">async def</span> openai_moderation(event: RoomEvent, ctx: RoomContext) -&gt; HookResult:
+    <span class="cm"># Call external moderation API...</span></code></pre>
+
+            <p>If the hook times out, the event is allowed by default: fail-open, not fail-closed. This is a deliberate design choice: in a real-time conversation, a stuck moderation API shouldn't freeze the entire experience.</p>
+
+            <h2>Layer 2: Tool Guardrails</h2>
+
+            <p>AI agents are only as safe as the tools they can call. RoomKit provides two mechanisms for tool safety: declarative policies and runtime auditing.</p>
+
+            <h3>Tool Policies</h3>
+
+            <p><code>ToolPolicy</code> is a declarative allow/deny system with glob patterns and role-based overrides:</p>
+
+            <pre><code class="code-content">policy = ToolPolicy(
+    allow=[<span class="st">"get_weather"</span>, <span class="st">"search_*"</span>, <span class="st">"lookup_*"</span>],
+    deny=[<span class="st">"delete_*"</span>, <span class="st">"admin_*"</span>],
+    role_overrides={
+        <span class="st">"supervisor"</span>: RoleOverride(
+            allow=[<span class="st">"delete_*"</span>],
+            mode=<span class="st">"replace"</span>,      <span class="cm"># Fully override base policy</span>
+        ),
+        <span class="st">"observer"</span>: RoleOverride(
+            allow=[<span class="st">"search_*"</span>],
+            mode=<span class="st">"restrict"</span>,     <span class="cm"># Intersect with base allow</span>
+        ),
+    },
+)</code></pre>
+
+            <p>The resolution is deterministic: deny always wins over allow, and empty lists mean "permit all." Role overrides can either <code>restrict</code> (intersect with the base policy) or <code>replace</code> (override it completely).</p>
+
+            <h3>Runtime Tool Auditing</h3>
+
+            <p><code>ON_TOOL_CALL</code> hooks let you audit or conditionally block tool invocations based on runtime context, not just the tool name, but its arguments:</p>
+
+            <pre><code class="code-content">@kit.hook(HookTrigger.ON_TOOL_CALL, name=<span class="st">"tool_auditor"</span>)
+<span class="kw">async def</span> tool_auditor(event: RoomEvent, ctx: RoomContext) -&gt; HookResult:
+    tool_name = event.metadata.get(<span class="st">"tool_name"</span>, <span class="st">"unknown"</span>)
+    arguments = event.metadata.get(<span class="st">"arguments"</span>, {})
+
+    <span class="kw">if</span> tool_name == <span class="st">"query_database"</span> <span class="kw">and</span> <span class="st">"users"</span> <span class="kw">in</span> arguments.get(<span class="st">"table"</span>, <span class="st">""</span>):
+        <span class="kw">return</span> HookResult.block(reason=<span class="st">"Direct user table access not permitted"</span>)
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>This is where static policies and dynamic checks complement each other: the policy says "you can call <code>query_database</code>," but the runtime hook says "not against the users table."</p>
+
+            <h2>Layer 3: Processing Guardrails</h2>
+
+            <p>Even with safe inputs and controlled tools, AI can still misbehave by looping indefinitely or burning through tokens.</p>
+
+            <h3>Chain Depth Limits</h3>
+
+            <p>When multiple AI channels respond to each other, you can get infinite loops. RoomKit enforces a configurable chain depth:</p>
+
+            <pre><code class="code-content">kit = RoomKit(max_chain_depth=3)</code></pre>
+
+            <p>Beyond this depth, responses are blocked with <code>EventStatus.BLOCKED</code> and the reason <code>"event_chain_depth_limit"</code>.</p>
+
+            <h3>Tool Loop Limits</h3>
+
+            <p>Runaway tool-calling loops are a real cost risk. RoomKit provides three knobs:</p>
+
+            <pre><code class="code-content">ai = AIChannel(
+    <span class="st">"ai-assistant"</span>,
+    provider=provider,
+    max_tool_rounds=20,               <span class="cm"># Max iterations (default: 200)</span>
+    tool_loop_timeout_seconds=30.0,   <span class="cm"># Hard timeout (default: 300s)</span>
+    tool_loop_warn_after=10,          <span class="cm"># Warning threshold (default: 50)</span>
+)</code></pre>
+
+            <h3>Steering Directives</h3>
+
+            <p>Sometimes you need to cancel an active generation mid-stream. A user hits "stop," or a supervisor intervenes:</p>
+
+            <pre><code class="code-content">ai_channel.steer(Cancel(reason=<span class="st">"User requested stop"</span>))</code></pre>
+
+            <h3>Token and Cost Control</h3>
+
+            <p>Cap output length and thinking budget to keep costs predictable:</p>
+
+            <pre><code class="code-content">ai = AIChannel(
+    <span class="st">"ai-assistant"</span>,
+    provider=provider,
+    max_tokens=512,
+    thinking_budget=2000,
+    max_context_events=30,
+)</code></pre>
+
+            <h2>Layer 4: Output Guardrails</h2>
+
+            <p>Here's where RoomKit's design pays off. AI responses re-enter the broadcast pipeline through the same <code>BEFORE_BROADCAST</code> hooks that filter user input. You distinguish AI output by checking the event source:</p>
+
+            <pre><code class="code-content">@kit.hook(HookTrigger.BEFORE_BROADCAST, name=<span class="st">"output_filter"</span>, priority=10)
+<span class="kw">async def</span> output_filter(event: RoomEvent, ctx: RoomContext) -&gt; HookResult:
+    <span class="kw">if not</span> event.source <span class="kw">or not</span> event.source.channel_id:
+        <span class="kw">return</span> HookResult.allow()
+
+    binding = ctx.get_binding(event.source.channel_id)
+    <span class="kw">if not</span> binding <span class="kw">or</span> binding.category != ChannelCategory.INTELLIGENCE:
+        <span class="kw">return</span> HookResult.allow()
+
+    <span class="kw">if</span> isinstance(event.content, TextContent):
+        text = event.content.body
+        leak_indicators = [<span class="st">"my system prompt"</span>, <span class="st">"my instructions say"</span>]
+        <span class="kw">if</span> any(ind <span class="kw">in</span> text.lower() <span class="kw">for</span> ind <span class="kw">in</span> leak_indicators):
+            replacement = event.model_copy(
+                update={<span class="st">"content"</span>: TextContent(body=<span class="st">"I can't share that information."</span>)}
+            )
+            <span class="kw">return</span> HookResult.modify(replacement)
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <p>Using a higher priority (10 vs. 0) ensures output filters run after input guardrails. Input guardrails short-circuit early, so output filters only process AI-generated events.</p>
+
+            <h2>Layer 5: Channel Guardrails</h2>
+
+            <p>Different channels have different constraints. SMS carriers reject certain content. WebSocket connections can handle higher throughput. Compliance observers should never send messages.</p>
+
+            <h3>Permissions</h3>
+
+            <pre><code class="code-content"><span class="kw">await</span> kit.attach_channel(<span class="st">"room-1"</span>, <span class="st">"ws-user"</span>, access=Access.READ_WRITE)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"room-1"</span>, <span class="st">"ws-monitor"</span>, access=Access.READ_ONLY)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"room-1"</span>, <span class="st">"ws-audit"</span>, access=Access.WRITE_ONLY)</code></pre>
+
+            <h3>Rate Limiting</h3>
+
+            <p>Per-channel rate limits use a token bucket algorithm. When exceeded, delivery is queued, not dropped:</p>
+
+            <pre><code class="code-content"><span class="kw">await</span> kit.attach_channel(<span class="st">"room-1"</span>, <span class="st">"sms-main"</span>, rate_limit=RateLimit(max_per_second=2.0))
+<span class="kw">await</span> kit.attach_channel(<span class="st">"room-1"</span>, <span class="st">"ws-user"</span>, rate_limit=RateLimit(max_per_second=20.0))</code></pre>
+
+            <h3>Channel-Specific Policies</h3>
+
+            <p>Hooks can target specific channel types, so you can enforce carrier content policies on SMS without penalizing internal WebSocket channels:</p>
+
+            <pre><code class="code-content">@kit.hook(
+    HookTrigger.BEFORE_BROADCAST,
+    name=<span class="st">"sms_strict_filter"</span>,
+    channel_types={ChannelType.SMS, ChannelType.RCS},
+    priority=0,
+)
+<span class="kw">async def</span> sms_strict_filter(event: RoomEvent, ctx: RoomContext) -&gt; HookResult:
+    <span class="cm"># Enforce carrier-specific content rules</span>
+    ...</code></pre>
+
+            <h3>Circuit Breakers</h3>
+
+            <p>RoomKit's <code>EventRouter</code> maintains per-channel circuit breakers automatically. When a channel accumulates consecutive delivery failures, the breaker opens and subsequent deliveries fail fast, protecting healthy channels from cascading failures.</p>
+
+            <h2>Layer 6: Voice Guardrails</h2>
+
+            <p>Voice AI adds unique challenges. Users can interrupt mid-sentence, background noise gets transcribed as gibberish, and TTS engines read markdown formatting aloud.</p>
+
+            <h3>Interruption Control</h3>
+
+            <pre><code class="code-content">config = InterruptionConfig(
+    strategy=InterruptionStrategy.CONFIRMED,
+    min_speech_ms=300,
+    allow_during_first_ms=2000,
+)</code></pre>
+
+            <p>Four strategies cover the spectrum: <code>IMMEDIATE</code> for responsive conversations, <code>CONFIRMED</code> to avoid false triggers, <code>SEMANTIC</code> for backchannel detection ("uh-huh" vs. real interruptions), and <code>DISABLED</code> for safety-critical messages that must be heard in full.</p>
+
+            <h3>Transcript Filtering</h3>
+
+            <p>The <code>ON_TRANSCRIPTION</code> hook filters noise before it reaches the AI:</p>
+
+            <pre><code class="code-content">@kit.hook(HookTrigger.ON_TRANSCRIPTION, name=<span class="st">"transcript_filter"</span>)
+<span class="kw">async def</span> transcript_filter(event: TranscriptionEvent, ctx: RoomContext) -&gt; HookResult:
+    text = event.text.strip()
+    <span class="kw">if</span> len(text) &lt; 3:
+        <span class="kw">return</span> HookResult.block(reason=<span class="st">"Utterance too short"</span>)
+    fillers = {<span class="st">"um"</span>, <span class="st">"uh"</span>, <span class="st">"hmm"</span>, <span class="st">"ah"</span>}
+    <span class="kw">if</span> set(text.lower().split()) &lt;= fillers:
+        <span class="kw">return</span> HookResult.block(reason=<span class="st">"Filler speech only"</span>)
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <h3>Pre-TTS Sanitization</h3>
+
+            <p>Strip markdown formatting before it becomes spoken words:</p>
+
+            <pre><code class="code-content">@kit.hook(HookTrigger.BEFORE_TTS, name=<span class="st">"tts_sanitizer"</span>)
+<span class="kw">async def</span> tts_sanitizer(event: str, ctx: RoomContext) -&gt; HookResult:
+    text = re.sub(<span class="st">r"\*\*(.+?)\*\*"</span>, <span class="st">r"\1"</span>, event)   <span class="cm"># **bold**</span>
+    text = re.sub(<span class="st">r"\[(.+?)\]\(.+?\)"</span>, <span class="st">r"\1"</span>, text)  <span class="cm"># [link](url)</span>
+    <span class="kw">if</span> text != event:
+        <span class="kw">return</span> HookResult.modify(text)
+    <span class="kw">return</span> HookResult.allow()</code></pre>
+
+            <h2>Layer 7: Audit</h2>
+
+            <p>Every guardrail decision should be logged. RoomKit's async hooks are fire-and-forget and never block the pipeline:</p>
+
+            <pre><code class="code-content">@kit.hook(HookTrigger.AFTER_BROADCAST, execution=HookExecution.ASYNC, name=<span class="st">"audit"</span>)
+<span class="kw">async def</span> audit(event: RoomEvent, ctx: RoomContext) -&gt; None:
+    logger.info(<span class="st">"Event %s in room %s from %s"</span>, event.id, ctx.room.id, event.source)</code></pre>
+
+            <p>For regulated industries (our primary use case at TchatNSign is financial advisory under AMF/CIRO compliance), this audit trail isn't optional. It's the whole point.</p>
+
+            <h2>Composing It All Together</h2>
+
+            <p>Here's what a production guardrail stack looks like:</p>
+
+            <pre><code class="code-content">kit = RoomKit(max_chain_depth=3)
+
+<span class="cm"># Priority 0: Block toxic content</span>
+@kit.hook(HookTrigger.BEFORE_BROADCAST, name=<span class="st">"toxicity_filter"</span>, priority=0)
+<span class="kw">async def</span> toxicity_filter(event, ctx): ...
+
+<span class="cm"># Priority 1: Redact PII</span>
+@kit.hook(HookTrigger.BEFORE_BROADCAST, name=<span class="st">"pii_redactor"</span>, priority=1)
+<span class="kw">async def</span> pii_redactor(event, ctx): ...
+
+<span class="cm"># Priority 10: Filter AI output</span>
+@kit.hook(HookTrigger.BEFORE_BROADCAST, name=<span class="st">"output_guard"</span>, priority=10)
+<span class="kw">async def</span> output_guard(event, ctx): ...
+
+<span class="cm"># Async: Audit everything</span>
+@kit.hook(HookTrigger.AFTER_BROADCAST, execution=HookExecution.ASYNC, name=<span class="st">"audit"</span>)
+<span class="kw">async def</span> audit(event, ctx): ...
+
+<span class="cm"># Tool policy</span>
+policy = ToolPolicy(
+    allow=[<span class="st">"get_weather"</span>, <span class="st">"search_*"</span>],
+    deny=[<span class="st">"delete_*"</span>, <span class="st">"admin_*"</span>],
+)
+
+<span class="cm"># AI channel with processing limits</span>
+ai = AIChannel(
+    <span class="st">"ai-assistant"</span>,
+    provider=provider,
+    tool_policy=policy,
+    max_tool_rounds=20,
+    tool_loop_timeout_seconds=30.0,
+    max_tokens=1024,
+)
+
+<span class="cm"># Per-channel rate limits</span>
+<span class="kw">await</span> kit.attach_channel(<span class="st">"room-1"</span>, <span class="st">"ws-user"</span>, rate_limit=RateLimit(max_per_second=5.0))</code></pre>
+
+            <p>Each layer is independent. Add a jailbreak detector without touching PII redaction. Swap the moderation API without changing tool policies. Remove rate limits on internal channels without affecting SMS constraints.</p>
+
+            <h2>Hook Reference</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hook</th>
+                        <th>Sync/Async</th>
+                        <th>Can Block/Modify</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>BEFORE_BROADCAST</code></td>
+                        <td>Sync</td>
+                        <td>Yes</td>
+                        <td>Input/output filtering, PII, jailbreak</td>
+                    </tr>
+                    <tr>
+                        <td><code>ON_TOOL_CALL</code></td>
+                        <td>Sync</td>
+                        <td>Yes</td>
+                        <td>Tool auditing, conditional blocking</td>
+                    </tr>
+                    <tr>
+                        <td><code>ON_TRANSCRIPTION</code></td>
+                        <td>Sync</td>
+                        <td>Yes</td>
+                        <td>Transcript filtering</td>
+                    </tr>
+                    <tr>
+                        <td><code>BEFORE_TTS</code></td>
+                        <td>Sync</td>
+                        <td>Yes</td>
+                        <td>TTS text sanitization</td>
+                    </tr>
+                    <tr>
+                        <td><code>ON_AI_RESPONSE</code></td>
+                        <td>Async</td>
+                        <td>No</td>
+                        <td>Monitoring, latency tracking</td>
+                    </tr>
+                    <tr>
+                        <td><code>BEFORE_DELIVER</code></td>
+                        <td>Async</td>
+                        <td>No</td>
+                        <td>Delivery observation</td>
+                    </tr>
+                    <tr>
+                        <td><code>AFTER_BROADCAST</code></td>
+                        <td>Async</td>
+                        <td>No</td>
+                        <td>Audit, analytics, compliance</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>The Philosophy</h2>
+
+            <p>RoomKit's guardrail system reflects a core belief: <strong>safety is not a feature, it's an architecture.</strong> You don't add guardrails to a working system. You design a system where guardrails are the natural way messages flow.</p>
+
+            <p>Every hook is a function. Every policy is data. Every limit is a number. Composable, testable, auditable. No magic, no hidden state, no "trust me, it's safe."</p>
+
+            <p>That's the kind of safety you can actually ship to production.</p>
+
+            <hr>
+
+            <p><em>RoomKit is an open-source Python framework for multi-channel conversation orchestration. Check it out on <a href="https://github.com/roomkit-live/roomkit" target="_blank" rel="noopener">GitHub</a> or read the <a href="/docs/">full documentation</a>.</em></p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
