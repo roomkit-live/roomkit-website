@@ -76,12 +76,7 @@
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://www.roomkit.live/blog/i-built-a-desktop-voice-assistant-in-python/</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
-        <loc>https://www.roomkit.live/blog/roomkit-speaks-sip/</loc>
+        <loc>https://www.roomkit.live/blog/choosing-the-right-conversational-ai-framework/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -91,12 +86,12 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.roomkit.live/blog/choosing-the-right-conversational-ai-framework/</loc>
+        <loc>https://www.roomkit.live/blog/guardrails-in-roomkit/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.roomkit.live/blog/your-voice-assistant-doesnt-need-the-cloud/</loc>
+        <loc>https://www.roomkit.live/blog/i-built-a-desktop-voice-assistant-in-python/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -106,37 +101,12 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.roomkit.live/blog/multi-agent-architecture-series/</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
         <loc>https://www.roomkit.live/blog/multi-agent-agents/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.roomkit.live/blog/multi-agent-orchestration/</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
-        <loc>https://www.roomkit.live/blog/multi-agent-knowledge/</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
-        <loc>https://www.roomkit.live/blog/multi-agent-external-tools/</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
-        <loc>https://www.roomkit.live/blog/multi-agent-storage/</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
-        <loc>https://www.roomkit.live/blog/multi-agent-observability/</loc>
+        <loc>https://www.roomkit.live/blog/multi-agent-architecture-series/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -146,7 +116,32 @@
         <priority>0.7</priority>
     </url>
     <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-external-tools/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://www.roomkit.live/blog/multi-agent-integration/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-knowledge/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-observability/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-orchestration/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-storage/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -156,12 +151,17 @@
         <priority>0.7</priority>
     </url>
     <url>
+        <loc>https://www.roomkit.live/blog/roomkit-speaks-sip/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://www.roomkit.live/blog/where-roomkit-fits-voice-ai-production/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.roomkit.live/blog/guardrails-in-roomkit/</loc>
+        <loc>https://www.roomkit.live/blog/your-voice-assistant-doesnt-need-the-cloud/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>

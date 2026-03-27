@@ -50,6 +50,9 @@ gather:
 	# RFC spec from roomkit-specs
 	cp    ../roomkit-specs/roomkit-rfc.md $(BUILD_DIR)/docs/roomkit-rfc.md
 
+	# Regenerate sitemap.xml from blog/ directory
+	bash scripts/generate-sitemap.sh
+
 	# Local static website files
 	$(foreach f,$(WEBSITE_FILES),cp -R $(f) $(BUILD_DIR)/website/$(f);)
 
