@@ -785,6 +785,188 @@ code {
     }
 }
 
+/* Strategy Grid (Orchestration) */
+
+.strategy-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-3xl);
+}
+
+.strategy-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.strategy-card:hover {
+    border-color: var(--color-border-light);
+    transform: translateY(-2px);
+}
+
+.strategy-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--space-md);
+    color: var(--color-primary-light);
+}
+
+.strategy-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.strategy-card h4 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+}
+
+.strategy-card p {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin-bottom: var(--space-md);
+}
+
+.strategy-pattern {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-primary-light);
+    background: var(--code-bg);
+    padding: 0.25em 0.75em;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+}
+
+.orchestration-tabs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: 0;
+}
+
+.orchestration-tabs .tab {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.orchestration-tabs .tab:hover {
+    color: var(--color-text);
+    background: var(--color-bg);
+}
+
+.orchestration-tabs .tab.active {
+    color: var(--color-primary-light);
+    background: var(--code-bg);
+    border-color: var(--color-border);
+}
+
+.orchestration-panels .example-panel {
+    display: none;
+}
+
+.orchestration-panels .example-panel.active {
+    display: block;
+}
+
+.orchestration-panels .code-window {
+    border-top-left-radius: 0;
+}
+
+@media (max-width: 1024px) {
+    .strategy-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .strategy-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .orchestration-tabs {
+        flex-wrap: wrap;
+    }
+}
+
+/* ========================================
+   Guardrails Section
+   ======================================== */
+
+.guardrails-section {
+    padding: var(--space-3xl) 0;
+}
+
+.guardrails-grid {
+    max-width: 750px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.guardrail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-lg);
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all 0.2s;
+}
+
+.guardrail-item:hover {
+    border-color: var(--color-border-light);
+}
+
+.guardrail-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.guardrail-item strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-xs);
+}
+
+.guardrail-item p {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
 /* ========================================
    Channels Section
    ======================================== */
@@ -853,6 +1035,7 @@ code {
 .channel-icon.http { background: linear-gradient(135deg, #ec4899, #db2777); }
 .channel-icon.ai { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 .channel-icon.voice { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.channel-icon.video { background: linear-gradient(135deg, #f97316, #ea580c); }
 .channel-icon.custom { background: linear-gradient(135deg, #64748b, #475569); }
 
 .channel-card span {
@@ -1013,6 +1196,12 @@ code {
     background: rgba(6, 182, 212, 0.15);
     color: var(--color-accent);
     border-color: rgba(6, 182, 212, 0.25);
+}
+
+.badge-video {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.25);
 }
 
 /* MCP Chat Demo */

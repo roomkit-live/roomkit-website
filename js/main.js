@@ -18,20 +18,26 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========================================
 
 function initTabs() {
-    const tabs = document.querySelectorAll('.tab');
-    const panels = document.querySelectorAll('.example-panel');
+    // Initialize each tab group independently
+    const tabGroups = [
+        { tabs: '.examples-tabs .tab', panels: '.examples-content .example-panel' },
+        { tabs: '.orchestration-tabs .tab', panels: '.orchestration-panels .example-panel' },
+    ];
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const targetId = tab.dataset.tab;
+    tabGroups.forEach(({ tabs: tabSelector, panels: panelSelector }) => {
+        const tabs = document.querySelectorAll(tabSelector);
+        const panels = document.querySelectorAll(panelSelector);
 
-            // Update active tab
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.dataset.tab;
 
-            // Update active panel
-            panels.forEach(panel => {
-                panel.classList.toggle('active', panel.id === targetId);
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                panels.forEach(panel => {
+                    panel.classList.toggle('active', panel.id === targetId);
+                });
             });
         });
     });
