@@ -106,6 +106,66 @@
         <priority>0.7</priority>
     </url>
     <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-architecture-series/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-agents/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-orchestration/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-knowledge/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-external-tools/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-storage/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-observability/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-evaluation/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-integration/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/multi-agent-user-interaction/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/where-roomkit-fits-voice-ai-production/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/blog/guardrails-in-roomkit/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://www.roomkit.live/llms.txt</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
