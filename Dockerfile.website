@@ -74,8 +74,8 @@ server {
         try_files $uri $uri/ $uri/index.html =404;
     }
 
-    # Health check endpoint
-    location /health {
+    # Health check endpoint (exact match to override regex locations)
+    location = /health {
         access_log off;
         return 200 'OK';
         add_header Content-Type text/plain;
