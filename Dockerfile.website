@@ -58,6 +58,16 @@ server {
         default_type text/plain;
     }
 
+    # Enforce trailing slash on directories (prevents duplicate URLs)
+    # If a URI has no extension and no trailing slash, and a directory exists, redirect
+    location ~ ^([^.]*[^/])$ {
+        if (-d /usr/share/nginx/html$uri) {
+            return 301 $uri/;
+        }
+        # Fall through to try_files for actual files without extensions
+        try_files $uri =404;
+    }
+
     # Documentation routes
     location /docs {
         alias /usr/share/nginx/html/docs;
@@ -71,9 +81,9 @@ server {
         add_header Content-Type text/plain;
     }
 
-    # SPA fallback for main site
+    # Static site - serve files or 404 (no SPA fallback)
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ =404;
     }
 
     # Error pages
