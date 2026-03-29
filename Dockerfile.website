@@ -58,11 +58,17 @@ server {
         default_type text/plain;
     }
 
+    # Use X-Forwarded-Proto from reverse proxy for correct redirect scheme
+    set $redirect_scheme $scheme;
+    if ($http_x_forwarded_proto) {
+        set $redirect_scheme $http_x_forwarded_proto;
+    }
+
     # Enforce trailing slash on directories (prevents duplicate URLs)
     # If a URI has no extension and no trailing slash, and a directory exists, redirect
     location ~ ^([^.]*[^/])$ {
         if (-d /usr/share/nginx/html$uri) {
-            return 301 $uri/;
+            return 301 $redirect_scheme://$host$uri/;
         }
         # Fall through to try_files for actual files without extensions
         try_files $uri =404;
