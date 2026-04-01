@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducing roomkit-graph: Workflow Graphs for RoomKit - RoomKit Blog</title>
+    <meta name="description" content="roomkit-graph lets you define multi-step AI workflows as serializable directed graphs and run them inside RoomKit rooms. Now available on PyPI.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/introducing-roomkit-graph/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Introducing roomkit-graph: Workflow Graphs for RoomKit">
+    <meta property="og:description" content="Define multi-step AI workflows as serializable directed graphs and run them inside RoomKit rooms.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/introducing-roomkit-graph/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-04-01">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Introducing roomkit-graph: Workflow Graphs for RoomKit">
+    <meta name="twitter:description" content="Define multi-step AI workflows as serializable directed graphs and run them inside RoomKit rooms.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Introducing roomkit-graph: Workflow Graphs for RoomKit",
+        "description": "Define multi-step AI workflows as serializable directed graphs and run them inside RoomKit rooms.",
+        "datePublished": "2026-04-01",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/introducing-roomkit-graph/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/introducing-roomkit-graph/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Introducing roomkit-graph: Workflow Graphs for RoomKit</h1>
+            <div class="blog-meta">
+                <span>April 1, 2026</span>
+                <span>&middot;</span>
+                <span>5 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><strong>roomkit-graph</strong> is a workflow graph engine for RoomKit. Define multi-step business processes as directed graphs &mdash; with AI agents, human approvals, parallel execution, and conditional branching &mdash; and run them as RoomKit rooms. It's now available on <a href="https://pypi.org/project/roomkit-graph/">PyPI</a> as v0.1.0a1.</p>
+
+            <h2>Why a Library, Not a Platform</h2>
+
+            <p>Existing workflow engines like n8n, Airflow, and Temporal are full platforms with their own servers, UIs, and deployment requirements. That's the right choice when you need a standalone orchestration system. But when you're already building on RoomKit and want to add "when X happens, do A, then based on the result do B or C, wait for approval, then notify" &mdash; you don't need another platform. You need a library.</p>
+
+            <p><code>roomkit-graph</code> is that library. One dependency (<code>roomkit</code>), no external services, embed directly in your app.</p>
+
+            <h2>Graphs Are Data, Not Code</h2>
+
+            <p>Every graph is fully serializable to JSON. Build it in Python, export it as a dict, store it in a database, load it in another process, render it in a UI. This is a deliberate design choice: workflows should be inspectable, versionable, and portable.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit_graph <span class="kw">import</span> Graph, Node, Edge, Condition, WebhookTrigger
+
+graph = Graph(
+    id=<span class="st">"bug-triage"</span>,
+    name=<span class="st">"Bug Triage"</span>,
+    trigger=WebhookTrigger(source_type=<span class="st">"github"</span>),
+)
+
+graph.add_nodes(
+    Node(<span class="st">"start"</span>, type=<span class="st">"start"</span>),
+    Node(<span class="st">"triage"</span>, type=<span class="st">"agent"</span>, config={
+        <span class="st">"agent_id"</span>: <span class="st">"triage-agent"</span>,
+    }),
+    Node(<span class="st">"escalate"</span>, type=<span class="st">"notification"</span>, config={
+        <span class="st">"channel"</span>: <span class="st">"slack"</span>,
+    }),
+    Node(<span class="st">"assign"</span>, type=<span class="st">"agent"</span>, config={
+        <span class="st">"agent_id"</span>: <span class="st">"labeler-agent"</span>,
+    }),
+    Node(<span class="st">"end"</span>, type=<span class="st">"end"</span>),
+)
+
+graph.add_edges(
+    Edge(<span class="st">"start"</span>, <span class="st">"triage"</span>),
+    Edge(<span class="st">"triage"</span>, <span class="st">"escalate"</span>,
+         condition=Condition.field(<span class="st">"triage.output.severity"</span>).equals(<span class="st">"critical"</span>)),
+    Edge(<span class="st">"triage"</span>, <span class="st">"assign"</span>,
+         condition=Condition.otherwise()),
+    Edge(<span class="st">"escalate"</span>, <span class="st">"end"</span>),
+    Edge(<span class="st">"assign"</span>, <span class="st">"end"</span>),
+)</code></pre>
+
+            <p>The entire graph &mdash; nodes, edges, conditions, triggers &mdash; round-trips cleanly through <code>graph.to_dict()</code> and <code>Graph.from_dict(data)</code>.</p>
+
+            <h2>Key Features</h2>
+
+            <h3>Fluent Condition Builder</h3>
+
+            <p>The condition DSL reads like English and serializes to JSON. Field comparisons, logical combinators (<code>all_</code>, <code>any_</code>, <code>not_</code>), and an <code>otherwise()</code> catch-all. Edges are evaluated in definition order &mdash; first match wins.</p>
+
+            <pre><code class="code-content">Condition.field(<span class="st">"triage.output.severity"</span>).equals(<span class="st">"critical"</span>)
+Condition.field(<span class="st">"extract.output.amount"</span>).gt(<span class="n">1000</span>)
+Condition.all_(
+    Condition.field(<span class="st">"triage.output.severity"</span>).in_([<span class="st">"critical"</span>, <span class="st">"high"</span>]),
+    Condition.field(<span class="st">"triage.output.team"</span>).equals(<span class="st">"backend"</span>),
+)
+Condition.otherwise()</code></pre>
+
+            <h3>Human-in-the-Loop</h3>
+
+            <p>The engine supports pause, persist, and resume. When a handler returns <code>status="waiting"</code>, the engine pauses. Serialize the entire state to a database with <code>engine.to_dict()</code>, restore it later in another process with <code>WorkflowEngine.from_dict()</code>, and resume with human input.</p>
+
+            <pre><code class="code-content"><span class="cm"># Pause &mdash; serialize to DB</span>
+state = engine.to_dict()
+save_to_db(state)
+
+<span class="cm"># Later, in another process</span>
+engine = WorkflowEngine.from_dict(graph, load_from_db(), handlers=handlers)
+<span class="kw">await</span> engine.resume(<span class="st">"review"</span>, {<span class="st">"action"</span>: <span class="st">"approve"</span>})</code></pre>
+
+            <h3>Parallel Execution</h3>
+
+            <p>The built-in <code>ParallelHandler</code> executes child nodes concurrently using <code>asyncio.TaskGroup</code>. Define children with a <code>parent</code> reference, and the handler fans out, executes all children, and aggregates results.</p>
+
+            <pre><code class="code-content">Node(<span class="st">"checks"</span>, type=<span class="st">"parallel"</span>, config={<span class="st">"join"</span>: <span class="st">"all"</span>})
+Node(<span class="st">"security"</span>, type=<span class="st">"agent"</span>, parent=<span class="st">"checks"</span>)
+Node(<span class="st">"compliance"</span>, type=<span class="st">"agent"</span>, parent=<span class="st">"checks"</span>)
+
+<span class="cm"># After execution:</span>
+<span class="cm"># ctx.get("security.output")   &rarr; individual result</span>
+<span class="cm"># ctx.get("checks.output")     &rarr; {"security": ..., "compliance": ...}</span></code></pre>
+
+            <h3>Pluggable Handlers</h3>
+
+            <p>roomkit-graph ships built-in handlers for start, end, function, condition, switch, log, and parallel nodes. You provide handlers for your app-specific node types &mdash; agent, human, notification, orchestration &mdash; by implementing the <code>NodeHandler</code> interface.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit_graph <span class="kw">import</span> NodeHandler, NodeResult, WorkflowEngine
+
+<span class="kw">class</span> <span class="fn">AgentHandler</span>(NodeHandler):
+    <span class="kw">async def</span> <span class="fn">execute</span>(self, node, context, engine):
+        result = <span class="kw">await</span> call_agent(node.config[<span class="st">"agent_id"</span>])
+        <span class="kw">return</span> NodeResult(output=result, status=<span class="st">"completed"</span>)
+
+engine = WorkflowEngine(graph, handlers={
+    <span class="st">"agent"</span>: AgentHandler(),
+})
+ctx = <span class="kw">await</span> engine.run()</code></pre>
+
+            <h3>Template Resolver</h3>
+
+            <p>Steps reference previous outputs with <code>{{node_id.output.field}}</code> templates, resolved at runtime from the workflow context. When a template is exactly one placeholder, the raw value passes through without stringification &mdash; dicts, lists, and numbers keep their types.</p>
+
+            <h2>Getting Started</h2>
+
+            <pre><code class="code-content">pip install roomkit-graph</code></pre>
+
+            <p>The project is open source under the MIT license. Check out the <a href="https://github.com/roomkit-live/roomkit-graph">GitHub repository</a> for full documentation, examples, and the API reference.</p>
+
+            <p>This is v0.1.0a1 &mdash; a pre-alpha release. The API is not stable yet, but the core engine, condition system, and handler model are solid and tested. We'd love your feedback.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
