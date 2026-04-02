@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducing roomkit-sandbox: Secure Sandboxed Execution for AI Agents - RoomKit Blog</title>
+    <meta name="description" content="roomkit-sandbox gives AI agents secure, container-based command execution with 10 built-in tools, three isolation backends, and token-optimized output via RTK.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/introducing-roomkit-sandbox/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Introducing roomkit-sandbox: Secure Sandboxed Execution for AI Agents">
+    <meta property="og:description" content="Give AI agents secure file access, git operations, and shell execution in isolated containers, pods, or VMs.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:url" content="https://www.roomkit.live/blog/introducing-roomkit-sandbox/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-04-02">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Introducing roomkit-sandbox: Secure Sandboxed Execution for AI Agents">
+    <meta name="twitter:description" content="Give AI agents secure file access, git operations, and shell execution in isolated containers, pods, or VMs.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Introducing roomkit-sandbox: Secure Sandboxed Execution for AI Agents",
+        "description": "Give AI agents secure file access, git operations, and shell execution in isolated containers, pods, or VMs.",
+        "datePublished": "2026-04-02",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/introducing-roomkit-sandbox/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/introducing-roomkit-sandbox/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Introducing roomkit-sandbox: Secure Sandboxed Execution for AI Agents</h1>
+            <div class="blog-meta">
+                <span>April 2, 2026</span>
+                <span>&middot;</span>
+                <span>6 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><strong>roomkit-sandbox</strong> is a container-based sandbox executor for RoomKit. It gives AI agents secure, isolated environments to read and write files, run git commands, execute shell scripts, and review code, without exposing your host system. It's now available on <a href="https://pypi.org/project/roomkit-sandbox/" target="_blank" rel="noopener">PyPI</a> as v0.2.1.</p>
+
+            <h2>The Problem</h2>
+
+            <p>AI agents that can only talk are limited. The moment you want an agent to clone a repo, run tests, review a diff, or edit a file, you need to give it shell access. But running arbitrary commands on your host is a non-starter in production. You need isolation, resource limits, and a clean interface between the agent and the execution environment.</p>
+
+            <p>That's what <code>roomkit-sandbox</code> provides: a bridge between RoomKit's AI channels and isolated execution environments, with 10 built-in tools that agents can call naturally.</p>
+
+            <h2>10 Built-In Tools</h2>
+
+            <p>When you attach a sandbox to an agent, it automatically gets these tools in its catalog:</p>
+
+            <pre><code class="code-content">sandbox_read     Read file contents (with optional line ranges)
+sandbox_write    Write or create files
+sandbox_edit     Replace text in files
+sandbox_ls       List directory contents with metadata
+sandbox_grep     Search files with regex patterns
+sandbox_find     Find files by name or type
+sandbox_git      Execute any git command
+sandbox_diff     Compare two files
+sandbox_delete   Delete files or directories
+sandbox_bash     Execute shell commands</code></pre>
+
+            <p>No tool registration, no schema boilerplate. Attach the executor, and the agent sees them.</p>
+
+            <h2>Three Isolation Backends</h2>
+
+            <p>Different deployments need different isolation levels. <code>roomkit-sandbox</code> supports three backends through a protocol-based interface:</p>
+
+            <h3>Docker (Development &amp; CI)</h3>
+
+            <p>Container-level isolation with ~500ms first boot. Per-user persistent containers, configurable memory and CPU limits, and instant reuse after startup. The default choice for local development and CI pipelines.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit_sandbox <span class="kw">import</span> ContainerSandboxExecutor
+<span class="kw">from</span> roomkit_sandbox.docker_backend <span class="kw">import</span> DockerSandboxBackend
+
+sandbox = ContainerSandboxExecutor(
+    backend=DockerSandboxBackend(
+        image=<span class="st">"ghcr.io/roomkit-live/sandbox:latest"</span>,
+        memory_limit=<span class="st">"512m"</span>,
+        cpu_count=<span class="n">1</span>,
+    ),
+    session_id=<span class="st">"code-reviewer"</span>,
+    setup_commands=[
+        <span class="st">"git clone https://github.com/org/repo.git /workspace/repo"</span>,
+    ],
+)</code></pre>
+
+            <h3>Kubernetes (Production)</h3>
+
+            <p>Pod-level isolation with namespace separation, service accounts, and image pull secrets. Lightweight pods (512Mi, 1 CPU) with label-based discovery for session reuse. The right choice when you're scaling agents in production.</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit_sandbox.k8s_backend <span class="kw">import</span> KubernetesSandboxBackend
+
+sandbox = ContainerSandboxExecutor(
+    backend=KubernetesSandboxBackend(
+        image=<span class="st">"ghcr.io/roomkit-live/sandbox:latest"</span>,
+        namespace=<span class="st">"production"</span>,
+        service_account=<span class="st">"sandbox-runner"</span>,
+    ),
+)</code></pre>
+
+            <h3>SmolBSD (VM Isolation, Experimental)</h3>
+
+            <p>True VM-level isolation using QEMU/KVM with a lightweight NetBSD-based microVM. Kernel-level separation means a hypervisor escape is required for breakout. The option for running untrusted code where container isolation isn't enough.</p>
+
+            <h2>Token-Optimized Output with RTK</h2>
+
+            <p>LLM context is expensive. Every byte of command output that goes back to the agent costs tokens. <code>roomkit-sandbox</code> uses <a href="https://github.com/rtk-ai/rtk" target="_blank" rel="noopener">RTK</a>, a token-optimized CLI for LLMs, as its default command builder for Docker and Kubernetes backends.</p>
+
+            <p>Instead of dumping raw <code>cat</code> and <code>grep</code> output, RTK produces structured, compact results that reduce token usage by 60-90%. For long-running tasks or large codebases, this translates directly to lower API costs.</p>
+
+            <pre><code class="code-content"><span class="cm"># Standard output: verbose, token-heavy</span>
+sandbox_bash <span class="st">"make test"</span>  <span class="cm"># → raw test output (thousands of tokens)</span>
+
+<span class="cm"># RTK output: summarized, token-efficient</span>
+sandbox_bash <span class="st">"make test"</span>  <span class="cm"># → rtk summary (structured result, 60-90% fewer tokens)</span></code></pre>
+
+            <p>The command builder is pluggable. You can swap in a <code>NativeCommandBuilder</code> for standard POSIX output, or subclass <code>CommandBuilder</code> to inject project-specific tools.</p>
+
+            <h2>Container Lifecycle</h2>
+
+            <p>Containers are created on first use and reused across calls within a session. The lifecycle is automatic:</p>
+
+            <ol>
+                <li><strong>First call:</strong> creates the container, runs setup commands (git clone, pip install, etc.), caches the container ID</li>
+                <li><strong>Subsequent calls:</strong> reuses the cached container instantly</li>
+                <li><strong>Container crash:</strong> automatically creates a new container on the next call</li>
+            </ol>
+
+            <p>Label-based discovery means the executor can find existing containers even after process restarts, avoiding startup overhead.</p>
+
+            <h2>Integration with RoomKit</h2>
+
+            <p><code>roomkit-sandbox</code> implements RoomKit's <code>SandboxExecutor</code> interface. Pass it to an <code>Agent</code> and the sandbox tools appear in the agent's tool catalog automatically:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> Agent
+<span class="kw">from</span> roomkit_sandbox <span class="kw">import</span> ContainerSandboxExecutor
+<span class="kw">from</span> roomkit_sandbox.docker_backend <span class="kw">import</span> DockerSandboxBackend
+
+agent = Agent(
+    name=<span class="st">"code-reviewer"</span>,
+    provider=anthropic.Anthropic(),
+    sandbox=ContainerSandboxExecutor(
+        backend=DockerSandboxBackend(),
+        session_id=<span class="st">"review-session"</span>,
+        setup_commands=[
+            <span class="st">"git clone https://github.com/org/repo.git /workspace/repo"</span>,
+        ],
+    ),
+)
+
+<span class="cm"># The agent now has sandbox_read, sandbox_write, sandbox_git,</span>
+<span class="cm"># sandbox_bash, and all other sandbox tools available.</span></code></pre>
+
+            <h2>The Container Image</h2>
+
+            <p>The sandbox image (<code>ghcr.io/roomkit-live/sandbox:latest</code>) is 37MB, built on Alpine 3.21. It includes RTK, bash, git, curl, jq, and openssh-client. Containers run as a non-root <code>sandbox</code> user (UID 1000) with <code>/workspace</code> as the working directory.</p>
+
+            <h2>Getting Started</h2>
+
+            <pre><code class="code-content">pip install roomkit-sandbox[docker]     <span class="cm"># Docker backend</span>
+pip install roomkit-sandbox[kubernetes] <span class="cm"># Kubernetes backend</span></code></pre>
+
+            <p>The project is open source under the MIT license. Check out the <a href="https://github.com/roomkit-live/roomkit-sandbox" target="_blank" rel="noopener">GitHub repository</a> for documentation, examples, and the full API reference.</p>
+
+            <p>This is v0.2.1, still in alpha. The core executor, Docker and Kubernetes backends, and RTK integration are solid and tested. SmolBSD support is experimental. We'd love your feedback.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

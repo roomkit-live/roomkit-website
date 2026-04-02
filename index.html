@@ -97,6 +97,13 @@
         <div class="hero-bg"></div>
         <div class="container">
             <div class="hero-content">
+                <h1 class="hero-title">
+                    Multi-Channel Conversations,<br>
+                    <span class="gradient-text">Simplified.</span>
+                </h1>
+                <p class="hero-description">
+                    An open-source Python framework that connects AI agents to voice, SMS, WhatsApp, email, and WebSocket in a single conversation.
+                </p>
                 <div class="hero-badge">
                     <span class="badge">Pure Python</span>
                     <span class="badge">Async-First</span>
@@ -104,14 +111,6 @@
                     <span class="badge">Voice AI</span>
                     <span class="badge badge-video">Video AI</span>
                 </div>
-                <h1 class="hero-title">
-                    Multi-Channel Conversations,<br>
-                    <span class="gradient-text">Simplified.</span>
-                </h1>
-                <p class="hero-description">
-                    The missing layer between your channels and your logic.
-                    Primitives for multi-channel conversations — not a platform, a foundation.
-                </p>
                 <div class="hero-actions">
                     <a href="/docs/" class="btn btn-primary btn-lg">
                         <span>Get Started</span>
@@ -260,172 +259,6 @@ room = <span class="kw">await</span> kit.create_room()
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Comparison Section -->
-    <section class="comparison-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">How RoomKit Compares</h2>
-                <p class="section-description">
-                    There are many tools in this space. Here's where RoomKit fits.
-                </p>
-            </div>
-            <div class="comparison-cards">
-                <div class="comparison-card">
-                    <h4>Message Brokers</h4>
-                    <span class="comparison-examples">Kombu, Celery, RabbitMQ</span>
-                    <p>Move bytes between services. No concept of conversations or participants.</p>
-                    <div class="comparison-verdict">
-                        <strong>Use RoomKit when:</strong> You need to manage actual human conversations.
-                    </div>
-                </div>
-                <div class="comparison-card">
-                    <h4>Chatbot Frameworks</h4>
-                    <span class="comparison-examples">Rasa, Dialogflow, ChatterBot</span>
-                    <p>Focus on NLP, intent detection, and response generation.</p>
-                    <div class="comparison-verdict">
-                        <strong>Use RoomKit when:</strong> You need to route messages to AI (or humans) across channels.
-                    </div>
-                </div>
-                <div class="comparison-card">
-                    <h4>Full Platforms</h4>
-                    <span class="comparison-examples">Chatwoot, Rocket.Chat, Intercom</span>
-                    <p>Complete applications with UI, dashboards, and hosted infrastructure.</p>
-                    <div class="comparison-verdict">
-                        <strong>Use RoomKit when:</strong> You're building your own product and need the primitives.
-                    </div>
-                </div>
-                <div class="comparison-card">
-                    <h4>Voice AI Frameworks</h4>
-                    <span class="comparison-examples">Pipecat, LiveKit Agents, TEN Framework</span>
-                    <p>Pipeline or session-based voice AI. Focus on audio processing, not conversations.</p>
-                    <div class="comparison-verdict">
-                        <strong>Use RoomKit when:</strong> You need voice + text + multi-agent in the same room.
-                    </div>
-                </div>
-            </div>
-            <div class="comparison-table-wrapper">
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>RoomKit</th>
-                            <th>Chatwoot</th>
-                            <th>Twilio</th>
-                            <th>Kombu</th>
-                            <th>Rasa</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Open source</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                        </tr>
-                        <tr>
-                            <td>Self-hosted</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                        </tr>
-                        <tr>
-                            <td>Python library</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                        </tr>
-                        <tr>
-                            <td>Multi-channel</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                        </tr>
-                        <tr>
-                            <td>Room-based</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                        </tr>
-                        <tr>
-                            <td>Identity resolution</td>
-                            <td class="yes">✓</td>
-                            <td class="partial">~</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                        </tr>
-                        <tr>
-                            <td>Hook system</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                        </tr>
-                        <tr>
-                            <td>Async-first</td>
-                            <td class="yes">✓</td>
-                            <td class="partial">N/A</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                        </tr>
-                        <tr>
-                            <td>No per-message fees</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="yes">✓</td>
-                            <td class="yes">✓</td>
-                        </tr>
-                        <tr>
-                            <td>Real-time voice</td>
-                            <td class="yes">&#10003;</td>
-                            <td class="no">&#10007;</td>
-                            <td class="yes">&#10003;</td>
-                            <td class="no">&#10007;</td>
-                            <td class="no">&#10007;</td>
-                        </tr>
-                        <tr>
-                            <td>AI-ready (llms.txt)</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                        </tr>
-                        <tr>
-                            <td>Video AI</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                        </tr>
-                        <tr>
-                            <td>Multi-agent orchestration</td>
-                            <td class="yes">✓</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                            <td class="no">✗</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </section>
@@ -1040,120 +873,6 @@ agent = Agent(
         </div>
     </section>
 
-    <!-- AI Section -->
-    <section class="ai-section">
-        <div class="container">
-            <div class="ai-content">
-                <div class="ai-text">
-                    <span class="badge">AI-Ready</span>
-                    <h2>Built for AI Assistants</h2>
-                    <p>
-                        RoomKit includes <code>llms.txt</code> and <code>AGENTS.md</code> files that help AI coding assistants understand your codebase and generate correct, idiomatic code.
-                    </p>
-                    <ul class="ai-features">
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>llms.txt for documentation discovery</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>AGENTS.md with coding patterns</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Programmatic access via <code>get_llms_txt()</code></span>
-                        </li>
-                    </ul>
-                    <a href="/docs/ai-integration/" class="btn btn-secondary">Learn More</a>
-                </div>
-                <div class="ai-code">
-                    <div class="code-window">
-                        <div class="code-header">
-                            <div class="code-dots"><span></span><span></span><span></span></div>
-                            <span class="code-filename">ai_context.py</span>
-                        </div>
-                        <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> get_llms_txt, get_agents_md
-
-<span class="cm"># Get documentation for LLM context</span>
-llms_content = get_llms_txt()
-
-<span class="cm"># Get coding guidelines for AI assistants</span>
-agents_content = get_agents_md()
-
-<span class="cm"># Use in your MCP server or AI tool</span>
-context = {
-    <span class="st">"documentation"</span>: llms_content,
-    <span class="st">"guidelines"</span>: agents_content
-}</code></pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- MCP Section -->
-    <section class="mcp-section">
-        <div class="container">
-            <div class="mcp-content">
-                <div class="mcp-text">
-                    <span class="badge badge-mcp">Model Context Protocol</span>
-                    <h2>Native MCP Integration</h2>
-                    <p>
-                        RoomKit is designed for seamless integration with the Model Context Protocol (MCP).
-                        Build AI assistants that can manage conversations, send messages, and handle multi-channel
-                        communication through a standardized protocol.
-                    </p>
-                    <ul class="mcp-features">
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Room management tools (create, list, get)</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Message sending and history retrieval</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Channel attachment and management</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Participant and identity management</span>
-                        </li>
-                    </ul>
-                    <a href="/docs/mcp/" class="btn btn-primary">MCP Documentation</a>
-                </div>
-                <div class="mcp-demo">
-                    <div class="code-window">
-                        <div class="code-header">
-                            <div class="code-dots"><span></span><span></span><span></span></div>
-                            <span class="code-filename">Claude Desktop</span>
-                        </div>
-                        <div class="mcp-chat">
-                            <div class="mcp-message user">
-                                <span class="mcp-role">You</span>
-                                <p>Create a new support room and send a welcome message</p>
-                            </div>
-                            <div class="mcp-message assistant">
-                                <span class="mcp-role">Claude</span>
-                                <p>I'll create a support room and send a welcome message.</p>
-                                <div class="mcp-tool-call">
-                                    <span class="tool-label">roomkit_create_room</span>
-                                    <code>{"metadata": {"type": "support"}}</code>
-                                </div>
-                                <div class="mcp-tool-call">
-                                    <span class="tool-label">roomkit_send_message</span>
-                                    <code>{"room_id": "...", "body": "Welcome!"}</code>
-                                </div>
-                                <p>Done! Room created with ID <code>rm_abc123</code> and welcome message sent.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Graph Section -->
     <section class="graph-section">
         <div class="container">
@@ -1226,6 +945,72 @@ graph.add_edges(
 <span class="cm"># Run to completion</span>
 ctx = <span class="kw">await</span> WorkflowEngine(graph).run()</code></pre>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sandbox Section -->
+    <section class="sandbox-section">
+        <div class="container">
+            <div class="sandbox-content">
+                <div class="sandbox-code">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-dots"><span></span><span></span><span></span></div>
+                            <span class="code-filename">sandbox_agent.py</span>
+                        </div>
+                        <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> Agent
+<span class="kw">from</span> roomkit_sandbox <span class="kw">import</span> ContainerSandboxExecutor
+<span class="kw">from</span> roomkit_sandbox.docker_backend <span class="kw">import</span> (
+    DockerSandboxBackend,
+)
+
+agent = Agent(
+    name=<span class="st">"code-reviewer"</span>,
+    provider=anthropic.Anthropic(),
+    sandbox=ContainerSandboxExecutor(
+        backend=DockerSandboxBackend(
+            image=<span class="st">"ghcr.io/roomkit-live/sandbox:latest"</span>,
+            memory_limit=<span class="st">"512m"</span>,
+        ),
+        session_id=<span class="st">"review-session"</span>,
+        setup_commands=[
+            <span class="st">"git clone https://github.com/org/repo.git /workspace/repo"</span>,
+        ],
+    ),
+)
+
+<span class="cm"># Agent now has sandbox_read, sandbox_write,</span>
+<span class="cm"># sandbox_git, sandbox_bash, and 6 more tools.</span></code></pre>
+                    </div>
+                </div>
+                <div class="sandbox-text">
+                    <span class="badge badge-sandbox">Sandbox Executor</span>
+                    <h2>Secure Agent Execution</h2>
+                    <p>
+                        Give AI agents isolated environments to read files, run git commands, and execute shell scripts.
+                        Three backends for three isolation levels: containers, pods, or VMs.
+                    </p>
+                    <ul class="sandbox-features">
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>10 built-in tools: read, write, edit, grep, git, bash, and more</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Docker, Kubernetes, and SmolBSD (VM) backends</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Token-optimized output via RTK (60-90% fewer tokens)</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Non-root execution, resource limits, automatic container reuse</span>
+                        </li>
+                    </ul>
+                    <a href="https://github.com/roomkit-live/roomkit-sandbox" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub</a>
                 </div>
             </div>
         </div>
