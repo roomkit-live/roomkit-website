@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomKit Meets Buzz: AI Agents in a Nostr Team Workspace - RoomKit Blog</title>
+    <meta name="description" content="RoomKit 0.37.0 adds Buzz support: your agent joins Block's Nostr-based team workspace as a cryptographically-identified member, chatting in channels and speaking in live voice huddles.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/roomkit-meets-buzz/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="RoomKit Meets Buzz: AI Agents in a Nostr Team Workspace">
+    <meta property="og:description" content="Your agent as a first-class, cryptographically-identified member of a Buzz community: text channels, presence, and live voice huddles.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.png">
+    <meta property="og:url" content="https://www.roomkit.live/blog/roomkit-meets-buzz/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-07-31">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RoomKit Meets Buzz: AI Agents in a Nostr Team Workspace">
+    <meta name="twitter:description" content="Your agent as a first-class, cryptographically-identified member of a Buzz community: text channels, presence, and live voice huddles.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "RoomKit Meets Buzz: AI Agents in a Nostr Team Workspace",
+        "description": "RoomKit 0.37.0 adds Buzz support: your agent joins Block's Nostr-based team workspace as a cryptographically-identified member, chatting in channels and speaking in live voice huddles.",
+        "datePublished": "2026-07-31",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/roomkit-meets-buzz/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/roomkit-meets-buzz/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>RoomKit Meets Buzz: AI Agents in a Nostr Team Workspace</h1>
+            <div class="blog-meta">
+                <span>July 31, 2026</span>
+                <span>&middot;</span>
+                <span>9 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><strong>RoomKit 0.37.0</strong> adds first-class support for <strong>Buzz</strong>, Block's Nostr-based team workspace where humans and AI agents are both cryptographically-identified members. A RoomKit agent can now chat in Buzz channels, announce its presence, and &mdash; when someone opens a voice huddle &mdash; join it and talk. It ships as <code>pip install roomkit[buzz]</code>, powered by a new sibling package, <a href="https://github.com/sboily/buzzkit" target="_blank" rel="noopener">buzzkit</a>.</p>
+
+            <h2>What Buzz Is</h2>
+
+            <p>Buzz is a team workspace built on <a href="https://nostr.com/" target="_blank" rel="noopener">Nostr</a>. A community is a <em>closed relay</em>: an identity must be a member of the relay before it can read or write anything &mdash; every request from an outsider is refused. Channels are NIP-29 groups, chat messages are Nostr kind 9 events, and identity is a keypair rather than an account.</p>
+
+            <p>That last part is what makes Buzz interesting for agents. There is no bot token to provision and no app review process. You generate a keypair, redeem an invite link, and the agent is a member &mdash; with the exact same identity machinery as a human: its events are signed with its key, it authenticates to the relay with NIP-42 over WebSocket and NIP-98 over HTTP, and it can carry an owner attestation (NIP-OA) that says which human is responsible for it.</p>
+
+            <p>One honest disclaimer up front: buzzkit is an unofficial client, not affiliated with Block.</p>
+
+            <h2>buzzkit: Rust Crypto, Python I/O</h2>
+
+            <p><strong>buzzkit</strong> is the client library underneath RoomKit's Buzz support. Its design splits along a clean line:</p>
+
+            <ul>
+                <li>The cryptographic core &mdash; Schnorr signing, event building, verification, NIP-42/98 auth &mdash; is Rust, built with PyO3 on top of Block's own zero-I/O <code>buzz-core</code> and <code>buzz-sdk</code> crates.</li>
+                <li>All network I/O is pure Python (<code>httpx</code> and <code>websockets</code>), so the async story stays idiomatic &mdash; no tokio&thinsp;&#8646;&thinsp;asyncio bridge.</li>
+            </ul>
+
+            <p>It ships abi3 wheels for CPython 3.12+ on Linux, macOS, and Windows. Because it is a compiled wheel, the <code>buzz</code> extra is deliberately kept out of RoomKit's aggregate <code>providers</code>/<code>all</code> extras &mdash; you opt in explicitly with <code>pip install roomkit[buzz]</code>, and RoomKit's own CI never has to build it.</p>
+
+            <h2>The Text Channel</h2>
+
+            <p>Buzz is a transport channel in RoomKit, like SMS or Discord &mdash; a new <code>ChannelType.BUZZ</code> with its own source, provider, and factory. The architecture mirrors the Discord integration: one <code>buzzkit.BuzzClient</code>, one Nostr identity, both directions.</p>
+
+            <ul>
+                <li><strong><code>BuzzRelaySource</code></strong> owns the client. Inbound is a WebSocket subscription with NIP-42 auth, with automatic reconnect (1&thinsp;s backoff doubling to 30&thinsp;s).</li>
+                <li><strong><code>BuzzProvider</code></strong> borrows the same client for outbound. Sends go through the relay's HTTP bridge rather than the WebSocket &mdash; deliberately, so an outbound message succeeds even while the inbound socket is mid-reconnect.</li>
+            </ul>
+
+            <p>Configuration is one small pydantic model:</p>
+
+            <pre><code class="code-content"><span class="kw">class</span> <span class="fn">BuzzConfig</span>(BaseModel):
+    relay_url: str
+    private_key: SecretStr          <span class="cm"># nsec... or hex; signs events, authenticates (NIP-42/98)</span>
+    ignore_own: bool = <span class="kw">True</span>         <span class="cm"># echo guard: drop the agent's own events</span>
+    auto_join: bool = <span class="kw">True</span>          <span class="cm"># NIP-29 kind 9000, role=bot</span>
+    announce_presence: bool = <span class="kw">True</span>  <span class="cm"># kind 20001 "online", re-announced every 55 s (TTL 90 s)</span>
+    auth_tag: str | <span class="kw">None</span> = <span class="kw">None</span>    <span class="cm"># NIP-OA owner attestation</span></code></pre>
+
+            <p>The housekeeping a workspace member is expected to do is handled for you: the agent joins the channel as a bot on connect, heartbeats its presence well within the 90-second TTL, and filters out the echo of its own messages. Wiring it into RoomKit looks like every other channel:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> BuzzChannel, RoomKit
+<span class="kw">from</span> roomkit.providers.buzz <span class="kw">import</span> BuzzConfig, BuzzProvider
+<span class="kw">from</span> roomkit.sources.buzz <span class="kw">import</span> BuzzRelaySource
+
+config = BuzzConfig(
+    relay_url=<span class="st">"wss://your-community.communities.buzz.xyz"</span>,
+    private_key=<span class="st">"nsec1..."</span>,  <span class="cm"># the agent's Nostr secret</span>
+)
+source = BuzzRelaySource(config, <span class="st">"buzz-main"</span>, relay_channel_id=<span class="st">"&lt;channel-uuid&gt;"</span>)
+provider = BuzzProvider(source)  <span class="cm"># reuses the source's client</span>
+
+kit = RoomKit()
+kit.register_channel(BuzzChannel(<span class="st">"buzz-main"</span>, provider=provider))
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"buzz-room"</span>)
+<span class="kw">await</span> kit.attach_channel(
+    <span class="st">"buzz-room"</span>, <span class="st">"buzz-main"</span>, metadata={<span class="st">"buzz_channel_id"</span>: <span class="st">"&lt;channel-uuid&gt;"</span>}
+)
+<span class="kw">await</span> kit.attach_source(<span class="st">"buzz-main"</span>, source)  <span class="cm"># connects and subscribes</span></code></pre>
+
+            <p>From here, everything RoomKit already does applies unchanged: attach an <code>AIChannel</code> to the room and the agent answers in the Buzz channel; add hooks and the guardrail pipeline runs on every inbound event; attach an SMS or WebSocket channel to the same room and Buzz becomes one leg of a multi-channel conversation.</p>
+
+            <p>Onboarding is a one-time step per agent key:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> buzzkit <span class="kw">import</span> BuzzClient, generate_keypair
+
+nsec, npub, _ = generate_keypair()  <span class="cm"># your agent's identity: store nsec securely</span>
+client = BuzzClient(<span class="st">"wss://your-community.communities.buzz.xyz"</span>, nsec)
+<span class="kw">await</span> client.claim_invite(<span class="st">"https://your-community.communities.buzz.xyz/invite/&lt;code&gt;"</span>)</code></pre>
+
+            <h2>Voice: Answering the Huddle</h2>
+
+            <p>Buzz has <em>huddles</em> &mdash; ephemeral voice channels, announced on their parent text channel as a Nostr event (kind 48100). The audio protocol is fixed: Opus, 48&thinsp;kHz mono, 20&thinsp;ms frames, over the relay's WebSocket. RoomKit 0.37.0 turns that into a realtime voice transport, so a huddle can be answered by the same speech-to-speech stack that already drives SIP calls and browser sessions.</p>
+
+            <p>Two pieces do the work:</p>
+
+            <p><strong><code>BuzzHuddleWatcher</code></strong> subscribes to huddle announcements on a channel and dials in when one opens. The announcement feed gets its own room, deliberately &mdash; it is an input, not a conversation participant &mdash; and a hook on that room triggers the bridge. It handles one call at a time; announcements arriving mid-call are ignored.</p>
+
+            <p><strong><code>BuzzHuddleBackend</code></strong> is a standard RoomKit <code>VoiceBackend</code>, which means VAD, interruption handling, and provider session management all apply as usual. The details it takes care of are the ones you would otherwise learn the hard way:</p>
+
+            <ul>
+                <li><strong>Resampling is the backend's job.</strong> The huddle protocol is fixed at 48&thinsp;kHz; the backend resamples to and from the provider's rates itself using a streaming soxr resampler. This matters audibly: the generic fallback is linear interpolation, whose imaging artifacts on a 24&thinsp;kHz&nbsp;&rarr;&nbsp;48&thinsp;kHz upsample make synthesized voices sound harsh and saturated. soxr keeps the spectrum clean.</li>
+                <li><strong>Silence fill.</strong> Buzz clients use DTX &mdash; they stop sending frames during silence. The backend drops comfort-noise frames and runs its own silence ticker, so the provider-facing stream stays continuous.</li>
+                <li><strong>Leaving when alone.</strong> The relay keeps a huddle alive while <em>any</em> member is connected &mdash; the agent included. Without <code>end_when_alone</code> (default on, with a 90-second grace period), the huddle and the provider session would run forever after the last human left.</li>
+            </ul>
+
+            <p>A complete voice agent, condensed from <code>examples/buzz_voice_agent.py</code>:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> RealtimeVoiceChannel, RoomKit
+<span class="kw">from</span> roomkit.providers.buzz <span class="kw">import</span> BuzzConfig
+<span class="kw">from</span> roomkit.providers.gemini.realtime <span class="kw">import</span> GeminiLiveProvider
+<span class="kw">from</span> roomkit.voice.backends.buzz_huddle <span class="kw">import</span> BuzzHuddleBackend, BuzzHuddleWatcher
+
+kit = RoomKit()
+voice = RealtimeVoiceChannel(
+    <span class="st">"buzz-voice"</span>,
+    provider=GeminiLiveProvider(api_key=..., model=<span class="st">"gemini-3.1-flash-live-preview"</span>),
+    transport=BuzzHuddleBackend(),
+    system_prompt=<span class="st">"You are a helpful voice assistant."</span>,
+    <span class="cm"># No transport_sample_rate here: the backend resamples 48 kHz huddle</span>
+    <span class="cm"># audio to/from the provider's rates itself, with soxr.</span>
+)
+kit.register_channel(voice)
+<span class="kw">await</span> kit.create_room(room_id=<span class="st">"buzz-huddle"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"buzz-huddle"</span>, <span class="st">"buzz-voice"</span>)
+
+watcher = BuzzHuddleWatcher(
+    kit,
+    voice_channel=voice,
+    config=BuzzConfig(relay_url=<span class="st">"wss://..."</span>, private_key=<span class="st">"nsec1..."</span>),
+    parent_channel_id=<span class="st">"&lt;channel-uuid&gt;"</span>,
+    room_id=<span class="st">"buzz-huddle"</span>,
+)
+<span class="kw">await</span> watcher.start()  <span class="cm"># answers the next huddle that opens</span></code></pre>
+
+            <p>Someone in your Buzz community clicks "start huddle", and the agent is in the call.</p>
+
+            <h2>Limits, Honestly</h2>
+
+            <ul>
+                <li><strong>Text only for now.</strong> The channel declares threading and reactions, but rich content, media attachments, and reaction dispatch are out of scope in this release. Maximum message length is the relay's 65,536-character content limit.</li>
+                <li><strong>One relay channel per source.</strong> Watching several Buzz channels means several sources.</li>
+                <li><strong>One huddle at a time.</strong> The watcher ignores announcements that arrive while a call is in progress.</li>
+                <li><strong>Inbound huddle audio is unmixed.</strong> Overlapping speech from several peers arrives interleaved &mdash; acceptable for the common one-human-plus-agent huddle, not for transcribing a crowded call.</li>
+                <li><strong>A rejoin starts a fresh provider session.</strong> After a connection loss, the model does not remember the conversation from before the drop.</li>
+            </ul>
+
+            <h2>Getting Started</h2>
+
+            <pre><code class="code-content">pip install roomkit[buzz,realtime-gemini]
+
+BUZZ_RELAY_URL=wss://your-community.communities.buzz.xyz \
+BUZZ_NSEC=nsec1... \
+BUZZ_CHANNEL_ID=&lt;channel-uuid&gt; \
+GOOGLE_API_KEY=... \
+python examples/buzz_voice_agent.py</code></pre>
+
+            <p>Use RoomKit 0.37.1 or later &mdash; it raises the floor to buzzkit 0.1.4, which runs all WebSocket I/O on a dedicated thread and drops late audio frames instead of bursting them, curing choppy huddle audio under event-loop load.</p>
+
+            <p>The <a href="/docs/guides/buzz/">Buzz guide</a> covers the full configuration surface, and <code>examples/buzz_bot.py</code> and <code>examples/buzz_voice_agent.py</code> in the <a href="https://github.com/roomkit-live/roomkit" target="_blank" rel="noopener">repository</a> are complete, runnable programs. If you try it against your own community, we'd love to hear how it goes.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Party Conferences: RoomKit on an External SFU with LiveKit - RoomKit Blog</title>
+    <meta name="description" content="RoomKit 0.38.0 adds multi-party conferences on an external SFU, with LiveKit as the first production backend. Humans connect to the SFU; RoomKit joins as a bot participant and never sits in the media path.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/multi-party-conferences-livekit/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Multi-Party Conferences: RoomKit on an External SFU with LiveKit">
+    <meta property="og:description" content="Real meetings on an external SFU, with a RoomKit agent in the room to transcribe, answer, and moderate. LiveKit carries the media.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.png">
+    <meta property="og:url" content="https://www.roomkit.live/blog/multi-party-conferences-livekit/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-07-31">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Multi-Party Conferences: RoomKit on an External SFU with LiveKit">
+    <meta name="twitter:description" content="Real meetings on an external SFU, with a RoomKit agent in the room to transcribe, answer, and moderate. LiveKit carries the media.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Multi-Party Conferences: RoomKit on an External SFU with LiveKit",
+        "description": "RoomKit 0.38.0 adds multi-party conferences on an external SFU, with LiveKit as the first production backend. Humans connect to the SFU; RoomKit joins as a bot participant and never sits in the media path.",
+        "datePublished": "2026-07-31",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/multi-party-conferences-livekit/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/multi-party-conferences-livekit/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>Multi-Party Conferences: RoomKit on an External SFU with LiveKit</h1>
+            <div class="blog-meta">
+                <span>July 31, 2026</span>
+                <span>&middot;</span>
+                <span>10 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p><strong>RoomKit 0.38.0</strong> adds multi-party conference support: real meetings &mdash; Alice, Bob, and Carol on video-call infrastructure &mdash; with a RoomKit agent in the room to transcribe, answer, and moderate. The media plane is an external SFU, and <a href="https://livekit.io/" target="_blank" rel="noopener">LiveKit</a> is the first production backend. One design rule shapes everything else: <strong>RoomKit never sits in the media path between human participants.</strong></p>
+
+            <h2>Bridge for Calls, Conference for Meetings</h2>
+
+            <p>RoomKit could already connect several parties with its in-process <code>AudioBridge</code> &mdash; by mixing their audio inside RoomKit. That works for a handful of calls RoomKit itself terminates, but it puts the framework <em>in</em> the media path, and that caps how far it scales. The conference channel exists to cross that boundary: when the parties are humans in a meeting, the SFU carries the media and RoomKit steps out of the path. Bridge for a handful of calls RoomKit terminates; conference for meetings.</p>
+
+            <pre class="ascii-diagram">
+ alice ──┐                              ┌── RoomKit bot participant
+         │        ┌──────────┐          │     ├─ subscribes audio tracks
+ bob ────┼───────►│   SFU    │◄─────────┘     │    └─ lane per track → VAD → STT
+         │        │ (LiveKit)│                ├─ publishes one AI voice track
+ carol ──┘        └──────────┘                └─ observes joins, mutes, quality
+                       ▲
+              media stays here — RoomKit
+              never routes a human's packets
+            </pre>
+
+            <p>The model, defined normatively in RFC &sect;12.10, comes down to a few principles:</p>
+
+            <ul>
+                <li><strong>The conference is the room.</strong> A conference is 1:1 with a RoomKit Room. Conference participants are Room participants, transcriptions are RoomEvents, and hooks, permissions, and cross-channel broadcast apply with no conference-specific exceptions.</li>
+                <li><strong>Humans connect directly to the SFU.</strong> RoomKit mints access credentials and observes lifecycle through backend events; it never proxies client signaling or media.</li>
+                <li><strong>RoomKit joins as a bot participant</strong> &mdash; one server-side connection per conference, subscribing audio tracks and publishing the AI's voice track.</li>
+                <li><strong>Tracks are the unit of media identity.</strong> Each participant's speech arrives on their own track, which is why the conference pipeline has no diarization stage and no server-side echo cancellation &mdash; clients cancel their own echo, and the SFU never mixes.</li>
+                <li><strong>The backend boundary is decoded frames and opaque credentials.</strong> SDP, ICE, codecs, and simulcast appear in no framework interface.</li>
+            </ul>
+
+            <h2>Deliberately Not livekit-agents</h2>
+
+            <p>The integration uses LiveKit as an SFU and nothing else: the server API to administer rooms, mint credentials, and moderate; the realtime SDK to give the framework one bot participant. What is deliberately absent is <code>livekit-agents</code>. RoomKit already owns VAD, speech-to-text, synthesis, turn detection, and interruption &mdash; a transport that delivered pre-segmented speech would break the separation the RFC draws, and would hide exactly the class of raw-audio bugs a real backend exists to surface.</p>
+
+            <h2>Mock First, SFU Later</h2>
+
+            <p>The conference ships with a full <code>MockConferenceBackend</code>, so you can build and test the whole flow with no SFU and no credentials:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> MockConferenceBackend, RoomKit
+<span class="kw">from</span> roomkit.channels.conference <span class="kw">import</span> ConferenceChannel
+<span class="kw">from</span> roomkit.voice.stt.mock <span class="kw">import</span> MockSTTProvider
+
+kit = RoomKit()
+conference = ConferenceChannel(
+    <span class="st">"conf"</span>, backend=MockConferenceBackend(), stt=MockSTTProvider()
+)
+kit.register_channel(conference)
+<span class="kw">await</span> kit.create_room(<span class="st">"standup"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"standup"</span>, <span class="st">"conf"</span>)
+
+<span class="cm"># The credential a human's client uses to connect to the SFU directly.</span>
+<span class="kw">await</span> kit.ensure_participant(<span class="st">"standup"</span>, <span class="st">"conf"</span>, <span class="st">"alice"</span>, display_name=<span class="st">"Alice"</span>)
+access = <span class="kw">await</span> conference.mint_access(<span class="st">"standup"</span>, <span class="st">"alice"</span>)</code></pre>
+
+            <p>Moving to a real SFU is a one-line swap:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> LiveKitConferenceBackend, LiveKitConfig
+
+backend = LiveKitConferenceBackend(
+    LiveKitConfig(url=<span class="st">"wss://my-project.livekit.cloud"</span>)  <span class="cm"># key and secret from env</span>
+)</code></pre>
+
+            <p>And the whole meeting-assistant loop &mdash; speech in, transcription, LLM, voice out &mdash; is just attaching an <code>AIChannel</code> to the same room. No conference-specific wiring:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit.channels.ai <span class="kw">import</span> AIChannel
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider, AnthropicConfig
+
+conference = ConferenceChannel(<span class="st">"conf"</span>, backend=backend, stt=stt, tts=tts)
+ai = AIChannel(
+    <span class="st">"ai"</span>,
+    provider=AnthropicAIProvider(AnthropicConfig(api_key=...)),
+    system_prompt=<span class="st">"You are the meeting's voice assistant."</span>,
+)
+kit.register_channel(conference)
+kit.register_channel(ai)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"standup"</span>, <span class="st">"conf"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"standup"</span>, <span class="st">"ai"</span>)
+<span class="cm"># Done. Speak, and the bot answers on its own audio track.</span></code></pre>
+
+            <p>Prefer speech-to-speech over the STT&nbsp;&rarr;&nbsp;LLM&nbsp;&rarr;&nbsp;TTS pipeline? Configure a realtime provider instead. The conference mixes the participants' audio N&rarr;1 for the provider (with 1/&radic;k headroom, in 20&thinsp;ms windows), holds one provider session per conference, and still runs per-track STT lanes beside it if you want an attributed transcript:</p>
+
+            <pre><code class="code-content"><span class="kw">from</span> roomkit <span class="kw">import</span> ConferenceRealtimeConfig
+<span class="kw">from</span> roomkit.providers.gemini <span class="kw">import</span> GeminiLiveProvider
+
+conference = ConferenceChannel(
+    <span class="st">"conf"</span>,
+    backend=backend,
+    realtime=ConferenceRealtimeConfig(
+        provider=GeminiLiveProvider(api_key=...),
+        system_prompt=<span class="st">"You are the meeting's voice assistant."</span>,
+    ),
+    stt=stt,  <span class="cm"># optional but recommended: the attributed transcript</span>
+)</code></pre>
+
+            <h2>Mechanics Worth Knowing</h2>
+
+            <p><strong>The lazy join.</strong> The bot does not join the SFU room on attach. It joins when there is a reason to: a <code>mint_access()</code> call (the framework's own advance notice that a human is about to connect &mdash; by the time the tab opens, the bot is on the participant list), an occupancy probe at attach (for a channel restarted mid-meeting), or an event that needs delivery. And with no needs configured at all &mdash; no STT, no TTS, no recording &mdash; the bot never joins: a bot kept in a meeting only to watch it is exactly the silent observer the RFC's disclosure rules exist to surface, and RoomKit does not offer that as a mode.</p>
+
+            <p><strong>Hot-plugging intelligence.</strong> Needs can change mid-meeting: <code>plug_stt()</code>, <code>plug_tts()</code>, <code>plug_recording()</code>, <code>plug_realtime()</code> and their <code>unplug_*</code> counterparts. Plugging STT into a running meeting retroactively subscribes the tracks already published; unplugging the last need takes the bot out of the room.</p>
+
+            <p><strong>The asymmetry of visibility.</strong> A bot can start as a hidden observer (<code>ConferenceGrants.observer()</code>) &mdash; the event bridge without the listening &mdash; and be made visible mid-meeting:</p>
+
+            <pre><code class="code-content"><span class="cm"># Mid-meeting, the host starts the notetaker, and policy says: visible.</span>
+<span class="kw">await</span> kit.unmute(room_id, <span class="st">"conf"</span>)  <span class="cm"># collection opens</span>
+<span class="kw">await</span> conference.set_bot_grants(ConferenceGrants.for_bot(listens=<span class="kw">True</span>))</code></pre>
+
+            <p>Hidden&nbsp;&rarr;&nbsp;visible happens in place: the SFU announces the bot to already-connected clients. But no SFU interface can <em>un-tell</em> them &mdash; so a visible&nbsp;&rarr;&nbsp;hidden change always replaces the session, because the announced leave is the only retraction every backend delivers.</p>
+
+            <p><strong>Lanes.</strong> Each subscribed audio track gets its own lane &mdash; a bounded queue and task running <code>frames &rarr; [Resampler] &rarr; [AGC] &rarr; [Denoiser] &rarr; VAD &rarr; STT</code>. One utterance becomes one RoomEvent, attributed by track identity. Queues are bounded at about two seconds of audio; at saturation the oldest frame is dropped and counted, never silently.</p>
+
+            <h2>Running LiveKit Locally</h2>
+
+            <p>The whole thing develops against a local LiveKit in Docker. Two details cost an afternoon to discover, so here they are for free. First, the config &mdash; one UDP port instead of the default 50000&ndash;60000 range, which macOS publishes very slowly:</p>
+
+            <pre><code class="code-content">port: 7880
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  node_ip: 127.0.0.1
+  use_external_ip: false</code></pre>
+
+            <pre><code class="code-content">docker run --rm -p 7880:7880 -p 7881:7881 -p 7882:7882/udp \
+    -e LIVEKIT_CONFIG=<span class="st">"$(cat livekit.yaml)"</span> \
+    livekit/livekit-server --dev --bind 0.0.0.0</code></pre>
+
+            <p>Second, the <code>--bind 0.0.0.0</code>: LiveKit's <code>--dev</code> mode binds to loopback <em>inside</em> the container, where a published port cannot reach it &mdash; and the advertised ICE candidate has to be an address on the host side of the NAT, not the container's.</p>
+
+            <h2>Limits, Honestly</h2>
+
+            <ul>
+                <li><strong>One worker per conference.</strong> The one-room-one-conference reservation is enforced by a single RoomKit instance; multi-worker coordination over a shared store is not yet a contract.</li>
+                <li><strong>Audio only.</strong> No vision on conference video tracks, no bot-published video, no video egress recording &mdash; yet.</li>
+                <li><strong>E2EE and intelligence are mutually exclusive.</strong> <code>e2ee=True</code> combined with STT or recording is refused at construction &mdash; a bot that can read encrypted media would be lying about the encryption.</li>
+                <li><strong>Recording consent is yours.</strong> The framework provides the <code>ON_RECORDING_STARTED</code> consent point; consent flows and encryption at rest are the integrator's responsibility today.</li>
+                <li><strong>Capabilities report what is wired, not what LiveKit sells.</strong> Remote unmute and SIP dial-in are declared only where the deployment actually supports them.</li>
+            </ul>
+
+            <h2>Getting Started</h2>
+
+            <pre><code class="code-content">pip install roomkit[livekit]
+
+LIVEKIT_URL=wss://my-project.livekit.cloud \
+LIVEKIT_API_KEY=... \
+LIVEKIT_API_SECRET=... \
+python your_conference.py</code></pre>
+
+            <p>The <a href="/docs/guides/conference/">conference guide</a> walks through the full lifecycle &mdash; admission, moderation, recording, resilience &mdash; and the <a href="/docs/roomkit-rfc/">RFC</a> (&sect;12.10) is the normative spec; the LiveKit backend implements it at conformance Level 3. The <code>MockConferenceBackend</code> means your integration tests never need an SFU. This is the first release of the conference channel &mdash; if you put an agent in a real meeting with it, we'd love to hear what happens.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
