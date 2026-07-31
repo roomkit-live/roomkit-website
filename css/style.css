@@ -1099,6 +1099,70 @@ code {
 }
 
 /* ========================================
+   Conference Section
+   ======================================== */
+
+.conference-section {
+    padding: var(--space-3xl) 0;
+    background: var(--color-bg-secondary);
+}
+
+.conference-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+}
+
+.conference-text h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: var(--space-md) 0;
+}
+
+.conference-text p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-lg);
+}
+
+.conference-features {
+    list-style: none;
+    margin-bottom: var(--space-xl);
+}
+
+.conference-features li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    color: var(--color-text-secondary);
+}
+
+.conference-features svg {
+    width: 20px;
+    height: 20px;
+    color: #34d399;
+    flex-shrink: 0;
+}
+
+.badge-conference {
+    background: rgba(6, 182, 212, 0.15);
+    color: #22d3ee;
+    border-color: rgba(6, 182, 212, 0.25);
+}
+
+.conference-text .btn + .btn {
+    margin-left: var(--space-sm);
+}
+
+@media (max-width: 1024px) {
+    .conference-content {
+        grid-template-columns: 1fr;
+        gap: var(--space-2xl);
+    }
+}
+
+/* ========================================
    CTA Section
    ======================================== */
 

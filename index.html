@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoomKit - Multi-Channel Conversation Framework for Python | SMS, Email, Voice, AI, WebSocket</title>
-    <meta name="description" content="Open-source Python framework for building multi-channel conversation systems with voice AI, video AI, and multi-agent orchestration. Unify SMS, Email, WhatsApp, Teams, Messenger, Voice, Video, AI, and WebSocket into room-based experiences. 4 orchestration strategies, composable guardrails, and pluggable memory.">
-    <meta name="keywords" content="python conversation framework, multi-channel messaging, SMS API, chatbot framework, async python, pydantic, AI chatbot, websocket chat, python chat library, MCP server, microsoft teams bot, whatsapp api, facebook messenger, voice AI, multi-agent, orchestration">
+    <meta name="description" content="Open-source Python framework for building multi-channel conversation systems with voice AI, video AI, multi-party conferences, and multi-agent orchestration. Unify SMS, RCS, Email, WhatsApp, Messenger, Teams, Telegram, Discord, Buzz, Voice, Video, AI, and WebSocket into room-based experiences. 4 orchestration strategies, composable guardrails, and pluggable memory.">
+    <meta name="keywords" content="python conversation framework, multi-channel messaging, SMS API, chatbot framework, async python, pydantic, AI chatbot, websocket chat, python chat library, MCP server, microsoft teams bot, whatsapp api, facebook messenger, discord bot, telegram bot, voice AI, livekit sfu, conference bot, meeting assistant, nostr, multi-agent, orchestration">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.roomkit.live/">
 
     <!-- Open Graph -->
     <meta property="og:title" content="RoomKit - Multi-Channel Conversation Framework for Python">
-    <meta property="og:description" content="Build sophisticated conversation systems with SMS, Email, WhatsApp, Teams, Messenger, Voice, AI, and more. Open-source, async-first, type-safe.">
-    <meta property="og:image" content="https://www.roomkit.live/og-image.svg">
+    <meta property="og:description" content="Build sophisticated conversation systems with SMS, Email, WhatsApp, Teams, Messenger, Discord, Voice, Conferences, AI, and more. Open-source, async-first, type-safe.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.png">
     <meta property="og:url" content="https://www.roomkit.live/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="RoomKit">
@@ -21,8 +21,8 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="RoomKit - Multi-Channel Conversation Framework">
-    <meta name="twitter:description" content="Python library for multi-channel conversations. SMS, Email, WhatsApp, Teams, Messenger, Voice, AI unified.">
-    <meta name="twitter:image" content="https://www.roomkit.live/og-image.svg">
+    <meta name="twitter:description" content="Python library for multi-channel conversations. SMS, Email, WhatsApp, Teams, Discord, Voice, Conferences, AI unified.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.png">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -46,7 +46,7 @@
             "price": "0",
             "priceCurrency": "USD"
         },
-        "description": "Open-source Python framework for multi-channel conversations. Unify SMS, Email, WhatsApp, Teams, Messenger, Voice, AI, and WebSocket into room-based experiences.",
+        "description": "Open-source Python framework for multi-channel conversations. Unify SMS, Email, WhatsApp, Teams, Messenger, Telegram, Discord, Voice, Conferences, AI, and WebSocket into room-based experiences.",
         "url": "https://www.roomkit.live/",
         "author": {
             "@type": "Person",
@@ -281,7 +281,7 @@ room = <span class="kw">await</span> kit.create_room()
                         </svg>
                     </div>
                     <h3>Room-Based Architecture</h3>
-                    <p>Organize conversations into rooms with participants, events, and channel bindings. Each room is a self-contained conversation context.</p>
+                    <p>Organize conversations into rooms with participants, events, and channel bindings. Message threading, join/leave membership, and read markers built in.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -292,7 +292,7 @@ room = <span class="kw">await</span> kit.create_room()
                         </svg>
                     </div>
                     <h3>Multi-Channel Support</h3>
-                    <p>SMS, Email, WhatsApp, Teams, Messenger, Voice, Video, WebSocket, AI, and more. Messages flow seamlessly between channels with automatic transcoding.</p>
+                    <p>SMS, Email, WhatsApp, Teams, Messenger, Telegram, Discord, Buzz, Voice, Video, Conferences, WebSocket, AI &mdash; 22 channel types. Messages flow seamlessly between channels with automatic transcoding.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -311,7 +311,7 @@ room = <span class="kw">await</span> kit.create_room()
                         </svg>
                     </div>
                     <h3>Powerful Hook System</h3>
-                    <p>40+ hook triggers to intercept, modify, or block events at any point. Build content moderation, analytics, AI routing, and more with sync and async hooks.</p>
+                    <p>76 hook triggers to intercept, modify, or block events at any point. Build content moderation, analytics, AI routing, and more with sync and async hooks.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -344,7 +344,7 @@ room = <span class="kw">await</span> kit.create_room()
                         </svg>
                     </div>
                     <h3>Real-Time Voice</h3>
-                    <p>5 voice backends (FastRTC, SIP, RTP, Twilio WebSocket, Local Audio). Full audio pipeline with AEC, AGC, Denoiser, VAD, DTMF, and Diarization. STT/TTS or speech-to-speech with Gemini Live, OpenAI Realtime, and ElevenLabs.</p>
+                    <p>7 voice backends (WebRTC, SIP, RTP, Twilio WebSocket, WebTransport, Buzz Huddles, Local Audio). Full audio pipeline with AEC, AGC, Denoiser, VAD, DTMF, and Diarization. STT/TTS or speech-to-speech with Gemini Live, OpenAI Realtime, Grok, and ElevenLabs.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -362,7 +362,7 @@ room = <span class="kw">await</span> kit.create_room()
                         </svg>
                     </div>
                     <h3>Production Resilience</h3>
-                    <p>Circuit breakers isolate failing providers. Rate limiting with token buckets. Retry with exponential backoff. Chain depth limits prevent infinite loops.</p>
+                    <p>Circuit breakers isolate failing providers. Rate limiting with token buckets. Retry with exponential backoff. Chain depth limits prevent infinite loops. PII stays out of logs by default.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -382,7 +382,7 @@ room = <span class="kw">await</span> kit.create_room()
                         </svg>
                     </div>
                     <h3>AI Reasoning & Tools</h3>
-                    <p>Tool protocol objects bundle definition and handler. AI thinking with Claude and DeepSeek-R1. Planning tools, dangling tool recovery, large output eviction, and streaming tool loops.</p>
+                    <p>Tool protocol objects bundle definition and handler. Reasoning surfaced across Claude, Gemini, OpenAI, Mistral, and local models. Tool Search scales agents past hundreds of tools. Streaming tool loops with dangling tool recovery.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -458,7 +458,7 @@ room = <span class="kw">await</span> kit.create_room()
                                 <span class="code-filename">pipeline.py</span>
                             </div>
                             <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, Agent, Pipeline
-<span class="kw">from</span> roomkit.providers.anthropic.ai <span class="kw">import</span> AnthropicAIProvider
+<span class="kw">from</span> roomkit.providers.anthropic <span class="kw">import</span> AnthropicAIProvider
 
 triage = Agent(<span class="st">"triage"</span>, provider=ai,
     role=<span class="st">"Classify the customer's intent"</span>,
@@ -668,21 +668,21 @@ kit = RoomKit(
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg>
                     </div>
                     <strong class="channel-name">AI</strong>
-                    <span>Anthropic, OpenAI, Gemini, Mistral, xAI</span>
+                    <span>Anthropic, OpenAI, Gemini, Mistral, xAI, Ollama, and more</span>
                 </div>
                 <div class="channel-card">
                     <div class="channel-icon voice">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                     </div>
                     <strong class="channel-name">Voice</strong>
-                    <span>SIP, FastRTC, RTP, Twilio WS, Local</span>
+                    <span>SIP, WebRTC, RTP, Twilio WS, WebTransport, Local</span>
                 </div>
                 <div class="channel-card">
                     <div class="channel-icon voice">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h2l3-9 4 18 4-18 3 9h2"/><circle cx="19" cy="12" r="2"/></svg>
                     </div>
                     <strong class="channel-name">Realtime Voice</strong>
-                    <span>Gemini Live, OpenAI, ElevenLabs</span>
+                    <span>Gemini Live, OpenAI, Grok, ElevenLabs</span>
                 </div>
                 <div class="channel-card">
                     <div class="channel-icon video">
@@ -697,6 +697,41 @@ kit = RoomKit(
                     </div>
                     <strong class="channel-name">AudioVideo</strong>
                     <span>Combined A/V with recording</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon discord" style="background: linear-gradient(135deg, #5865f2, #404eed);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M7.5 7.2A9 9 0 0 1 12 6a9 9 0 0 1 4.5 1.2M6 17c1.8 1.3 3.8 2 6 2s4.2-.7 6-2"/><path d="M15.5 17.5L17 20l3-1.5c-.5-4-1.5-8-3.5-11.5L14 6M8.5 17.5L7 20l-3-1.5c.5-4 1.5-8 3.5-11.5L10 6"/></svg>
+                    </div>
+                    <strong class="channel-name">Discord</strong>
+                    <span>Gateway + REST</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon buzz" style="background: linear-gradient(135deg, #facc15, #ca8a04);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <strong class="channel-name">Buzz</strong>
+                    <span>Nostr relay, huddles</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon conference" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M12 1a3 3 0 0 0-3 3"/></svg>
+                    </div>
+                    <strong class="channel-name">Conference</strong>
+                    <span>External SFU: LiveKit</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon acp" style="background: linear-gradient(135deg, #14b8a6, #0d9488);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                    </div>
+                    <strong class="channel-name">ACP</strong>
+                    <span>External coding agents</span>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon cli" style="background: linear-gradient(135deg, #64748b, #334155);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                    </div>
+                    <strong class="channel-name">CLI</strong>
+                    <span>Terminal, Rich markdown</span>
                 </div>
                 <div class="channel-card">
                     <div class="channel-icon custom">
@@ -1011,6 +1046,76 @@ agent = Agent(
                         </li>
                     </ul>
                     <a href="https://github.com/roomkit-live/roomkit-sandbox" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conference Section -->
+    <section class="conference-section">
+        <div class="container">
+            <div class="conference-content">
+                <div class="conference-text">
+                    <span class="badge badge-conference">External SFU</span>
+                    <h2>Meetings, with an Agent in the Room</h2>
+                    <p>
+                        Multi-party conferences on an external SFU &mdash; LiveKit first. Humans connect directly
+                        to the SFU; RoomKit joins as a bot participant to transcribe, answer, and moderate.
+                        It never sits in the media path.
+                    </p>
+                    <ul class="conference-features">
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>One track per speaker &mdash; attributed transcripts, no diarization</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>STT &rarr; LLM &rarr; TTS or speech-to-speech, hot-pluggable mid-meeting</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Admission, moderation, recording, and resilience built in</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Mock backend: test the whole flow without an SFU</span>
+                        </li>
+                    </ul>
+                    <a href="/blog/multi-party-conferences-livekit/" class="btn btn-primary">Read the Announcement</a>
+                    <a href="/docs/guides/conference/" class="btn btn-secondary">Conference Guide</a>
+                </div>
+                <div class="conference-code">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-dots"><span></span><span></span><span></span></div>
+                            <span class="code-filename">meeting_agent.py</span>
+                        </div>
+                        <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> (
+    LiveKitConferenceBackend,
+    LiveKitConfig,
+    RoomKit,
+)
+<span class="kw">from</span> roomkit.channels.conference <span class="kw">import</span> ConferenceChannel
+
+kit = RoomKit()
+conference = ConferenceChannel(
+    <span class="st">"conf"</span>,
+    backend=LiveKitConferenceBackend(
+        LiveKitConfig(url=<span class="st">"wss://my.livekit.cloud"</span>),
+    ),
+    stt=stt,
+    tts=tts,
+)
+kit.register_channel(conference)
+<span class="kw">await</span> kit.create_room(<span class="st">"standup"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"standup"</span>, <span class="st">"conf"</span>)
+
+<span class="cm"># Humans connect to the SFU directly.</span>
+access = <span class="kw">await</span> conference.mint_access(<span class="st">"standup"</span>, <span class="st">"alice"</span>)
+
+<span class="cm"># The bot joins, transcribes every track, and</span>
+<span class="cm"># answers on its own voice track.</span></code></pre>
+                    </div>
                 </div>
             </div>
         </div>
