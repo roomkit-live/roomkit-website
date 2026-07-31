@@ -250,7 +250,7 @@ BUZZ_CHANNEL_ID=&lt;channel-uuid&gt; \
 GOOGLE_API_KEY=... \
 python examples/buzz_voice_agent.py</code></pre>
 
-            <p>Use RoomKit 0.37.1 or later &mdash; it raises the floor to buzzkit 0.1.4, which runs all WebSocket I/O on a dedicated thread and drops late audio frames instead of bursting them, curing choppy huddle audio under event-loop load.</p>
+            <p>Use RoomKit 0.37.1 or later &mdash; it raises the floor to buzzkit 0.1.4, which runs all WebSocket I/O on a dedicated thread and drops late audio frames instead of bursting them, curing choppy huddle audio under event-loop load. buzzkit itself is at <strong>0.2.1</strong> today, adding the full message lifecycle client-side &mdash; replies, reactions, edits, deletes &mdash; plus NIP-38 user status; a plain <code>pip install roomkit[buzz]</code> picks it up.</p>
 
             <p>The <a href="/docs/guides/buzz/">Buzz guide</a> covers the full configuration surface, and <code>examples/buzz_bot.py</code> and <code>examples/buzz_voice_agent.py</code> in the <a href="https://github.com/roomkit-live/roomkit" target="_blank" rel="noopener">repository</a> are complete, runnable programs. If you try it against your own community, we'd love to hear how it goes.</p>
 
