@@ -19,7 +19,7 @@ K8S_HOST   := root@192.168.50.6
 NAMESPACE  := roomkit
 BUILD_DIR  := .build
 
-WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg robots.txt sitemap.xml css js blog roomkit-ui
+WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg og-image.png robots.txt sitemap.xml css js blog roomkit-ui
 
 .PHONY: gather build deploy full clean status logs
 
@@ -49,6 +49,9 @@ gather:
 
 	# RFC spec from roomkit-specs
 	cp    ../roomkit-specs/roomkit-rfc.md $(BUILD_DIR)/docs/roomkit-rfc.md
+
+	# Refresh homepage facts (version, counts, latest posts) from ../roomkit
+	python3 scripts/refresh-facts.py
 
 	# Regenerate sitemap.xml from blog/ directory
 	bash scripts/generate-sitemap.sh

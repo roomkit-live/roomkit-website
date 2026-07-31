@@ -28,9 +28,6 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 
     <!-- Structured Data -->
@@ -97,6 +94,10 @@
         <div class="hero-bg"></div>
         <div class="container">
             <div class="hero-content">
+                <a class="hero-version" href="https://github.com/roomkit-live/roomkit/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
+                    <span class="hero-version-dot"></span>
+                    <span>v<span data-fact="version">0.38.0</span> &middot; Beta &middot; Python 3.12+ &middot; MIT</span>
+                </a>
                 <h1 class="hero-title">
                     Multi-Channel Conversations,<br>
                     <span class="gradient-text">Simplified.</span>
@@ -136,32 +137,35 @@
                 </div>
             </div>
             <div class="hero-code">
-                <div class="code-window">
+                <div class="code-window room-demo">
                     <div class="code-header">
-                        <div class="code-dots">
-                            <span></span><span></span><span></span>
-                        </div>
-                        <span class="code-filename">example.py</span>
+                        <div class="code-dots"><span></span><span></span><span></span></div>
+                        <span class="code-filename">room: support-4821</span>
+                        <span class="room-live"><span class="room-live-dot"></span>live</span>
                     </div>
-                    <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> RoomKit, Agent, Pipeline
-<span class="kw">from</span> roomkit <span class="kw">import</span> WebSocketChannel, VoiceChannel
-
-kit = RoomKit(
-    orchestration=Pipeline(agents=[triage, support]),
-)
-
-<span class="cm"># Register channels</span>
-kit.register_channel(WebSocketChannel(<span class="st">"web"</span>))
-kit.register_channel(VoiceChannel(<span class="st">"voice"</span>, stt=stt, tts=tts))
-
-<span class="cm"># Create a room and attach channels</span>
-room = <span class="kw">await</span> kit.create_room()
-<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"web"</span>)
-<span class="kw">await</span> kit.attach_channel(room.id, <span class="st">"voice"</span>)
-
-<span class="cm"># Messages flow through hooks, get stored,</span>
-<span class="cm"># and broadcast to all attached channels</span></code></pre>
+                    <div class="room-demo-events" aria-hidden="true">
+                        <div class="room-event"><span class="ev-tag ev-sms">sms</span><span class="ev-body">+1 514 &bull;&bull;&bull; 4821 &mdash; &ldquo;My order says delivered, but nothing arrived.&rdquo;</span></div>
+                        <div class="room-event ev-meta"><span class="ev-tag ev-hook">hook</span><span class="ev-body">BEFORE_BROADCAST &#10003; guardrails passed</span></div>
+                        <div class="room-event"><span class="ev-tag ev-ai">ai</span><span class="ev-body">&ldquo;Sorry about that &mdash; I&rsquo;m looking at order #18294 right now.&rdquo;</span></div>
+                        <div class="room-event ev-meta"><span class="ev-tag ev-voice">voice</span><span class="ev-body">caller joined the room &middot; SIP</span></div>
+                        <div class="room-event"><span class="ev-tag ev-stt">stt</span><span class="ev-body">&ldquo;Hi, yes &mdash; I&rsquo;d rather sort this out by phone.&rdquo;</span></div>
+                        <div class="room-event"><span class="ev-tag ev-tts">tts</span><span class="ev-body">agent answers in voice &mdash; same room, same context</span></div>
+                        <div class="room-event ev-meta"><span class="ev-tag ev-cast">broadcast</span><span class="ev-body">&rarr; sms &middot; voice &middot; websocket</span></div>
+                    </div>
+                    <div class="room-demo-caption">One conversation. Three channels. Zero glue code.</div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Strip -->
+    <section class="stats-strip" aria-label="RoomKit in numbers">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat"><span class="stat-value" data-fact="channel-types">23</span><span class="stat-label">channel types</span></div>
+                <div class="stat"><span class="stat-value" data-fact="hook-triggers">76</span><span class="stat-label">hook triggers</span></div>
+                <div class="stat"><span class="stat-value" data-fact="tests">6,637</span><span class="stat-label">tests</span></div>
+                <div class="stat"><span class="stat-value">1</span><span class="stat-label">core dependency</span></div>
             </div>
         </div>
     </section>
@@ -170,6 +174,7 @@ room = <span class="kw">await</span> kit.create_room()
     <section class="why-section">
         <div class="container">
             <div class="section-header">
+                <div class="section-mark mark-1" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
                 <h2 class="section-title">Why RoomKit?</h2>
                 <p class="section-description">
                     Building conversation systems today is harder than it should be.
@@ -263,10 +268,132 @@ room = <span class="kw">await</span> kit.create_room()
         </div>
     </section>
 
+    <!-- Voice Section -->
+    <section class="voice-section">
+        <div class="container">
+            <div class="voice-content">
+                <div class="voice-text">
+                    <span class="badge badge-voice">Realtime Voice</span>
+                    <h2>Voice That Holds Up</h2>
+                    <p>
+                        Speech is unforgiving: every dropped frame is audible. RoomKit ships a complete
+                        audio pipeline and seven transports, tuned with measurements rather than adjectives.
+                    </p>
+                    <ul class="voice-features">
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Echo cancellation measured at &minus;21 to &minus;32 dB in the first second, zero underruns over a full session</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Packet-loss concealment, comfort noise, and adaptive playout on SIP</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Barge-in and turn detection &mdash; callers can interrupt the agent mid-sentence</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>STT/TTS pipeline or speech-to-speech &mdash; swap providers, keep the room</span>
+                        </li>
+                    </ul>
+                    <a href="/blog/roomkit-speaks-sip/" class="btn btn-primary">How the SIP stack works</a>
+                </div>
+                <div class="voice-visual">
+                    <div class="pipeline-card">
+                        <div class="pipeline-title">Audio pipeline</div>
+                        <div class="pipeline-chips">
+                            <span>Mic</span><i>&rarr;</i><span>AEC</span><i>&rarr;</i><span>AGC</span><i>&rarr;</i><span>Denoise</span><i>&rarr;</i><span>VAD</span><i>&rarr;</i><span>STT</span>
+                        </div>
+                        <div class="pipeline-title">Transports</div>
+                        <div class="transport-chips">
+                            <span>SIP</span><span>WebRTC</span><span>RTP</span><span>Twilio</span><span>WebTransport</span><span>Buzz Huddles</span><span>Local</span>
+                        </div>
+                        <div class="pipeline-title">Speech-to-speech</div>
+                        <div class="transport-chips">
+                            <span>Gemini Live</span><span>OpenAI Realtime</span><span>Grok</span><span>ElevenLabs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conference Section -->
+    <section class="conference-section">
+        <div class="container">
+            <div class="conference-content">
+                <div class="conference-text">
+                    <span class="badge badge-conference">External SFU</span>
+                    <h2>Meetings, with an Agent in the Room</h2>
+                    <p>
+                        Multi-party conferences on an external SFU &mdash; LiveKit first. Humans connect directly
+                        to the SFU; RoomKit joins as a bot participant to transcribe, answer, and moderate.
+                        It never sits in the media path.
+                    </p>
+                    <ul class="conference-features">
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>One track per speaker &mdash; attributed transcripts, no diarization</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>STT &rarr; LLM &rarr; TTS or speech-to-speech, hot-pluggable mid-meeting</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Admission, moderation, recording, and resilience built in</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            <span>Mock backend: test the whole flow without an SFU</span>
+                        </li>
+                    </ul>
+                    <a href="/blog/multi-party-conferences-livekit/" class="btn btn-primary">Read the Announcement</a>
+                    <a href="/docs/guides/conference/" class="btn btn-secondary">Conference Guide</a>
+                </div>
+                <div class="conference-code">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-dots"><span></span><span></span><span></span></div>
+                            <span class="code-filename">meeting_agent.py</span>
+                        </div>
+                        <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> (
+    LiveKitConferenceBackend,
+    LiveKitConfig,
+    RoomKit,
+)
+<span class="kw">from</span> roomkit.channels.conference <span class="kw">import</span> ConferenceChannel
+
+kit = RoomKit()
+conference = ConferenceChannel(
+    <span class="st">"conf"</span>,
+    backend=LiveKitConferenceBackend(
+        LiveKitConfig(url=<span class="st">"wss://my.livekit.cloud"</span>),
+    ),
+    stt=stt,
+    tts=tts,
+)
+kit.register_channel(conference)
+<span class="kw">await</span> kit.create_room(<span class="st">"standup"</span>)
+<span class="kw">await</span> kit.attach_channel(<span class="st">"standup"</span>, <span class="st">"conf"</span>)
+
+<span class="cm"># Humans connect to the SFU directly.</span>
+access = <span class="kw">await</span> conference.mint_access(<span class="st">"standup"</span>, <span class="st">"alice"</span>)
+
+<span class="cm"># The bot joins, transcribes every track, and</span>
+<span class="cm"># answers on its own voice track.</span></code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section class="features">
         <div class="container">
             <div class="section-header">
+                <div class="section-mark mark-2" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
                 <h2 class="section-title">Everything You Need</h2>
                 <p class="section-description">
                     A complete framework for building conversation systems at any scale.
@@ -292,7 +419,7 @@ room = <span class="kw">await</span> kit.create_room()
                         </svg>
                     </div>
                     <h3>Multi-Channel Support</h3>
-                    <p>SMS, Email, WhatsApp, Teams, Messenger, Telegram, Discord, Buzz, Voice, Video, Conferences, WebSocket, AI &mdash; 22 channel types. Messages flow seamlessly between channels with automatic transcoding.</p>
+                    <p>SMS, Email, WhatsApp, Teams, Messenger, Telegram, Discord, Buzz, Voice, Video, Conferences, WebSocket, AI &mdash; <span data-fact="channel-types">23</span> channel types. Messages flow seamlessly between channels with automatic transcoding.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -404,6 +531,7 @@ room = <span class="kw">await</span> kit.create_room()
     <section class="orchestration-section">
         <div class="container">
             <div class="section-header">
+                <div class="section-mark mark-3" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
                 <h2 class="section-title">Multi-Agent Orchestration</h2>
                 <p class="section-description">
                     4 declarative strategies to wire agents into conversations. All work with live voice: audio stays connected through handoffs.
@@ -545,6 +673,7 @@ kit = RoomKit(
     <section class="guardrails-section">
         <div class="container">
             <div class="section-header">
+                <div class="section-mark mark-4" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
                 <h2 class="section-title">Composable Safety</h2>
                 <p class="section-description">
                     Layered guardrails that compose with your logic. Each layer is independent, optional, and hook-driven.
@@ -594,6 +723,7 @@ kit = RoomKit(
     <section class="channels">
         <div class="container">
             <div class="section-header">
+                <div class="section-mark mark-1" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
                 <h2 class="section-title">Connect Any Channel</h2>
                 <p class="section-description">
                     Built-in support for popular communication channels with easy extensibility.
@@ -748,6 +878,7 @@ kit = RoomKit(
     <section class="examples">
         <div class="container">
             <div class="section-header">
+                <div class="section-mark mark-2" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
                 <h2 class="section-title">Expressive API</h2>
                 <p class="section-description">
                     Clean, intuitive APIs that make complex operations simple.
@@ -908,215 +1039,91 @@ agent = Agent(
         </div>
     </section>
 
-    <!-- Graph Section -->
-    <section class="graph-section">
+    <!-- Ecosystem Section -->
+    <section class="ecosystem-section">
         <div class="container">
-            <div class="graph-content">
-                <div class="graph-text">
-                    <span class="badge badge-graph">Workflow Engine</span>
-                    <h2>Workflow Graphs</h2>
-                    <p>
-                        Define multi-step workflows as serializable directed graphs and run them inside RoomKit rooms.
-                        AI agents, human decisions, parallel execution, conditional branching — composed as data, not code.
-                    </p>
-                    <ul class="graph-features">
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Serializable graphs — JSON in, JSON out, build UIs</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Built-in nodes: agent, human, parallel, condition, function</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Human-in-the-loop — pause, persist, resume across processes</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Pluggable handlers — bring your own execution logic</span>
-                        </li>
-                    </ul>
-                    <a href="https://github.com/roomkit-live/roomkit-graph" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub</a>
-                </div>
-                <div class="graph-code">
-                    <div class="code-window">
-                        <div class="code-header">
-                            <div class="code-dots"><span></span><span></span><span></span></div>
-                            <span class="code-filename">workflow.py</span>
-                        </div>
-                        <pre class="code-content"><code><span class="kw">from</span> roomkit_graph <span class="kw">import</span> (
-    Graph, Node, Edge, Condition,
-    WorkflowEngine, WebhookTrigger,
-)
-
-graph = Graph(
-    id=<span class="st">"bug-triage"</span>,
-    trigger=WebhookTrigger(source_type=<span class="st">"github"</span>),
-)
-
-graph.add_nodes(
-    Node(<span class="st">"start"</span>, type=<span class="st">"start"</span>),
-    Node(<span class="st">"triage"</span>, type=<span class="st">"agent"</span>, config={
-        <span class="st">"agent_id"</span>: <span class="st">"triage-agent"</span>,
-    }),
-    Node(<span class="st">"escalate"</span>, type=<span class="st">"notification"</span>),
-    Node(<span class="st">"assign"</span>, type=<span class="st">"agent"</span>),
-    Node(<span class="st">"end"</span>, type=<span class="st">"end"</span>),
-)
-
-graph.add_edges(
-    Edge(<span class="st">"start"</span>, <span class="st">"triage"</span>),
-    Edge(<span class="st">"triage"</span>, <span class="st">"escalate"</span>,
-        condition=Condition.field(
-            <span class="st">"triage.output.severity"</span>
-        ).equals(<span class="st">"critical"</span>)),
-    Edge(<span class="st">"triage"</span>, <span class="st">"assign"</span>,
-        condition=Condition.otherwise()),
-    Edge(<span class="st">"escalate"</span>, <span class="st">"end"</span>),
-    Edge(<span class="st">"assign"</span>, <span class="st">"end"</span>),
-)
-
-<span class="cm"># Run to completion</span>
-ctx = <span class="kw">await</span> WorkflowEngine(graph).run()</code></pre>
-                    </div>
-                </div>
+            <div class="section-header">
+                <div class="section-mark mark-3" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                <h2 class="section-title">The RoomKit Family</h2>
+                <p class="section-description">
+                    One framework, and the toolbox that grew around it.
+                </p>
+            </div>
+            <div class="eco-grid">
+                <a class="eco-card" href="https://github.com/roomkit-live/roomkit-graph" target="_blank" rel="noopener">
+                    <h3>roomkit-graph</h3>
+                    <p>Workflow graphs that run inside rooms &mdash; agents, human decisions, branching. Serializable JSON in and out.</p>
+                    <span class="eco-link">GitHub &rarr;</span>
+                </a>
+                <a class="eco-card" href="https://github.com/roomkit-live/roomkit-sandbox" target="_blank" rel="noopener">
+                    <h3>roomkit-sandbox</h3>
+                    <p>Container-isolated command execution for agent tools. Docker, Kubernetes, or VM backends.</p>
+                    <span class="eco-link">GitHub &rarr;</span>
+                </a>
+                <a class="eco-card" href="/roomkit-ui/">
+                    <h3>roomkit-ui</h3>
+                    <p>A desktop voice assistant built on RoomKit and PySide6 &mdash; talk to Gemini, OpenAI, Claude, or local models.</p>
+                    <span class="eco-link">Learn more &rarr;</span>
+                </a>
+                <a class="eco-card" href="https://github.com/sboily/buzzkit" target="_blank" rel="noopener">
+                    <h3>buzzkit</h3>
+                    <p>Python client for Buzz, the Nostr team workspace. Rust cryptography core, pure-Python I/O.</p>
+                    <span class="eco-link">GitHub &rarr;</span>
+                </a>
+                <a class="eco-card" href="https://github.com/roomkit-live/roomkit-skills" target="_blank" rel="noopener">
+                    <h3>roomkit-skills</h3>
+                    <p>Teach Claude Code, Cursor, and friends how to build with RoomKit &mdash; installable agent skills.</p>
+                    <span class="eco-link">GitHub &rarr;</span>
+                </a>
+                <a class="eco-card" href="/docs/roomkit-rfc/">
+                    <h3>The RFC</h3>
+                    <p>The protocol behind it all: rooms, events, hooks, channel bindings &mdash; language-agnostic by design.</p>
+                    <span class="eco-link">Read the spec &rarr;</span>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Sandbox Section -->
-    <section class="sandbox-section">
+    <!-- Latest from the Blog -->
+    <section class="blog-latest">
         <div class="container">
-            <div class="sandbox-content">
-                <div class="sandbox-code">
-                    <div class="code-window">
-                        <div class="code-header">
-                            <div class="code-dots"><span></span><span></span><span></span></div>
-                            <span class="code-filename">sandbox_agent.py</span>
-                        </div>
-                        <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> Agent
-<span class="kw">from</span> roomkit_sandbox <span class="kw">import</span> ContainerSandboxExecutor
-<span class="kw">from</span> roomkit_sandbox.docker_backend <span class="kw">import</span> (
-    DockerSandboxBackend,
-)
-
-agent = Agent(
-    name=<span class="st">"code-reviewer"</span>,
-    provider=anthropic.Anthropic(),
-    sandbox=ContainerSandboxExecutor(
-        backend=DockerSandboxBackend(
-            image=<span class="st">"ghcr.io/roomkit-live/sandbox:latest"</span>,
-            memory_limit=<span class="st">"512m"</span>,
-        ),
-        session_id=<span class="st">"review-session"</span>,
-        setup_commands=[
-            <span class="st">"git clone https://github.com/org/repo.git /workspace/repo"</span>,
-        ],
-    ),
-)
-
-<span class="cm"># Agent now has sandbox_read, sandbox_write,</span>
-<span class="cm"># sandbox_git, sandbox_bash, and 6 more tools.</span></code></pre>
-                    </div>
-                </div>
-                <div class="sandbox-text">
-                    <span class="badge badge-sandbox">Sandbox Executor</span>
-                    <h2>Secure Agent Execution</h2>
-                    <p>
-                        Give AI agents isolated environments to read files, run git commands, and execute shell scripts.
-                        Three backends for three isolation levels: containers, pods, or VMs.
-                    </p>
-                    <ul class="sandbox-features">
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>10 built-in tools: read, write, edit, grep, git, bash, and more</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Docker, Kubernetes, and SmolBSD (VM) backends</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Token-optimized output via RTK (60-90% fewer tokens)</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Non-root execution, resource limits, automatic container reuse</span>
-                        </li>
-                    </ul>
-                    <a href="https://github.com/roomkit-live/roomkit-sandbox" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub</a>
-                </div>
+            <div class="section-header">
+                <div class="section-mark mark-4" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                <h2 class="section-title">Latest from the Blog</h2>
             </div>
-        </div>
-    </section>
-
-    <!-- Conference Section -->
-    <section class="conference-section">
-        <div class="container">
-            <div class="conference-content">
-                <div class="conference-text">
-                    <span class="badge badge-conference">External SFU</span>
-                    <h2>Meetings, with an Agent in the Room</h2>
-                    <p>
-                        Multi-party conferences on an external SFU &mdash; LiveKit first. Humans connect directly
-                        to the SFU; RoomKit joins as a bot participant to transcribe, answer, and moderate.
-                        It never sits in the media path.
-                    </p>
-                    <ul class="conference-features">
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>One track per speaker &mdash; attributed transcripts, no diarization</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>STT &rarr; LLM &rarr; TTS or speech-to-speech, hot-pluggable mid-meeting</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Admission, moderation, recording, and resilience built in</span>
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
-                            <span>Mock backend: test the whole flow without an SFU</span>
-                        </li>
-                    </ul>
-                    <a href="/blog/multi-party-conferences-livekit/" class="btn btn-primary">Read the Announcement</a>
-                    <a href="/docs/guides/conference/" class="btn btn-secondary">Conference Guide</a>
-                </div>
-                <div class="conference-code">
-                    <div class="code-window">
-                        <div class="code-header">
-                            <div class="code-dots"><span></span><span></span><span></span></div>
-                            <span class="code-filename">meeting_agent.py</span>
-                        </div>
-                        <pre class="code-content"><code><span class="kw">from</span> roomkit <span class="kw">import</span> (
-    LiveKitConferenceBackend,
-    LiveKitConfig,
-    RoomKit,
-)
-<span class="kw">from</span> roomkit.channels.conference <span class="kw">import</span> ConferenceChannel
-
-kit = RoomKit()
-conference = ConferenceChannel(
-    <span class="st">"conf"</span>,
-    backend=LiveKitConferenceBackend(
-        LiveKitConfig(url=<span class="st">"wss://my.livekit.cloud"</span>),
-    ),
-    stt=stt,
-    tts=tts,
-)
-kit.register_channel(conference)
-<span class="kw">await</span> kit.create_room(<span class="st">"standup"</span>)
-<span class="kw">await</span> kit.attach_channel(<span class="st">"standup"</span>, <span class="st">"conf"</span>)
-
-<span class="cm"># Humans connect to the SFU directly.</span>
-access = <span class="kw">await</span> conference.mint_access(<span class="st">"standup"</span>, <span class="st">"alice"</span>)
-
-<span class="cm"># The bot joins, transcribes every track, and</span>
-<span class="cm"># answers on its own voice track.</span></code></pre>
+            <div class="blog-grid">
+                <!-- latest-posts:start -->
+                <div class="blog-card">
+                    <h2><a href="/blog/multi-party-conferences-livekit/">Multi-Party Conferences: RoomKit on an External SFU with LiveKit</a></h2>
+                    <div class="blog-meta">
+                        <span>July 31, 2026</span>
+                        <span>&middot;</span>
+                        <span>10 min read</span>
                     </div>
+                    <a href="/blog/multi-party-conferences-livekit/" class="blog-read-more">Read more</a>
                 </div>
+                <div class="blog-card">
+                    <h2><a href="/blog/roomkit-meets-buzz/">RoomKit Meets Buzz: AI Agents in a Nostr Team Workspace</a></h2>
+                    <div class="blog-meta">
+                        <span>July 31, 2026</span>
+                        <span>&middot;</span>
+                        <span>9 min read</span>
+                    </div>
+                    <a href="/blog/roomkit-meets-buzz/" class="blog-read-more">Read more</a>
+                </div>
+                <div class="blog-card">
+                    <h2><a href="/blog/introducing-roomkit-sandbox/">Introducing roomkit-sandbox: Secure Sandboxed Execution for AI Agents</a></h2>
+                    <div class="blog-meta">
+                        <span>April 2, 2026</span>
+                        <span>&middot;</span>
+                        <span>6 min read</span>
+                    </div>
+                    <a href="/blog/introducing-roomkit-sandbox/" class="blog-read-more">Read more</a>
+                </div>
+                <!-- latest-posts:end -->
+            </div>
+            <div class="blog-latest-more">
+                <a href="/blog/" class="btn btn-secondary">All posts</a>
             </div>
         </div>
     </section>

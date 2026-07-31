@@ -114,3 +114,44 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+// Hero room demo: reveal events one by one, loop, respect reduced motion
+(function () {
+    const demo = document.querySelector('.room-demo-events');
+    if (!demo) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const events = Array.from(demo.children);
+    let timer = null;
+
+    function stop() {
+        if (timer) clearTimeout(timer);
+        timer = null;
+        demo.classList.remove('animated');
+        events.forEach((e) => e.classList.remove('shown'));
+    }
+
+    function run() {
+        demo.classList.add('animated');
+        let i = 0;
+        function next() {
+            if (i < events.length) {
+                events[i].classList.add('shown');
+                i += 1;
+                timer = setTimeout(next, 1100);
+            } else {
+                timer = setTimeout(() => {
+                    events.forEach((e) => e.classList.remove('shown'));
+                    i = 0;
+                    timer = setTimeout(next, 700);
+                }, 4200);
+            }
+        }
+        timer = setTimeout(next, 400);
+    }
+
+    if (!reduced.matches) run();
+    reduced.addEventListener('change', () => {
+        stop();
+        if (!reduced.matches) run();
+    });
+})();
