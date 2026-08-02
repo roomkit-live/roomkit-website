@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomKit vs. Unified Communications: Same Word, Different Object - RoomKit Blog</title>
+    <meta name="description" content="RoomKit unifies channels, so people keep asking if it's a Unified Communications platform. It isn't: UC unifies tools around a person; RoomKit unifies channels around a conversation. Here's why that changes everything.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.roomkit.live/blog/roomkit-vs-unified-communications/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="RoomKit vs. Unified Communications: Same Word, Different Object">
+    <meta property="og:description" content="UC unifies tools around a person. RoomKit unifies channels around a conversation. Same original intent, different object — and that changes the data model, the buyer, and the comparables.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.png">
+    <meta property="og:url" content="https://www.roomkit.live/blog/roomkit-vs-unified-communications/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="RoomKit">
+    <meta property="article:published_time" content="2026-08-01">
+    <meta property="article:author" content="Sylvain Boily">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RoomKit vs. Unified Communications: Same Word, Different Object">
+    <meta name="twitter:description" content="UC unifies tools around a person. RoomKit unifies channels around a conversation. Same original intent, different object — and that changes everything.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "RoomKit vs. Unified Communications: Same Word, Different Object",
+        "description": "RoomKit unifies channels, so people keep asking if it's a Unified Communications platform. It isn't: UC unifies tools around a person; RoomKit unifies channels around a conversation.",
+        "datePublished": "2026-08-01",
+        "author": {
+            "@type": "Person",
+            "name": "Sylvain Boily"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RoomKit",
+            "url": "https://www.roomkit.live"
+        },
+        "url": "https://www.roomkit.live/blog/roomkit-vs-unified-communications/",
+        "mainEntityOfPage": "https://www.roomkit.live/blog/roomkit-vs-unified-communications/"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                </svg>
+                <span>RoomKit</span>
+            </a>
+            <div class="nav-links">
+                <a href="/docs/" class="nav-link">Documentation</a>
+                <a href="/docs/features/" class="nav-link">Features</a>
+                <a href="/docs/mcp/" class="nav-link">MCP</a>
+                <a href="/docs/api/" class="nav-link">API Reference</a>
+                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
+                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
+                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/docs/" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="blog-article-header">
+        <div class="container">
+            <a href="/blog/" class="blog-back-link">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to blog
+            </a>
+            <h1>RoomKit vs. Unified Communications: Same Word, Different Object</h1>
+            <div class="blog-meta">
+                <span>August 1, 2026</span>
+                <span>&middot;</span>
+                <span>10 min read</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="blog-article">
+        <div class="container">
+
+            <p>Since RoomKit started attaching voice, SMS, email, WhatsApp, and video to the same conversation, one question keeps coming back &mdash; especially from people with a telecom background: <em>&ldquo;So&hellip; is this a Unified Communications platform?&rdquo;</em></p>
+
+            <p>It&rsquo;s a fair question. The word &ldquo;unified&rdquo; does a lot of work in both names, and I spent a good part of my career building open-source unified communications platforms, so I don&rsquo;t use the term loosely. The short answer is <strong>no, RoomKit is not Unified Communications</strong> &mdash; and the distinction is worth writing down carefully, because evaluating RoomKit with a UC checklist leads to the wrong comparisons and the wrong conclusions, in both directions.</p>
+
+            <p>The whole argument fits in two sentences:</p>
+
+            <blockquote>
+                <p><strong>Unified Communications unifies tools around a <em>person</em>. RoomKit unifies channels around a <em>conversation</em>.</strong></p>
+            </blockquote>
+
+            <p>Same original intent &mdash; stop the fragmentation of communication modes &mdash; applied to a different root object. And changing the root object changes everything downstream: the data model, the buyer, the delivery model, the business model, and who the honest comparables are.</p>
+
+            <h2>What Unified Communications Actually Is</h2>
+
+            <p>The canonical definition (TechTarget, in the Gartner tradition) is <a href="https://www.techtarget.com/searchunifiedcommunications/definition/unified-communications" target="_blank" rel="noopener">the integration of multiple enterprise communication tools</a> &mdash; telephony, video conferencing, instant messaging, presence, content sharing &mdash; <em>&ldquo;into a single, streamlined interface.&rdquo;</em> The older, broader framing from the 2000s says it plainly: integrated communications <em>&ldquo;to optimize business processes and increase user productivity.&rdquo;</em></p>
+
+            <p>Beyond definitions, a UC architect tests for a hard core of capabilities. These are the non-negotiable pillars:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pillar</th>
+                        <th>What it means</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Call control</strong></td>
+                        <td>PBX/IP-PBX, dial plan, transfer, hold, park, ring groups</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Presence</strong></td>
+                        <td>Real-time user status (available / busy / on a call), aggregated and published</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Real-time messaging</strong></td>
+                        <td>Persistent IM, team channels</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conferencing</strong></td>
+                        <td>Scheduled meetings, screen sharing, whiteboard</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Unified messaging</strong></td>
+                        <td>Voicemail-to-email, message waiting indicator, fax</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mobility</strong></td>
+                        <td>Twinning, softphone, call continuity across devices</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Directory &amp; provisioning</strong></td>
+                        <td>Employee identity, SSO, fleet administration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Operator obligations</strong></td>
+                        <td>E911, number portability, PSTN interconnection, SLAs</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Around that core, the market splits into a trio worth keeping straight:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Serves</th>
+                        <th>Object</th>
+                        <th>Examples</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>UCaaS</strong></td>
+                        <td>Employee &harr; employee</td>
+                        <td>Internal productivity</td>
+                        <td>Teams Phone, Zoom Phone, RingCentral, 8x8, Wazo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CCaaS</strong></td>
+                        <td>Business &harr; customer</td>
+                        <td>Customer experience: queues, agents, IVR</td>
+                        <td>Genesys, NICE, Five9</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CPaaS</strong></td>
+                        <td>Developers</td>
+                        <td>APIs/SDKs to embed communication in an app</td>
+                        <td>Twilio, Vonage, Sinch, Telnyx</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>One detail matters here: <strong>telephony is the marker that separates UCaaS from a mere collaboration platform.</strong> Teams and Zoom only became &ldquo;UCaaS&rdquo; in analysts&rsquo; eyes when they added call control and phone service. Keep that in mind for later.</p>
+
+            <h2>What RoomKit Actually Is</h2>
+
+            <p>RoomKit is an async Python library. <code>uv add roomkit</code>. There is no service behind it, no per-seat plan, no admin console, no operator, no user interface. It is an <code>import</code>.</p>
+
+            <p>Its central abstraction is the <strong>Room</strong> &mdash; a conversation container that owns participants (humans, AI agents, bots), attached channels split into two categories (<code>TRANSPORT</code> for SMS, email, WhatsApp, voice, WebSocket&hellip; and <code>INTELLIGENCE</code> for AI providers), a persisted event log, and bindings that map external identifiers &mdash; a phone number, an email address, a chat ID &mdash; to channels in that room. Every inbound message becomes an event, runs through a hook pipeline that can block, modify, or enrich it, gets persisted, and fans out to every attached channel with automatic content transcoding. AI responses re-enter the same pipeline, which is why there&rsquo;s a chain-depth guard against AI&#8596;AI loops.</p>
+
+            <p>And here is the honest inventory of what RoomKit does <em>not</em> have, and does not want: user presence, voicemail, dial plans, transfer/park/ring groups, screen sharing, whiteboards, calendars and scheduled meetings, a softphone or any end-user client, directory and fleet provisioning, inter-company federation, E911, an admin console. <a href="/blog/roomkit-speaks-sip/">SIP and RTP are in there</a> &mdash; but as <em>media transport</em>, not as <em>phone service</em>. RoomKit owns no network, no numbers, no PSTN interconnection: it consumes Twilio, Telnyx, SendGrid, and Meta as providers.</p>
+
+            <p>A UC platform <em>is</em> an operator. RoomKit is a conductor without instruments &mdash; you bring your own.</p>
+
+            <h2>Why the Confusion Is Legitimate</h2>
+
+            <p>I want to take the confusion seriously, because the overlap is real and larger than it first appears. Both UC and RoomKit promise to kill the silos between communication modes. Both keep a single thread of context when the conversation hops from one mode to another &mdash; in RoomKit, the room <em>is</em> the thread. Both unify a correspondent&rsquo;s identity across modes: UC with a directory and presence, RoomKit with pluggable identity resolution. Both put voice, messaging, and video under one abstraction, and both sit on the same WebRTC/SIP/RTP substrate.</p>
+
+            <p>The word &ldquo;unified&rdquo; is not usurped. There is even a deeper connection: the UC literature of the 2000s had a name for its ultimate ambition &mdash; <em>Communications-Enabled Business Processes</em> (CEBP), the idea that communication should be automated <em>inside</em> the business process instead of left to the user&rsquo;s manual initiative. The industry rarely delivered it. That undelivered part of the UC promise is exactly the square where RoomKit lives. In that precise sense, RoomKit is more faithful to the original UC thesis than most UC products are.</p>
+
+            <p>And yet it is not Unified Communications. Here is where it cuts.</p>
+
+            <h2>Seven Differences That Cut</h2>
+
+            <h3>1. A product vs. an import</h3>
+
+            <p>UC is a <em>service</em>: an interface, a per-seat price, an admin console, an SLA, and usually telecom-operator status with the regulatory duties that come with it (E911, number portability). RoomKit is a library you embed in your own system. Nobody sells you a seat; nobody answers for your emergency-call routing. That responsibility boundary alone puts the two in different industries.</p>
+
+            <h3>2. The root object: the user vs. the conversation</h3>
+
+            <p>This is the deepest difference, and the one everything else derives from. UC was born from an employee&rsquo;s problem: <em>&ldquo;I have five tools on my desk &mdash; unify them into one client.&rdquo;</em> So the root of the UC data model is the <strong>user</strong>: their presence state, their devices, their extension, their voicemail box. Everything hangs off the person.</p>
+
+            <p>RoomKit was born from a conversation&rsquo;s problem: <em>&ldquo;this customer texted me yesterday, is calling me today, and the AI needs to remember both.&rdquo;</em> So the root object is the <strong>room</strong>: channels and people attach to it, not the other way around. The consequence is concrete. Remove the user from a UC platform and nothing is left. In RoomKit, a room with no human in it &mdash; two AI agents negotiating with an external system, say &mdash; is a perfectly valid, even common, use case.</p>
+
+            <h3>3. Internal vs. external</h3>
+
+            <p>UCaaS serves intra-company communication, employee to employee, with the outside world as an extension. RoomKit explicitly targets business-to-customer conversation: contact centers, B2B2C messaging, omnichannel support, where voice is one touchpoint among many. On this axis RoomKit is much closer to CPaaS-plus-CCaaS than to UCaaS.</p>
+
+            <h3>4. AI: a feature vs. a participant</h3>
+
+            <p>In a 2026 UC platform, AI is a feature grafted onto the product: a meeting notetaker, call summaries, real-time coaching, a virtual receptionist. The architecture underneath is still the PBX, with AI wired to its output.</p>
+
+            <p>In RoomKit, AI is a <em>channel category</em> &mdash; <code>ChannelCategory.INTELLIGENCE</code> &mdash; attached to a room exactly like an SMS channel is. The AI is a peer in the conversation, not a plugin on the platform. That single design choice is why RoomKit has things no UC roadmap contains: declarative multi-agent orchestration with audio-preserving handoff, chain-depth limits, per-role tool policies, pluggable conversation memory strategies. It&rsquo;s an architectural inversion, not a feature gap.</p>
+
+            <h3>5. Conversation vs. collaboration</h3>
+
+            <p>Modern UC&amp;C is heavily a <em>collaboration</em> suite: scheduled meetings, screen sharing, whiteboards, file co-editing, calendars, persistent team spaces. RoomKit has none of that and isn&rsquo;t trying to. It does <em>conversation</em>. A CIO who evaluates RoomKit as a UC product will look for the calendar and the screen share, conclude the product is incomplete &mdash; and will simply have used the wrong grid.</p>
+
+            <h3>6. Peripheral APIs vs. a programmable core</h3>
+
+            <p>UC platforms expose APIs at the edges: click-to-call from the CRM, event webhooks. RoomKit exposes an extension contract at the heart of the pipeline: dozens of hook points that can block, rewrite, or enrich an event before it fans out, with the same middleware model covering an SMS spam filter and an <code>ON_SPEECH_START</code> voice trigger. It&rsquo;s the difference between <em>integrable</em> and <em>programmable</em>.</p>
+
+            <h3>7. The buyer and the business model</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Unified Communications</th>
+                        <th>RoomKit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Buyer</strong></td>
+                        <td>CIO, telecom manager</td>
+                        <td>Product / engineering team</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Unit of sale</strong></td>
+                        <td>Seat per month</td>
+                        <td>None &mdash; MIT open source</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deployment</strong></td>
+                        <td>Vendor&rsquo;s multi-tenant SaaS</td>
+                        <td>Self-hosted, inside your code</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Decision cycle</strong></td>
+                        <td>RFP, fleet migration</td>
+                        <td><code>uv add roomkit</code>, PoC in a day</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Regulatory duty</strong></td>
+                        <td>The vendor (E911, SLA, residency)</td>
+                        <td>You</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>The Six-Question Test</h2>
+
+            <p>A communications architect can settle the category question in six questions. Here is RoomKit&rsquo;s score:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>UC platform</th>
+                        <th>RoomKit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Does it sell seats to employees?</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Does it own call control, dial plans, E911?</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Is there real-time user presence?</td>
+                        <td>Yes</td>
+                        <td>No &mdash; <code>ParticipantStatus</code> is room state, not presence</td>
+                    </tr>
+                    <tr>
+                        <td>Is the root object the user?</td>
+                        <td>Yes</td>
+                        <td>No &mdash; it&rsquo;s the conversation</td>
+                    </tr>
+                    <tr>
+                        <td>Is the primary use employee &harr; employee?</td>
+                        <td>Yes</td>
+                        <td>No &mdash; business &harr; customer</td>
+                    </tr>
+                    <tr>
+                        <td>Is AI a grafted-on feature?</td>
+                        <td>Yes</td>
+                        <td>No &mdash; it&rsquo;s a participant</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Zero out of six</strong> on the strict criteria. The expert verdict is clean: this is not Unified Communications.</p>
+
+            <h2>The Honest Counterargument</h2>
+
+            <p>Some experts will still say &ldquo;it&rsquo;s the same thing,&rdquo; and the argument deserves to be taken seriously, because it&rsquo;s defensible on three grounds.</p>
+
+            <p><strong>Definition by intent.</strong> If you hold the historical definition &mdash; integrated communications to optimize business processes &mdash; RoomKit checks the box, arguably better than most UCaaS products do. An expert who defines UC by its purpose rather than its feature inventory will conclude there&rsquo;s a direct lineage. They&rsquo;re not wrong about the lineage.</p>
+
+            <p><strong>The 2026 convergence.</strong> The category walls are collapsing. UCaaS, CCaaS, and CPaaS are fusing &mdash; 8x8 calls it XCaaS; <a href="https://www.uctoday.com/productivity-automation/twilio-next-generation-platform-agentic-era-customer-engagement/" target="_blank" rel="noopener">Twilio pitches a platform for the &ldquo;agentic era&rdquo;</a> whose four new bricks &mdash; Conversation Memory, Conversation Orchestrator, Conversation Intelligence, Agent Connect &mdash; map almost one-to-one onto RoomKit&rsquo;s primitives. Twilio&rsquo;s CEO: <em>&ldquo;agents join conversations alongside the people they represent.&rdquo;</em> That is, word for word, RoomKit&rsquo;s thesis. When the world&rsquo;s largest CPaaS converges on your model, claiming to be in a fully disjoint category gets harder.</p>
+
+            <p><strong>They&rsquo;ll eventually meet.</strong> Nothing technically prevents building a UC product <em>on top of</em> RoomKit &mdash; the media primitives are there. The reverse is false: you can&rsquo;t build RoomKit on top of a UCaaS, because the UCaaS data model doesn&rsquo;t know the conversation as a first-class object. Asymmetric composability is usually a sign you&rsquo;re the lower, more general layer &mdash; not the same product.</p>
+
+            <p>So the honest synthesis is this:</p>
+
+            <blockquote>
+                <p>RoomKit is a modern, programmable, <strong>agent-native implementation of the original Unified Communications thesis</strong> &mdash; but it is not a Unified Communications product. Same thesis; different layer, different user, different era.</p>
+            </blockquote>
+
+            <h2>Complementary, Not Competing</h2>
+
+            <p>Why insist on the distinction? Because the confusion costs something real, in both directions.</p>
+
+            <p>Tell a CIO &ldquo;unified communications&rdquo; and you trigger the Teams / Zoom / 8x8 reading grid. They will ask where the softphone is, the video client, the calendar, the dial plan &mdash; and disqualify RoomKit for lacking functions it never intended to ship, while comparing it against products it doesn&rsquo;t substitute for. The right comparables are <a href="/blog/choosing-the-right-conversational-ai-framework/">Twilio&rsquo;s conversation stack, LiveKit Agents, Pipecat</a> &mdash; not UCaaS suites.</p>
+
+            <p>The deeper point: <strong>RoomKit and a UC platform are complementary, not substitutable.</strong> Your PBX doesn&rsquo;t go away &mdash; it becomes a SIP channel attached to a room, one leg of a conversation that also spans SMS, email, and an AI agent. RoomKit sits <em>above</em> unified communications, consuming it as a channel, not <em>in front of it</em> as a rival.</p>
+
+            <p>So if you ever need the one-paragraph answer when someone conflates the two, here it is:</p>
+
+            <blockquote>
+                <p>&ldquo;Unified Communications unifies tools around an employee. We unify channels around a customer conversation &mdash; and the AI in it is a participant, not a feature. We don&rsquo;t replace your UC platform: we consume it as one channel among many.&rdquo;</p>
+            </blockquote>
+
+            <p>One last clarification, because it removes any remaining ambiguity: RoomKit is not a commercial product at all. It is an open-source framework under the MIT license &mdash; no seats, no pricing page, no sales team. You don&rsquo;t buy it, you <code>import</code> it: the code is on <a href="https://github.com/roomkit-live/roomkit" target="_blank" rel="noopener">GitHub</a>, and the conversation happens in the open.</p>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
+                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>RoomKit</span>
+                    </a>
+                    <p>Pure async Python library for multi-channel conversations.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="/docs/">Getting Started</a>
+                        <a href="/docs/features/">Features</a>
+                        <a href="/docs/api/">API Reference</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/blog/">Blog</a>
+                        <a href="/llms.txt">llms.txt</a>
+                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
+                        <a href="/docs/mcp/">MCP Integration</a>
+                        <a href="/docs/roomkit-rfc/">RFC</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <a href="https://github.com/roomkit-live/">GitHub</a>
+                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RoomKit. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
