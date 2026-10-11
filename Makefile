@@ -33,6 +33,11 @@ gather:
 	git -C ../roomkit-specs pull --ff-only
 	git pull --ff-only
 
+	@echo "==> Checking the docs site's llms copies against roomkit's…"
+	@cmp -s ../roomkit/llms.txt ../roomkit-docs/docs/llms.txt \
+		&& cmp -s ../roomkit/llms-full.txt ../roomkit-docs/docs/llms-full.txt \
+		|| { echo "roomkit-docs/docs/llms*.txt differ from roomkit's: run 'make llms-sync' in roomkit and commit the copies"; exit 1; }
+
 	@echo "==> Gathering build context into $(BUILD_DIR)/"
 	rm -rf $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/website $(BUILD_DIR)/docs
