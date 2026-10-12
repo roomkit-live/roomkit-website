@@ -1,639 +1,665 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoomKit UI - Desktop Voice Assistant</title>
-    <meta name="description" content="Open-source desktop voice assistant built with PySide6 and RoomKit. Real-time voice conversations with Google Gemini, OpenAI, Anthropic Claude, or local models. Featuring animated VU meter, chat transcript, echo cancellation, and MCP Apps.">
-    <meta name="keywords" content="voice assistant, desktop app, gemini, openai, anthropic, claude, local llm, realtime voice, pyside6, python, roomkit, echo cancellation, VU meter, MCP">
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.roomkit.live/roomkit-ui/">
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="RoomKit UI - Desktop Voice Assistant">
-    <meta property="og:description" content="Open-source desktop voice assistant with Google Gemini, OpenAI, Anthropic Claude, or local models. Dark theme, animated VU meter, chat transcript.">
-    <meta property="og:image" content="https://www.roomkit.live/og-image.png">
-    <meta property="og:url" content="https://www.roomkit.live/roomkit-ui/">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="RoomKit">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="RoomKit UI - Desktop Voice Assistant">
-    <meta name="twitter:description" content="Open-source desktop voice assistant with Gemini, OpenAI, Anthropic Claude, or local models.">
-    <meta name="twitter:image" content="https://www.roomkit.live/og-image.png">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "RoomKit UI",
-        "applicationCategory": "MultimediaApplication",
-        "operatingSystem": "macOS, Linux, Windows",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        },
-        "description": "Open-source desktop voice assistant built with PySide6 and RoomKit. Supports Google Gemini, OpenAI, Anthropic Claude, and local LLMs.",
-        "url": "https://www.roomkit.live/roomkit-ui/",
-        "author": {
-            "@type": "Person",
-            "name": "Sylvain Boily"
-        },
-        "programmingLanguage": "Python",
-        "codeRepository": "https://github.com/roomkit-live/roomkit-ui",
-        "license": "https://opensource.org/licenses/MIT"
-    }
-    </script>
-
-    <style>
-        /* RoomKit UI page-specific styles */
-        .ui-hero {
-            position: relative;
-            padding: 8rem 0 4rem;
-            overflow: hidden;
-        }
-        .ui-hero .hero-bg {
-            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent);
-        }
-        .ui-hero .container {
-            text-align: center;
-            max-width: 800px;
-        }
-        .ui-hero-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            line-height: 1.1;
-            margin-bottom: var(--space-lg);
-        }
-        .ui-hero-description {
-            font-size: 1.25rem;
-            color: var(--color-text-secondary);
-            line-height: 1.6;
-            margin-bottom: var(--space-2xl);
-        }
-        .ui-hero-actions {
-            display: flex;
-            gap: var(--space-md);
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: var(--space-2xl);
-        }
-        .ui-hero-install {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-md);
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
-            padding: var(--space-md) var(--space-xl);
-            font-family: var(--font-mono);
-            font-size: 0.9375rem;
-        }
-        .ui-hero-install code {
-            background: none;
-            padding: 0;
-            color: var(--color-text);
-        }
-
-        .ui-preview {
-            padding: var(--space-3xl) 0;
-        }
-
-        .providers-section {
-            padding: var(--space-3xl) 0;
-            background: var(--color-bg-secondary);
-        }
-        .providers-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--space-xl);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .provider-card {
-            padding: var(--space-2xl);
-            background: var(--color-bg);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
-            text-align: center;
-            transition: all 0.3s;
-        }
-        .provider-card:hover {
-            border-color: var(--color-primary);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg), 0 0 30px rgba(99, 102, 241, 0.1);
-        }
-        .provider-icon {
-            font-size: 2.5rem;
-            margin-bottom: var(--space-md);
-        }
-        .provider-card h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: var(--space-sm);
-        }
-        .provider-card p {
-            font-size: 0.875rem;
-            color: var(--color-text-secondary);
-            line-height: 1.6;
-        }
-        .provider-voices {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-xs);
-            justify-content: center;
-            margin-top: var(--space-md);
-        }
-        .provider-voices span {
-            padding: 2px 10px;
-            font-size: 0.75rem;
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--color-text-secondary);
-            border-radius: var(--radius-sm);
-            border: 1px solid rgba(99, 102, 241, 0.15);
-        }
-
-        .platforms-section {
-            padding: var(--space-3xl) 0;
-        }
-        .platform-badges {
-            display: flex;
-            gap: var(--space-lg);
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: var(--space-2xl);
-        }
-        .platform-badge {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-md) var(--space-xl);
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .platform-badge:hover {
-            border-color: var(--color-primary);
-        }
-        .platform-badge svg {
-            width: 24px;
-            height: 24px;
-            color: var(--color-text-secondary);
-        }
-
-        .install-section {
-            padding: var(--space-3xl) 0;
-            background: var(--color-bg-secondary);
-        }
-        .install-steps {
-            max-width: 600px;
-            margin: var(--space-2xl) auto 0;
-        }
-        .install-step {
-            display: flex;
-            gap: var(--space-lg);
-            margin-bottom: var(--space-xl);
-        }
-        .install-step-num {
-            flex-shrink: 0;
-            width: 32px;
-            height: 32px;
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--color-primary-light);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-        .install-step-content h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: var(--space-xs);
-        }
-        .install-step-content p {
-            font-size: 0.875rem;
-            color: var(--color-text-secondary);
-        }
-        .install-step-content code {
-            display: block;
-            margin-top: var(--space-sm);
-            padding: var(--space-sm) var(--space-md);
-            background: var(--color-bg);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-        }
-
-        @media (max-width: 768px) {
-            .ui-hero-title { font-size: 2.5rem; }
-            .ui-hero-description { font-size: 1.0625rem; }
-            .providers-grid { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 480px) {
-            .ui-hero-title { font-size: 2rem; }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-container">
-            <a href="/" class="nav-logo">
-                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
-                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
-                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
-                </svg>
-                <span>RoomKit</span>
-            </a>
-            <div class="nav-links">
-                <a href="/docs/" class="nav-link">Documentation</a>
-                <a href="/docs/features/" class="nav-link">Features</a>
-                <a href="/docs/mcp/" class="nav-link">MCP</a>
-                <a href="/docs/api/" class="nav-link">API Reference</a>
-                <a href="/roomkit-ui/" class="nav-link">RoomKit UI</a>
-                <a href="/blog/" class="nav-link">Blog</a>
-                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
-            </div>
-            <div class="nav-actions">
-                <a href="/docs/" class="btn btn-primary">Get Started</a>
-            </div>
-            <button class="nav-toggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Hero -->
-    <section class="ui-hero">
-        <div class="hero-bg"></div>
-        <div class="container">
-            <div class="hero-badge" style="justify-content: center;">
-                <span class="badge">Open Source</span>
-                <span class="badge">PySide6</span>
-                <span class="badge">4 AI Providers</span>
-            </div>
-            <h1 class="ui-hero-title">
-                Voice Assistant<br><span class="gradient-text">On Your Desktop</span>
-            </h1>
-            <p class="ui-hero-description">
-                A native desktop app for real-time voice conversations with AI.
-                Google Gemini, OpenAI, Anthropic Claude, or local models — switch with one click.
-                Built on RoomKit.
-            </p>
-            <div class="ui-hero-actions">
-                <a href="https://github.com/roomkit-live/roomkit-ui/releases" class="btn btn-primary btn-lg">Download</a>
-                <a href="https://github.com/roomkit-live/roomkit-ui" class="btn btn-secondary btn-lg" target="_blank" rel="noopener">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                    View on GitHub
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>RoomKit UI — Text, images &amp; Live voice</title>
+        <meta
+            name="description"
+            content="Meet the next RoomKit UI: a native desktop assistant for text, images and Live voice. Explore conversations, tools and settings in a real application gallery."
+        />
+        <link rel="canonical" href="https://www.roomkit.live/roomkit-ui/" />
+        <meta property="og:title" content="RoomKit UI — Type it. Show it. Talk it through." />
+        <meta
+            property="og:description"
+            content="Explore the next RoomKit UI: text, photos, Live voice and your own tools, in one native desktop app."
+        />
+        <meta property="og:image" content="https://www.roomkit.live/og-image.png" />
+        <meta property="og:url" content="https://www.roomkit.live/roomkit-ui/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="RoomKit" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="RoomKit UI — Text, images &amp; Live voice" />
+        <meta
+            name="twitter:description"
+            content="A closer look at the next RoomKit UI. Your conversations, your models, your tools."
+        />
+        <meta name="twitter:image" content="https://www.roomkit.live/og-image.png" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/roomkit-ui/page.css" />
+        <script src="/roomkit-ui/page.js" defer></script>
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "RoomKit UI",
+                "applicationCategory": "ProductivityApplication",
+                "operatingSystem": "macOS, Linux, Windows",
+                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                "description": "An open-source native desktop assistant built with PySide6 and RoomKit. This page previews the next release, with text, images and Live voice.",
+                "url": "https://www.roomkit.live/roomkit-ui/",
+                "codeRepository": "https://github.com/roomkit-live/roomkit-ui",
+                "license": "https://opensource.org/licenses/MIT"
+            }
+        </script>
+    </head>
+    <body class="desktop-page">
+        <a class="skip-link" href="#content">Skip to content</a>
+        <nav class="nav" aria-label="Main navigation">
+            <div class="nav-container">
+                <a href="/" class="nav-logo">
+                    <svg
+                        class="logo-icon"
+                        viewBox="0 0 32 32"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <rect
+                            x="2"
+                            y="2"
+                            width="28"
+                            height="28"
+                            rx="6"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        />
+                        <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor" />
+                        <rect
+                            x="17"
+                            y="7"
+                            width="8"
+                            height="8"
+                            rx="2"
+                            fill="currentColor"
+                            opacity="0.6"
+                        />
+                        <rect
+                            x="7"
+                            y="17"
+                            width="8"
+                            height="8"
+                            rx="2"
+                            fill="currentColor"
+                            opacity="0.6"
+                        />
+                        <rect
+                            x="17"
+                            y="17"
+                            width="8"
+                            height="8"
+                            rx="2"
+                            fill="currentColor"
+                            opacity="0.3"
+                        />
+                    </svg>
+                    <span>RoomKit</span>
                 </a>
-            </div>
-            <div class="ui-hero-install">
-                <code>uv run python -m roomkit_ui</code>
-                <button class="copy-btn" data-copy="uv run python -m roomkit_ui" aria-label="Copy command" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                <div class="nav-links" id="site-navigation">
+                    <a href="/docs/" class="nav-link">Documentation</a>
+                    <a href="/docs/features/" class="nav-link">Features</a>
+                    <a href="/docs/mcp/" class="nav-link">MCP</a>
+                    <a href="/docs/api/" class="nav-link">API Reference</a>
+                    <a href="/roomkit-ui/" class="nav-link" aria-current="page">RoomKit UI</a>
+                    <a href="/blog/" class="nav-link">Blog</a>
+                    <a
+                        href="https://github.com/roomkit-live/"
+                        class="nav-link"
+                        target="_blank"
+                        rel="noopener"
+                        >GitHub</a
+                    >
+                </div>
+                <div class="nav-actions">
+                    <a href="#install" class="btn btn-primary">Get RoomKit UI</a>
+                </div>
+                <button
+                    class="nav-toggle"
+                    aria-label="Toggle menu"
+                    aria-controls="site-navigation"
+                    aria-expanded="false"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
             </div>
-        </div>
-    </section>
+        </nav>
 
-    <!-- App Preview -->
-    <section class="ui-preview">
-        <div class="container">
-            <img src="/roomkit-ui/screenshot.png" alt="RoomKit UI — real-time voice conversation" style="max-width: 380px; margin: 0 auto; display: block; border-radius: var(--radius-xl); box-shadow: var(--shadow-xl), 0 0 60px rgba(99, 102, 241, 0.1);">
-        </div>
-    </section>
+        <main id="content">
+            <section class="desktop-hero wrap" aria-labelledby="hero-title">
+                <div class="hero-copy">
+                    <p class="eyebrow">
+                        <span class="preview-dot" aria-hidden="true"></span> ROOMKIT UI · NEXT
+                        RELEASE PREVIEW
+                    </p>
+                    <h1 id="hero-title">
+                        Type it.<br />
+                        Show it.<br />
+                        <span>Talk it through.</span>
+                    </h1>
+                    <p class="hero-lead">
+                        An idea, a photo, a conversation.<br />
+                        Your assistant, right here on your desktop.
+                    </p>
+                    <p class="hero-detail">
+                        Move between text and Live voice, pick up a previous thread, and bring the
+                        models and tools you like.
+                    </p>
+                    <div class="desktop-actions">
+                        <a class="action-primary" href="#explore"
+                            >Take a look <span aria-hidden="true">↗</span></a
+                        >
+                        <a class="action-link" href="#install"
+                            >Try the latest source <span aria-hidden="true">→</span></a
+                        >
+                    </div>
+                    <p class="platform-note">
+                        Native PySide6 app <span>·</span> macOS, Windows &amp; Linux
+                        <span>·</span> Open source
+                    </p>
+                </div>
+                <div class="hero-scenes" aria-label="RoomKit UI home and image conversation">
+                    <img
+                        class="hero-home app-window"
+                        src="screenshots/home-dark.png"
+                        width="840"
+                        height="1480"
+                        alt="A quiet welcome screen with a single input for text, photos, dictation and Live voice."
+                    />
+                    <img
+                        class="hero-chat app-window"
+                        src="screenshots/conversation-dark.png"
+                        width="840"
+                        height="1480"
+                        fetchpriority="high"
+                        alt="A conversation about a weekend walk, with an attached trail sketch and a written response."
+                    />
+                    <span class="scene-caption"
+                        >A small window. Room for the whole conversation.</span
+                    >
+                </div>
+            </section>
 
-    <!-- Features -->
-    <section style="padding: var(--space-3xl) 0;">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Everything You Need</h2>
-                <p class="section-description">A complete voice assistant experience with professional-grade audio processing.</p>
+            <div class="release-note wrap">
+                <span class="release-label">A look ahead</span>
+                <p>
+                    These are real captures of the current development build, with demo content. The
+                    redesigned interface is coming in the next release.
+                    <a href="https://github.com/roomkit-live/roomkit-ui/releases"
+                        >See stable releases <span aria-hidden="true">↗</span></a
+                    >
+                </p>
             </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                    </div>
-                    <h3>Real-Time Voice</h3>
-                    <p>Full-duplex voice conversations with sub-second latency. Speak naturally with interruption support.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                    </div>
-                    <h3>Live Transcript</h3>
-                    <p>iMessage-style chat bubbles with streaming partial transcriptions. See every word as it's spoken.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19V6l12-3v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                    </div>
-                    <h3>Animated VU Meter</h3>
-                    <p>Ambient glow visualization showing mic and speaker audio levels with smooth animated waveforms.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
-                    <h3>Echo Cancellation</h3>
-                    <p>Built-in WebRTC and Speex AEC for hands-free conversations without feedback loops.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-                    </div>
-                    <h3>Device Selection</h3>
-                    <p>Choose your microphone and speaker from settings. Supports all system audio devices.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                    </div>
-                    <h3>Noise Reduction</h3>
-                    <p>Optional RNNoise denoiser removes background noise for crystal-clear voice input.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    </div>
-                    <h3>System-Wide Dictation</h3>
-                    <p>Press a global hotkey to dictate anywhere. Transcription is pasted into the focused app automatically.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-                    </div>
-                    <h3>MCP Tool Support</h3>
-                    <p>Connect external tools via Model Context Protocol. Stdio, SSE, and HTTP transports supported.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                    </div>
-                    <h3>Multi-Language STT</h3>
-                    <p>Dictation in 14+ languages including English, French, Spanish, German, Japanese, Chinese, and more.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-                    </div>
-                    <h3>Dark & Light Themes</h3>
-                    <p>Apple-inspired dark and light mode. Switch instantly from settings with full theme-aware components.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h12"/></svg>
-                    </div>
-                    <h3>Markdown Chat</h3>
-                    <p>AI responses render with full markdown — code blocks, tables, links, and inline formatting.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
-                    </div>
-                    <h3>Two Conversation Modes</h3>
-                    <p>Speech-to-Speech (realtime) or Voice Channel (STT → LLM → TTS). Choose per provider.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                    </div>
-                    <h3>Local TTS</h3>
-                    <p>Piper, Qwen3-TTS (voice clone), NeuTTS (voice clone). Fully offline text-to-speech.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                    </div>
-                    <h3>Local STT Models</h3>
-                    <p>Whisper, Parakeet, Zipformer via sherpa-onnx. Download models from settings.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                    </div>
-                    <h3>MCP Apps</h3>
-                    <p>Render HTML UIs from MCP servers inline in the chat. Interactive tool results, not just text.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                    </div>
-                    <h3>Skills Marketplace</h3>
-                    <p>Browse and install skills from CLabHub. Extend your assistant without writing code.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>
-                    </div>
-                    <h3>GPU Acceleration</h3>
-                    <p>CUDA (NVIDIA) or CoreML (Apple) for local models. Hardware-accelerated inference.</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Providers -->
-    <section class="providers-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Choose Your Provider</h2>
-                <p class="section-description">Switch between providers instantly. Your API keys are saved independently.</p>
-            </div>
-            <div class="providers-grid">
-                <div class="provider-card">
-                    <div class="provider-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <section class="explore-section wrap" id="explore" aria-labelledby="explore-title">
+                <div class="section-intro">
+                    <div>
+                        <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+                        <h2 id="explore-title">
+                            One conversation.<br />
+                            More ways to be there.
+                        </h2>
                     </div>
-                    <h3>Google Gemini</h3>
-                    <p>Native audio with Gemini 2.5 Flash. Low latency, multilingual, with built-in thinking.</p>
-                    <div class="provider-voices">
-                        <span>Aoede</span>
-                        <span>Charon</span>
-                        <span>Fenrir</span>
-                        <span>Kore</span>
-                        <span>Puck</span>
+                    <div
+                        class="theme-choice"
+                        role="group"
+                        aria-label="Screenshot appearance"
+                        hidden
+                    >
+                        <button type="button" data-theme="dark" aria-pressed="true">Dark</button>
+                        <button type="button" data-theme="light" aria-pressed="false">Light</button>
                     </div>
                 </div>
-                <div class="provider-card">
-                    <div class="provider-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2a3.5 3.5 0 110 7 3.5 3.5 0 010-7zm-5.5 12.5a7.5 7.5 0 0111 0" stroke="var(--color-primary-light)" stroke-width="1.5"/></svg>
+                <div class="preview-tabs" role="tablist" aria-label="Explore RoomKit UI" hidden>
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab-conversation"
+                        aria-controls="panel-conversation"
+                        aria-selected="true"
+                    >
+                        Text &amp; images
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab-live"
+                        aria-controls="panel-live"
+                        aria-selected="false"
+                        tabindex="-1"
+                    >
+                        Live voice
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab-history"
+                        aria-controls="panel-history"
+                        aria-selected="false"
+                        tabindex="-1"
+                    >
+                        Conversations
+                    </button>
+                </div>
+                <div class="preview-panels">
+                    <div
+                        class="preview-panel"
+                        id="panel-conversation"
+                        role="tabpanel"
+                        aria-labelledby="tab-conversation"
+                        tabindex="0"
+                    >
+                        <div class="preview-copy">
+                            <span class="feature-number">01 / A THOUGHT, IN ANY FORM</span>
+                            <h3>
+                                Start with what<br />
+                                you have in mind.
+                            </h3>
+                            <p>
+                                Type a question, add a photo, or dictate a draft. There’s space to
+                                think before you hit send.
+                            </p>
+                            <ul class="feature-list">
+                                <li>Choose an image, take a photo, paste or drop it.</li>
+                                <li>Review your attachments and dictated text.</li>
+                                <li>An input that grows with your message, up to eight lines.</li>
+                            </ul>
+                            <span class="small-note"
+                                >Image understanding depends on your selected model.</span
+                            >
+                        </div>
+                        <figure class="preview-figure">
+                            <a
+                                class="screenshot-link"
+                                href="screenshots/conversation-dark.png"
+                                target="_blank"
+                                rel="noopener"
+                                aria-label="Open the text and images screenshot at full size"
+                                ><img
+                                    class="app-window"
+                                    data-screenshot="conversation"
+                                    src="screenshots/conversation-dark.png"
+                                    width="840"
+                                    height="1480"
+                                    loading="lazy"
+                                    alt="A trail sketch shared with the assistant, followed by a plan for a relaxed afternoon."
+                            /></a>
+                            <figcaption>
+                                Text &amp; images <span>Click to see the full capture ↗</span>
+                            </figcaption>
+                        </figure>
                     </div>
-                    <h3>OpenAI</h3>
-                    <p>GPT-4o Realtime API with server-side VAD. Natural, expressive voices in real time.</p>
-                    <div class="provider-voices">
-                        <span>alloy</span>
-                        <span>echo</span>
-                        <span>fable</span>
-                        <span>onyx</span>
-                        <span>nova</span>
-                        <span>shimmer</span>
+                    <div
+                        class="preview-panel"
+                        id="panel-live"
+                        role="tabpanel"
+                        aria-labelledby="tab-live"
+                        tabindex="0"
+                    >
+                        <div class="preview-copy">
+                            <span class="feature-number">02 / LET THE CONVERSATION FLOW</span>
+                            <h3>
+                                Some things are<br />
+                                easier out loud.
+                            </h3>
+                            <p>
+                                Tap the waveform and start talking. Your transcript stays in view,
+                                with quiet controls and room for the response.
+                            </p>
+                            <ul class="feature-list">
+                                <li>Realtime speech, or your own STT → LLM → TTS setup.</li>
+                                <li>Mute, interrupt and hang up from the conversation.</li>
+                                <li>
+                                    Models, tools and usage details in a panel when you need them.
+                                </li>
+                            </ul>
+                            <span class="small-note"
+                                >Hanging up keeps the thread. Continue it later.</span
+                            >
+                        </div>
+                        <figure class="preview-figure">
+                            <a
+                                class="screenshot-link"
+                                href="screenshots/live-dark.png"
+                                target="_blank"
+                                rel="noopener"
+                                aria-label="Open the Live voice screenshot at full size"
+                                ><img
+                                    class="app-window"
+                                    data-screenshot="live"
+                                    src="screenshots/live-dark.png"
+                                    width="840"
+                                    height="1480"
+                                    loading="lazy"
+                                    alt="A Live conversation with weather tool activity, a violet waveform, and mute and hang-up controls."
+                            /></a>
+                            <figcaption>
+                                Live voice <span>Click to see the full capture ↗</span>
+                            </figcaption>
+                        </figure>
+                    </div>
+                    <div
+                        class="preview-panel"
+                        id="panel-history"
+                        role="tabpanel"
+                        aria-labelledby="tab-history"
+                        tabindex="0"
+                    >
+                        <div class="preview-copy">
+                            <span class="feature-number">03 / PICK UP WHERE YOU LEFT OFF</span>
+                            <h3>
+                                A place for<br />
+                                every conversation.
+                            </h3>
+                            <p>
+                                A weekend plan, a new project, a passing thought. Each thread keeps
+                                its context, images and tool results together.
+                            </p>
+                            <ul class="feature-list">
+                                <li>Your 30 most recent conversations, a click away.</li>
+                                <li>Search all titles, rename a thread, or delete it.</li>
+                                <li>Reopen saved results without running the tool again.</li>
+                            </ul>
+                            <span class="small-note"
+                                >History is stored locally. You can turn saving off in
+                                Settings.</span
+                            >
+                        </div>
+                        <figure class="preview-figure">
+                            <a
+                                class="screenshot-link"
+                                href="screenshots/history-dark.png"
+                                target="_blank"
+                                rel="noopener"
+                                aria-label="Open the conversation history screenshot at full size"
+                                ><img
+                                    class="app-window"
+                                    data-screenshot="history"
+                                    src="screenshots/history-dark.png"
+                                    width="840"
+                                    height="1480"
+                                    loading="lazy"
+                                    alt="The sliding conversation panel with search, recent titles, a new conversation action and Settings."
+                            /></a>
+                            <figcaption>
+                                Conversation history <span>Click to see the full capture ↗</span>
+                            </figcaption>
+                        </figure>
                     </div>
                 </div>
-                <div class="provider-card">
-                    <div class="provider-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.5"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"/></svg>
-                    </div>
-                    <h3>Anthropic Claude</h3>
-                    <p>Claude with STT/TTS voice channel mode. Powerful reasoning with natural voice.</p>
-                    <div class="provider-voices">
-                        <span>Voice Channel</span>
-                        <span>STT + LLM + TTS</span>
-                    </div>
-                </div>
-                <div class="provider-card">
-                    <div class="provider-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2m2 0h2m2 0h2"/><path d="M7 11h10"/></svg>
-                    </div>
-                    <h3>Local LLMs</h3>
-                    <p>vLLM, Ollama. No API key needed, fully offline. Run models on your own hardware.</p>
-                    <div class="provider-voices">
-                        <span>vLLM</span>
-                        <span>Ollama</span>
-                        <span>Offline</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+            </section>
 
-    <!-- Platforms -->
-    <section class="platforms-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Cross-Platform</h2>
-                <p class="section-description">Pre-built binaries for every major operating system. Or run from source with one command.</p>
-            </div>
-            <div class="platform-badges">
-                <div class="platform-badge">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg>
-                    macOS
+            <section class="settings-section" aria-labelledby="settings-title">
+                <div class="wrap">
+                    <div class="section-intro">
+                        <div>
+                            <p class="eyebrow">YOUR ASSISTANT, YOUR CHOICES</p>
+                            <h2 id="settings-title">Find your own voice.</h2>
+                        </div>
+                        <p class="section-description">
+                            One realtime provider, or separate models for listening, thinking and
+                            speaking. A clearer workspace for making it yours.
+                        </p>
+                    </div>
+                    <figure class="settings-figure">
+                        <a
+                            class="screenshot-link"
+                            href="screenshots/settings-dark.png"
+                            target="_blank"
+                            rel="noopener"
+                            aria-label="Open the conversation settings screenshot at full size"
+                            ><img
+                                class="app-window"
+                                data-screenshot="settings"
+                                src="screenshots/settings-dark.png"
+                                width="2240"
+                                height="1640"
+                                loading="lazy"
+                                alt="RoomKit Settings with large Realtime and Voice Channel cards, a three-stage pipeline, and grouped sidebar navigation."
+                        /></a>
+                        <figcaption>
+                            Real application settings, in the appearance selected above.
+                            <a href="#explore">Change appearance ↑</a>
+                        </figcaption>
+                    </figure>
+                    <div class="settings-notes">
+                        <div>
+                            <span>01</span>
+                            <h3>Mix cloud and local</h3>
+                            <p>
+                                Choose your model providers. Build an offline voice pipeline with
+                                local speech recognition, a local LLM and local speech synthesis.
+                            </p>
+                        </div>
+                        <div>
+                            <span>02</span>
+                            <h3>Make it personal</h3>
+                            <p>
+                                Set the language, voice and instructions. Switch between light and
+                                dark, with the change visible immediately.
+                            </p>
+                        </div>
+                        <div>
+                            <span>03</span>
+                            <h3>Find it faster</h3>
+                            <p>
+                                Search Settings, manage model downloads, and keep provider keys,
+                                integrations and diagnostics in their own spaces.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="platform-badge">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg>
-                    Linux
-                </div>
-                <div class="platform-badge">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
-                    Windows
-                </div>
-            </div>
-        </div>
-    </section>
+            </section>
 
-    <!-- Install -->
-    <section class="install-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Get Started in 3 Steps</h2>
-            </div>
-            <div class="install-steps">
-                <div class="install-step">
-                    <div class="install-step-num">1</div>
-                    <div class="install-step-content">
-                        <h3>Clone & install</h3>
-                        <code>git clone https://github.com/roomkit-live/roomkit-ui.git<br>cd roomkit-ui && uv sync</code>
+            <section class="tools-section wrap" aria-labelledby="tools-title">
+                <div class="section-intro">
+                    <div>
+                        <p class="eyebrow">BRING WHAT YOU ALREADY USE</p>
+                        <h2 id="tools-title">More than a reply.</h2>
                     </div>
+                    <p class="section-description">
+                        Connect your tools and skills. See what ran, read the result, and interact
+                        with the apps your MCP servers provide.
+                    </p>
                 </div>
-                <div class="install-step">
-                    <div class="install-step-num">2</div>
-                    <div class="install-step-content">
-                        <h3>Run the app</h3>
-                        <code>uv run python -m roomkit_ui</code>
+                <div class="capability-grid">
+                    <article>
+                        <span class="capability-icon" aria-hidden="true">↗</span>
+                        <h3>Tools in the conversation</h3>
+                        <p>
+                            Readable activity, expandable details and embedded MCP App interfaces.
+                            Saved outputs stay with the thread.
+                        </p>
+                    </article>
+                    <article>
+                        <span class="capability-icon" aria-hidden="true">✧</span>
+                        <h3>Skills that fit your work</h3>
+                        <p>
+                            Browse skills.sh, add your own sources, or use skills published by your
+                            connected MCP servers.
+                        </p>
+                    </article>
+                    <article>
+                        <span class="capability-icon" aria-hidden="true">⌘</span>
+                        <h3>Dictation beyond the app</h3>
+                        <p>
+                            A global shortcut turns speech into text in the focused app. Streaming
+                            local models transcribe while you speak.
+                        </p>
+                    </article>
+                </div>
+                <details class="auth-detail">
+                    <summary>
+                        Connect an HTTP tool server with the right authentication
+                        <span aria-hidden="true">+</span>
+                    </summary>
+                    <div class="auth-body">
+                        <p>
+                            Choose None, Bearer, a raw Authorization API key, Basic credentials or
+                            OAuth 2.0. Tokens and passwords have their own masked fields; additional
+                            headers stay in Advanced options.
+                        </p>
+                        <a
+                            class="screenshot-link"
+                            href="screenshots/authentication-dark.png"
+                            target="_blank"
+                            rel="noopener"
+                            aria-label="Open the MCP authentication screenshot at full size"
+                            ><img
+                                class="app-window"
+                                data-screenshot="authentication"
+                                src="screenshots/authentication-dark.png"
+                                width="2240"
+                                height="1640"
+                                loading="lazy"
+                                alt="MCP connection settings with Streamable HTTP, explicit Bearer authentication and a masked token field."
+                        /></a>
                     </div>
-                </div>
-                <div class="install-step">
-                    <div class="install-step-num">3</div>
-                    <div class="install-step-content">
-                        <h3>Enter your API key</h3>
-                        <p>Open Settings, choose your provider (Gemini, OpenAI, Claude, or local), paste your API key, and start talking.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                </details>
+            </section>
 
-    <!-- CTA -->
-    <section class="cta">
-        <div class="container">
-            <h2>Ready to Talk?</h2>
-            <p>Download RoomKit UI or build from source. It's open-source and free.</p>
-            <div class="cta-actions">
-                <a href="https://github.com/roomkit-live/roomkit-ui/releases" class="btn btn-primary btn-lg">Download Latest Release</a>
-                <a href="https://github.com/roomkit-live/roomkit-ui" class="btn btn-secondary btn-lg" target="_blank" rel="noopener">View Source</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <a href="/" class="nav-logo">
-                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
-                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
-                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
-                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
-                        </svg>
-                        <span>RoomKit</span>
-                    </a>
-                    <p>Pure async Python library for multi-channel conversations.</p>
+            <section class="install-section wrap" id="install" aria-labelledby="install-title">
+                <div class="section-intro">
+                    <div>
+                        <p class="eyebrow">OPEN SOURCE. MAKE IT YOURS.</p>
+                        <h2 id="install-title">A place to start.</h2>
+                    </div>
+                    <a class="action-link" href="https://github.com/roomkit-live/roomkit-ui"
+                        >Explore the source <span aria-hidden="true">↗</span></a
+                    >
                 </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4>Documentation</h4>
-                        <a href="/docs/">Getting Started</a>
-                        <a href="/docs/features/">Features</a>
-                        <a href="/docs/api/">API Reference</a>
+                <div class="install-grid">
+                    <article class="source-install">
+                        <span class="install-tag">WHAT YOU SEE HERE</span>
+                        <h3>Try the development build</h3>
+                        <p>
+                            The interface above is on <code>main</code>. Start from source with
+                            Python 3.12+ and <a href="https://docs.astral.sh/uv/">uv</a>.
+                        </p>
+                        <div class="code-heading">
+                            <span>Terminal · new checkout</span
+                            ><button type="button" id="copy-install" hidden>Copy commands</button>
+                        </div>
+                        <pre><code id="install-commands">git clone https://github.com/roomkit-live/roomkit-ui.git
+cd roomkit-ui
+uv sync --extra all
+uv run --no-sync python -m roomkit_ui</code></pre>
+                        <p class="install-help">
+                            Already have a checkout? See the
+                            <a href="https://github.com/roomkit-live/roomkit-ui#run-from-source"
+                                >source setup guide</a
+                            >
+                            for optional components. <code>all</code> excludes some large local
+                            voice backends.
+                        </p>
+                        <span id="copy-feedback" class="small-note" role="status"></span>
+                    </article>
+                    <article class="stable-install">
+                        <span class="install-tag">PREFER A PACKAGED APP?</span>
+                        <h3>Download the stable release</h3>
+                        <p>
+                            Builds for macOS, Windows and Linux. The latest stable version may
+                            differ from this preview.
+                        </p>
+                        <a
+                            class="action-primary"
+                            href="https://github.com/roomkit-live/roomkit-ui/releases"
+                            >View releases <span aria-hidden="true">↗</span></a
+                        >
+                        <div class="getting-started">
+                            <h4>Once you’re in</h4>
+                            <p>
+                                Open the conversation panel → Settings. Add your provider key or
+                                select a local model, then choose your conversation setup.
+                            </p>
+                            <a
+                                class="action-link"
+                                href="https://github.com/roomkit-live/roomkit-ui#usage"
+                                >Read the quick start →</a
+                            >
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </main>
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <a href="/" class="nav-logo">
+                            <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                                <rect
+                                    x="2"
+                                    y="2"
+                                    width="28"
+                                    height="28"
+                                    rx="6"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                />
+                                <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor" />
+                                <rect
+                                    x="17"
+                                    y="7"
+                                    width="8"
+                                    height="8"
+                                    rx="2"
+                                    fill="currentColor"
+                                    opacity="0.6"
+                                />
+                                <rect
+                                    x="7"
+                                    y="17"
+                                    width="8"
+                                    height="8"
+                                    rx="2"
+                                    fill="currentColor"
+                                    opacity="0.6"
+                                />
+                                <rect
+                                    x="17"
+                                    y="17"
+                                    width="8"
+                                    height="8"
+                                    rx="2"
+                                    fill="currentColor"
+                                    opacity="0.3"
+                                />
+                            </svg>
+                            <span>RoomKit</span>
+                        </a>
+                        <p>Pure async Python library for multi-channel conversations.</p>
                     </div>
-                    <div class="footer-column">
-                        <h4>Resources</h4>
-                        <a href="/blog/">Blog</a>
-                        <a href="/llms.txt">llms.txt</a>
-                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
-                        <a href="/docs/mcp/">MCP Integration</a>
-                        <a href="/docs/roomkit-rfc/">RFC</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Community</h4>
-                        <a href="https://github.com/roomkit-live/">GitHub</a>
-                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
-                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                    <div class="footer-links">
+                        <div class="footer-column">
+                            <h4>Documentation</h4>
+                            <a href="/docs/">Getting Started</a>
+                            <a href="/docs/features/">Features</a>
+                            <a href="/docs/api/">API Reference</a>
+                        </div>
+                        <div class="footer-column">
+                            <h4>Resources</h4>
+                            <a href="/blog/">Blog</a>
+                            <a href="/llms.txt">llms.txt</a>
+                            <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md"
+                                >AGENTS.md</a
+                            >
+                            <a href="/docs/mcp/">MCP Integration</a>
+                            <a href="/docs/roomkit-rfc/">RFC</a>
+                        </div>
+                        <div class="footer-column">
+                            <h4>Community</h4>
+                            <a href="https://github.com/roomkit-live/">GitHub</a>
+                            <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
+                            <a href="https://pypi.org/project/roomkit/">PyPI</a>
+                        </div>
                     </div>
                 </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 RoomKit. MIT License.</p>
+                </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 RoomKit. MIT License.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="/js/main.js"></script>
-</body>
+        </footer>
+    </body>
 </html>
