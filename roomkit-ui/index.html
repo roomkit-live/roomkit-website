@@ -1,665 +1,133 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>RoomKit UI — Text, images &amp; Live voice</title>
-        <meta
-            name="description"
-            content="Meet the next RoomKit UI: a native desktop assistant for text, images and Live voice. Explore conversations, tools and settings in a real application gallery."
-        />
-        <link rel="canonical" href="https://www.roomkit.live/roomkit-ui/" />
-        <meta property="og:title" content="RoomKit UI — Type it. Show it. Talk it through." />
-        <meta
-            property="og:description"
-            content="Explore the next RoomKit UI: text, photos, Live voice and your own tools, in one native desktop app."
-        />
-        <meta property="og:image" content="https://www.roomkit.live/og-image.png" />
-        <meta property="og:url" content="https://www.roomkit.live/roomkit-ui/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="RoomKit" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="RoomKit UI — Text, images &amp; Live voice" />
-        <meta
-            name="twitter:description"
-            content="A closer look at the next RoomKit UI. Your conversations, your models, your tools."
-        />
-        <meta name="twitter:image" content="https://www.roomkit.live/og-image.png" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="stylesheet" href="/css/style.css" />
-        <link rel="stylesheet" href="/roomkit-ui/page.css" />
-        <script src="/roomkit-ui/page.js" defer></script>
-        <script type="application/ld+json">
-            {
-                "@context": "https://schema.org",
-                "@type": "SoftwareApplication",
-                "name": "RoomKit UI",
-                "applicationCategory": "ProductivityApplication",
-                "operatingSystem": "macOS, Linux, Windows",
-                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-                "description": "An open-source native desktop assistant built with PySide6 and RoomKit. This page previews the next release, with text, images and Live voice.",
-                "url": "https://www.roomkit.live/roomkit-ui/",
-                "codeRepository": "https://github.com/roomkit-live/roomkit-ui",
-                "license": "https://opensource.org/licenses/MIT"
-            }
-        </script>
-    </head>
-    <body class="desktop-page">
-        <a class="skip-link" href="#content">Skip to content</a>
-        <nav class="nav" aria-label="Main navigation">
-            <div class="nav-container">
-                <a href="/" class="nav-logo">
-                    <svg
-                        class="logo-icon"
-                        viewBox="0 0 32 32"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <rect
-                            x="2"
-                            y="2"
-                            width="28"
-                            height="28"
-                            rx="6"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        />
-                        <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor" />
-                        <rect
-                            x="17"
-                            y="7"
-                            width="8"
-                            height="8"
-                            rx="2"
-                            fill="currentColor"
-                            opacity="0.6"
-                        />
-                        <rect
-                            x="7"
-                            y="17"
-                            width="8"
-                            height="8"
-                            rx="2"
-                            fill="currentColor"
-                            opacity="0.6"
-                        />
-                        <rect
-                            x="17"
-                            y="17"
-                            width="8"
-                            height="8"
-                            rx="2"
-                            fill="currentColor"
-                            opacity="0.3"
-                        />
-                    </svg>
-                    <span>RoomKit</span>
-                </a>
-                <div class="nav-links" id="site-navigation">
-                    <a href="/docs/" class="nav-link">Documentation</a>
-                    <a href="/docs/features/" class="nav-link">Features</a>
-                    <a href="/docs/mcp/" class="nav-link">MCP</a>
-                    <a href="/docs/api/" class="nav-link">API Reference</a>
-                    <a href="/roomkit-ui/" class="nav-link" aria-current="page">RoomKit UI</a>
-                    <a href="/blog/" class="nav-link">Blog</a>
-                    <a
-                        href="https://github.com/roomkit-live/"
-                        class="nav-link"
-                        target="_blank"
-                        rel="noopener"
-                        >GitHub</a
-                    >
-                </div>
-                <div class="nav-actions">
-                    <a href="#install" class="btn btn-primary">Get RoomKit UI</a>
-                </div>
-                <button
-                    class="nav-toggle"
-                    aria-label="Toggle menu"
-                    aria-controls="site-navigation"
-                    aria-expanded="false"
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>RoomKit UI — An assistant. On your terms.</title>
+    <meta name="description" content="Talk through ideas, work with images and connect your tools. RoomKit UI is a free, open-source desktop assistant with your choice of cloud or local models.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preload" href="/css/fonts/space-grotesk-500-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/site.css?v=42d2744baf2a">
+    <link rel="stylesheet" href="/roomkit-ui/page.css?v=48220f5b49ae">
+    <script src="/js/site.js?v=e82daae15ed8" defer></script>
+    <script src="/roomkit-ui/page.js?v=5e31bb8868bf" defer></script>
+    <link rel="canonical" href="https://www.roomkit.live/roomkit-ui/">
+    <meta property="og:title" content="RoomKit UI — An assistant. On your terms.">
+    <meta property="og:description" content="Talk through ideas, work with images and connect your tools. RoomKit UI is a free, open-source desktop assistant with your choice of cloud or local models.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.png">
+    <meta property="og:url" content="https://www.roomkit.live/roomkit-ui/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="RoomKit">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RoomKit UI — An assistant. On your terms.">
+    <meta name="twitter:description" content="Talk through ideas, work with images and connect your tools. RoomKit UI is a free, open-source desktop assistant with your choice of cloud or local models.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.png">
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "RoomKit UI",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "macOS, Linux, Windows",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+    },
+    "description": "Talk through ideas, work with images and connect your tools. RoomKit UI is a free, open-source desktop assistant with your choice of cloud or local models.",
+    "url": "https://www.roomkit.live/roomkit-ui/",
+    "author": {
+        "@type": "Person",
+        "name": "Sylvain Boily"
+    },
+    "codeRepository": "https://github.com/roomkit-live/roomkit-ui",
+    "license": "https://opensource.org/licenses/MIT"
+}
+    </script>
+</head>
+<body class="app-page">
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="roomkit-mark" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/><rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/><rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/><rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".3"/></symbol>
+        <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="arrow-up" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M15 8V4H4v11h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    </svg>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header"><div class="shell header-inner">
+        <a class="brand" href="/roomkit-ui/" aria-label="roomkit. app home"><svg aria-hidden="true"><use href="#roomkit-mark"/></svg><span>roomkit<span class="brand-dot">.</span></span></a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>menu <span aria-hidden="true">+</span></button>
+        <nav class="main-nav" id="main-nav" aria-label="Main navigation"><a href="/">framework</a><a href="#explore">explore</a><a href="https://github.com/roomkit-live/roomkit-ui">github</a><a class="button button-dark nav-cta" href="#install">get the app <svg aria-hidden="true"><use href="#arrow"/></svg></a></nav>
+    </div></header>
+
+    <main id="main">
+        <section class="app-hero shell" aria-labelledby="app-title">
+            <div class="app-hero-copy"><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Your open-source desktop assistant</p><h1 id="app-title">An assistant.<br><span>On your terms.</span></h1><p class="app-lead">Talk through ideas. Work with images. Connect your tools. Choose the cloud or local models that work for you.</p><div class="app-actions"><a class="button button-blue" href="#install">Get RoomKit UI <svg aria-hidden="true"><use href="#arrow"/></svg></a><a class="text-link" href="#explore">See it in action <svg aria-hidden="true"><use href="#arrow"/></svg></a></div><p class="app-platforms">macOS <span>·</span> Windows <span>·</span> Linux <span>·</span> Free &amp; open source</p></div>
+            <div class="app-hero-visual"><img class="app-back" src="/roomkit-ui/screenshots/home-dark.png" width="840" height="1480" alt="RoomKit UI's welcome screen, with the roomkit. wordmark and a conversation input."><img class="app-front" src="/roomkit-ui/screenshots/live-dark.png" width="840" height="1480" fetchpriority="high" alt="A Live conversation in RoomKit UI: the assistant checks the weather with a tool and answers in the same thread."><p>Real app captures. Illustrative conversations.</p></div>
+        </section>
+        <div class="app-release shell"><span><span class="status-dot" aria-hidden="true"></span> Available now · v0.3.1</span><p>One app for text, images and Live voice.</p><a href="https://github.com/roomkit-live/roomkit-ui/releases/tag/v0.3.1">Release notes <svg aria-hidden="true"><use href="#arrow-up"/></svg></a></div>
+
+        <section class="app-explore shell" id="explore" aria-labelledby="explore-title">
+            <div class="app-section-heading"><div><p class="eyebrow">A conversation that feels like yours</p><h2 id="explore-title">Type it. Show it.<br>Talk it through.</h2></div><div class="app-appearance" hidden><span>App appearance</span><div><button type="button" data-theme="dark" aria-pressed="true">Dark</button><button type="button" data-theme="light" aria-pressed="false">Light</button></div></div></div>
+            <div class="app-tabs" role="tablist" aria-label="Explore RoomKit UI" hidden><button type="button" id="tab-conversation" role="tab" aria-selected="true" aria-controls="panel-conversation" tabindex="0">Text &amp; images</button><button type="button" id="tab-live" role="tab" aria-selected="false" aria-controls="panel-live" tabindex="-1">Live voice</button><button type="button" id="tab-history" role="tab" aria-selected="false" aria-controls="panel-history" tabindex="-1">Your conversations</button></div>
+            <div class="app-panels">
+                <article class="app-panel" id="panel-conversation" aria-labelledby="conversation-title"><div class="app-panel-copy"><p class="eyebrow">01 / Start with an idea</p><h3 id="conversation-title">A thought.<br>A photo.<br>A place to start.</h3><p>Ask a question, drop in an image or dictate a draft. Review it before you send, then work through the reply together.</p><span class="app-note">Images need a vision-capable model.</span></div><figure><a href="/roomkit-ui/screenshots/conversation-dark.png" aria-label="Open full-size text and images screenshot"><img src="/roomkit-ui/screenshots/conversation-dark.png" data-screenshot="conversation" width="840" height="1480" loading="lazy" alt="A text conversation with a trail sketch attached and an assistant's response."></a><figcaption>Text &amp; images <span>Open full capture ↗</span></figcaption></figure></article>
+                <article class="app-panel" id="panel-live" aria-labelledby="live-title"><div class="app-panel-copy"><p class="eyebrow">02 / Think out loud</p><h3 id="live-title">Some ideas<br>sound better<br>out loud.</h3><p>Start Live and talk it through. Interrupt, ask a follow-up and see what your tools are doing, with the transcript right there.</p><span class="app-note">Hang up when you’re done. The thread stays.</span></div><figure><a href="/roomkit-ui/screenshots/live-dark.png" aria-label="Open full-size Live voice screenshot"><img src="/roomkit-ui/screenshots/live-dark.png" data-screenshot="live" width="840" height="1480" loading="lazy" alt="A Live voice conversation with a completed weather tool call, transcript and microphone controls."></a><figcaption>Live voice <span>Open full capture ↗</span></figcaption></figure></article>
+                <article class="app-panel" id="panel-history" aria-labelledby="history-title"><div class="app-panel-copy"><p class="eyebrow">03 / Pick it up tomorrow</p><h3 id="history-title">Your next thought<br>has a place<br>to come back to.</h3><p>Keep separate conversations for your ideas and projects. Reopen a thread with its messages, images and saved tool results.</p><span class="app-note">History is saved locally. You can turn saving off.</span></div><figure><a href="/roomkit-ui/screenshots/history-dark.png" aria-label="Open full-size conversation history screenshot"><img src="/roomkit-ui/screenshots/history-dark.png" data-screenshot="history" width="840" height="1480" loading="lazy" alt="The conversation sidebar with recent threads, search, and controls to rename or delete a conversation."></a><figcaption>Your conversations <span>Open full capture ↗</span></figcaption></figure></article>
             </div>
-        </nav>
+        </section>
 
-        <main id="content">
-            <section class="desktop-hero wrap" aria-labelledby="hero-title">
-                <div class="hero-copy">
-                    <p class="eyebrow">
-                        <span class="preview-dot" aria-hidden="true"></span> ROOMKIT UI · NEXT
-                        RELEASE PREVIEW
-                    </p>
-                    <h1 id="hero-title">
-                        Type it.<br />
-                        Show it.<br />
-                        <span>Talk it through.</span>
-                    </h1>
-                    <p class="hero-lead">
-                        An idea, a photo, a conversation.<br />
-                        Your assistant, right here on your desktop.
-                    </p>
-                    <p class="hero-detail">
-                        Move between text and Live voice, pick up a previous thread, and bring the
-                        models and tools you like.
-                    </p>
-                    <div class="desktop-actions">
-                        <a class="action-primary" href="#explore"
-                            >Take a look <span aria-hidden="true">↗</span></a
-                        >
-                        <a class="action-link" href="#install"
-                            >Try the latest source <span aria-hidden="true">→</span></a
-                        >
-                    </div>
-                    <p class="platform-note">
-                        Native PySide6 app <span>·</span> macOS, Windows &amp; Linux
-                        <span>·</span> Open source
-                    </p>
-                </div>
-                <div class="hero-scenes" aria-label="RoomKit UI home and image conversation">
-                    <img
-                        class="hero-home app-window"
-                        src="screenshots/home-dark.png"
-                        width="840"
-                        height="1480"
-                        alt="A quiet welcome screen with a single input for text, photos, dictation and Live voice."
-                    />
-                    <img
-                        class="hero-chat app-window"
-                        src="screenshots/conversation-dark.png"
-                        width="840"
-                        height="1480"
-                        fetchpriority="high"
-                        alt="A conversation about a weekend walk, with an attached trail sketch and a written response."
-                    />
-                    <span class="scene-caption"
-                        >A small window. Room for the whole conversation.</span
-                    >
-                </div>
-            </section>
+        <section class="app-choices shell" aria-labelledby="choices-title"><div class="section-heading"><p class="eyebrow">Make yourself at home</p><h2 id="choices-title">Your models.<br>Your way of working.</h2></div><div class="feature-pair">
+            <article class="feature feature-agents"><p class="feature-number">Choose the intelligence</p><h3>Pick the model.<br>Keep the assistant.</h3><p class="feature-description">Use your own provider keys, or run a local model. Choose your voice, language and instructions.</p><div class="model-options"><p><span>Cloud</span> Anthropic · OpenAI · Gemini</p><p><span>Local</span> Ollama · llama.cpp</p></div><a class="text-link" href="https://github.com/roomkit-live/roomkit-ui#features">Explore supported providers <svg aria-hidden="true"><use href="#arrow-up"/></svg></a></article>
+            <article class="feature feature-stack"><p class="feature-number">Bring your tools</p><h3>From a question<br>to getting it done.</h3><p class="feature-description">Connect services through MCP, an open standard for AI tools. Add skills and see tool activity and results in the conversation.</p><p class="tools-example">The weather check above is one example. The tools you connect decide what your assistant can do.</p><a class="text-link" href="https://github.com/roomkit-live/roomkit-ui#features">See tools and integrations <svg aria-hidden="true"><use href="#arrow-up"/></svg></a></article>
+        </div><div class="dictation-note"><span class="dictation-symbol" aria-hidden="true">↗</span><div><h3>Take your voice into other apps.</h3><p>A global shortcut turns speech into text wherever you’re writing.</p></div></div></section>
 
-            <div class="release-note wrap">
-                <span class="release-label">A look ahead</span>
-                <p>
-                    These are real captures of the current development build, with demo content. The
-                    redesigned interface is coming in the next release.
-                    <a href="https://github.com/roomkit-live/roomkit-ui/releases"
-                        >See stable releases <span aria-hidden="true">↗</span></a
-                    >
-                </p>
+        <section class="app-install" id="install" aria-labelledby="install-title"><div class="shell"><div class="app-section-heading"><div><p class="eyebrow">Make room for your assistant</p><h2 id="install-title">Meet your next<br>desktop companion.</h2></div><p class="install-intro">The app is free and open source.<br>Cloud AI usage is billed by your chosen provider.</p></div>
+            <div class="download-grid">
+                <a class="download-option" href="https://github.com/roomkit-live/roomkit-ui/releases/download/v0.3.1/RoomKit-UI-macOS.dmg"><h3>macOS</h3><p>Apple Silicon · macOS 13+</p><span>Download .dmg <svg aria-hidden="true"><use href="#arrow"/></svg></span></a>
+                <a class="download-option" href="https://github.com/roomkit-live/roomkit-ui/releases/download/v0.3.1/RoomKit-UI-Windows.zip"><h3>Windows</h3><p>Packaged desktop app</p><span>Download .zip <svg aria-hidden="true"><use href="#arrow"/></svg></span></a>
+                <a class="download-option" href="https://github.com/roomkit-live/roomkit-ui/releases/download/v0.3.1/RoomKit-UI-Linux.tar.gz"><h3>Linux</h3><p>Packaged desktop app</p><span>Download .tar.gz <svg aria-hidden="true"><use href="#arrow"/></svg></span></a>
             </div>
+            <p class="download-meta">Version 0.3.1 <span>·</span> <a href="https://github.com/roomkit-live/roomkit-ui/releases/tag/v0.3.1">Release notes ↗</a></p>
+            <details class="terminal-install"><summary>Prefer the terminal? Install with uv <span>Recommended in the project guide</span></summary><p>With <a href="https://docs.astral.sh/uv/getting-started/installation/">uv installed</a>, run:</p><div class="terminal-command"><pre><code id="install-commands">uv tool install --python 3.12 "roomkit-ui[all]"
+roomkit-ui</code></pre><button type="button" class="copy-button" data-copy-target="#install-commands" aria-label="Copy installation commands" hidden><svg aria-hidden="true"><use href="#copy"/></svg></button></div><p>Some optional local voice components need a separate install. <a href="https://github.com/roomkit-live/roomkit-ui#install-with-uv-recommended">Read the setup guide ↗</a></p></details>
+            <ol class="first-steps"><li><span>01</span><div><h3>Open the app.</h3><p>Install a package or use the uv command.</p></div></li><li><span>02</span><div><h3>Choose your model.</h3><p>Add a provider key or configure a local model in Settings.</p></div></li><li><span>03</span><div><h3>Start a conversation.</h3><p>Type a message or start Live to talk.</p></div></li></ol>
+        </div></section>
 
-            <section class="explore-section wrap" id="explore" aria-labelledby="explore-title">
-                <div class="section-intro">
-                    <div>
-                        <p class="eyebrow">MAKE YOURSELF AT HOME</p>
-                        <h2 id="explore-title">
-                            One conversation.<br />
-                            More ways to be there.
-                        </h2>
-                    </div>
-                    <div
-                        class="theme-choice"
-                        role="group"
-                        aria-label="Screenshot appearance"
-                        hidden
-                    >
-                        <button type="button" data-theme="dark" aria-pressed="true">Dark</button>
-                        <button type="button" data-theme="light" aria-pressed="false">Light</button>
-                    </div>
-                </div>
-                <div class="preview-tabs" role="tablist" aria-label="Explore RoomKit UI" hidden>
-                    <button
-                        type="button"
-                        role="tab"
-                        id="tab-conversation"
-                        aria-controls="panel-conversation"
-                        aria-selected="true"
-                    >
-                        Text &amp; images
-                    </button>
-                    <button
-                        type="button"
-                        role="tab"
-                        id="tab-live"
-                        aria-controls="panel-live"
-                        aria-selected="false"
-                        tabindex="-1"
-                    >
-                        Live voice
-                    </button>
-                    <button
-                        type="button"
-                        role="tab"
-                        id="tab-history"
-                        aria-controls="panel-history"
-                        aria-selected="false"
-                        tabindex="-1"
-                    >
-                        Conversations
-                    </button>
-                </div>
-                <div class="preview-panels">
-                    <div
-                        class="preview-panel"
-                        id="panel-conversation"
-                        role="tabpanel"
-                        aria-labelledby="tab-conversation"
-                        tabindex="0"
-                    >
-                        <div class="preview-copy">
-                            <span class="feature-number">01 / A THOUGHT, IN ANY FORM</span>
-                            <h3>
-                                Start with what<br />
-                                you have in mind.
-                            </h3>
-                            <p>
-                                Type a question, add a photo, or dictate a draft. There’s space to
-                                think before you hit send.
-                            </p>
-                            <ul class="feature-list">
-                                <li>Choose an image, take a photo, paste or drop it.</li>
-                                <li>Review your attachments and dictated text.</li>
-                                <li>An input that grows with your message, up to eight lines.</li>
-                            </ul>
-                            <span class="small-note"
-                                >Image understanding depends on your selected model.</span
-                            >
-                        </div>
-                        <figure class="preview-figure">
-                            <a
-                                class="screenshot-link"
-                                href="screenshots/conversation-dark.png"
-                                target="_blank"
-                                rel="noopener"
-                                aria-label="Open the text and images screenshot at full size"
-                                ><img
-                                    class="app-window"
-                                    data-screenshot="conversation"
-                                    src="screenshots/conversation-dark.png"
-                                    width="840"
-                                    height="1480"
-                                    loading="lazy"
-                                    alt="A trail sketch shared with the assistant, followed by a plan for a relaxed afternoon."
-                            /></a>
-                            <figcaption>
-                                Text &amp; images <span>Click to see the full capture ↗</span>
-                            </figcaption>
-                        </figure>
-                    </div>
-                    <div
-                        class="preview-panel"
-                        id="panel-live"
-                        role="tabpanel"
-                        aria-labelledby="tab-live"
-                        tabindex="0"
-                    >
-                        <div class="preview-copy">
-                            <span class="feature-number">02 / LET THE CONVERSATION FLOW</span>
-                            <h3>
-                                Some things are<br />
-                                easier out loud.
-                            </h3>
-                            <p>
-                                Tap the waveform and start talking. Your transcript stays in view,
-                                with quiet controls and room for the response.
-                            </p>
-                            <ul class="feature-list">
-                                <li>Realtime speech, or your own STT → LLM → TTS setup.</li>
-                                <li>Mute, interrupt and hang up from the conversation.</li>
-                                <li>
-                                    Models, tools and usage details in a panel when you need them.
-                                </li>
-                            </ul>
-                            <span class="small-note"
-                                >Hanging up keeps the thread. Continue it later.</span
-                            >
-                        </div>
-                        <figure class="preview-figure">
-                            <a
-                                class="screenshot-link"
-                                href="screenshots/live-dark.png"
-                                target="_blank"
-                                rel="noopener"
-                                aria-label="Open the Live voice screenshot at full size"
-                                ><img
-                                    class="app-window"
-                                    data-screenshot="live"
-                                    src="screenshots/live-dark.png"
-                                    width="840"
-                                    height="1480"
-                                    loading="lazy"
-                                    alt="A Live conversation with weather tool activity, a violet waveform, and mute and hang-up controls."
-                            /></a>
-                            <figcaption>
-                                Live voice <span>Click to see the full capture ↗</span>
-                            </figcaption>
-                        </figure>
-                    </div>
-                    <div
-                        class="preview-panel"
-                        id="panel-history"
-                        role="tabpanel"
-                        aria-labelledby="tab-history"
-                        tabindex="0"
-                    >
-                        <div class="preview-copy">
-                            <span class="feature-number">03 / PICK UP WHERE YOU LEFT OFF</span>
-                            <h3>
-                                A place for<br />
-                                every conversation.
-                            </h3>
-                            <p>
-                                A weekend plan, a new project, a passing thought. Each thread keeps
-                                its context, images and tool results together.
-                            </p>
-                            <ul class="feature-list">
-                                <li>Your 30 most recent conversations, a click away.</li>
-                                <li>Search all titles, rename a thread, or delete it.</li>
-                                <li>Reopen saved results without running the tool again.</li>
-                            </ul>
-                            <span class="small-note"
-                                >History is stored locally. You can turn saving off in
-                                Settings.</span
-                            >
-                        </div>
-                        <figure class="preview-figure">
-                            <a
-                                class="screenshot-link"
-                                href="screenshots/history-dark.png"
-                                target="_blank"
-                                rel="noopener"
-                                aria-label="Open the conversation history screenshot at full size"
-                                ><img
-                                    class="app-window"
-                                    data-screenshot="history"
-                                    src="screenshots/history-dark.png"
-                                    width="840"
-                                    height="1480"
-                                    loading="lazy"
-                                    alt="The sliding conversation panel with search, recent titles, a new conversation action and Settings."
-                            /></a>
-                            <figcaption>
-                                Conversation history <span>Click to see the full capture ↗</span>
-                            </figcaption>
-                        </figure>
-                    </div>
-                </div>
-            </section>
-
-            <section class="settings-section" aria-labelledby="settings-title">
-                <div class="wrap">
-                    <div class="section-intro">
-                        <div>
-                            <p class="eyebrow">YOUR ASSISTANT, YOUR CHOICES</p>
-                            <h2 id="settings-title">Find your own voice.</h2>
-                        </div>
-                        <p class="section-description">
-                            One realtime provider, or separate models for listening, thinking and
-                            speaking. A clearer workspace for making it yours.
-                        </p>
-                    </div>
-                    <figure class="settings-figure">
-                        <a
-                            class="screenshot-link"
-                            href="screenshots/settings-dark.png"
-                            target="_blank"
-                            rel="noopener"
-                            aria-label="Open the conversation settings screenshot at full size"
-                            ><img
-                                class="app-window"
-                                data-screenshot="settings"
-                                src="screenshots/settings-dark.png"
-                                width="2240"
-                                height="1640"
-                                loading="lazy"
-                                alt="RoomKit Settings with large Realtime and Voice Channel cards, a three-stage pipeline, and grouped sidebar navigation."
-                        /></a>
-                        <figcaption>
-                            Real application settings, in the appearance selected above.
-                            <a href="#explore">Change appearance ↑</a>
-                        </figcaption>
-                    </figure>
-                    <div class="settings-notes">
-                        <div>
-                            <span>01</span>
-                            <h3>Mix cloud and local</h3>
-                            <p>
-                                Choose your model providers. Build an offline voice pipeline with
-                                local speech recognition, a local LLM and local speech synthesis.
-                            </p>
-                        </div>
-                        <div>
-                            <span>02</span>
-                            <h3>Make it personal</h3>
-                            <p>
-                                Set the language, voice and instructions. Switch between light and
-                                dark, with the change visible immediately.
-                            </p>
-                        </div>
-                        <div>
-                            <span>03</span>
-                            <h3>Find it faster</h3>
-                            <p>
-                                Search Settings, manage model downloads, and keep provider keys,
-                                integrations and diagnostics in their own spaces.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="tools-section wrap" aria-labelledby="tools-title">
-                <div class="section-intro">
-                    <div>
-                        <p class="eyebrow">BRING WHAT YOU ALREADY USE</p>
-                        <h2 id="tools-title">More than a reply.</h2>
-                    </div>
-                    <p class="section-description">
-                        Connect your tools and skills. See what ran, read the result, and interact
-                        with the apps your MCP servers provide.
-                    </p>
-                </div>
-                <div class="capability-grid">
-                    <article>
-                        <span class="capability-icon" aria-hidden="true">↗</span>
-                        <h3>Tools in the conversation</h3>
-                        <p>
-                            Readable activity, expandable details and embedded MCP App interfaces.
-                            Saved outputs stay with the thread.
-                        </p>
-                    </article>
-                    <article>
-                        <span class="capability-icon" aria-hidden="true">✧</span>
-                        <h3>Skills that fit your work</h3>
-                        <p>
-                            Browse skills.sh, add your own sources, or use skills published by your
-                            connected MCP servers.
-                        </p>
-                    </article>
-                    <article>
-                        <span class="capability-icon" aria-hidden="true">⌘</span>
-                        <h3>Dictation beyond the app</h3>
-                        <p>
-                            A global shortcut turns speech into text in the focused app. Streaming
-                            local models transcribe while you speak.
-                        </p>
-                    </article>
-                </div>
-                <details class="auth-detail">
-                    <summary>
-                        Connect an HTTP tool server with the right authentication
-                        <span aria-hidden="true">+</span>
-                    </summary>
-                    <div class="auth-body">
-                        <p>
-                            Choose None, Bearer, a raw Authorization API key, Basic credentials or
-                            OAuth 2.0. Tokens and passwords have their own masked fields; additional
-                            headers stay in Advanced options.
-                        </p>
-                        <a
-                            class="screenshot-link"
-                            href="screenshots/authentication-dark.png"
-                            target="_blank"
-                            rel="noopener"
-                            aria-label="Open the MCP authentication screenshot at full size"
-                            ><img
-                                class="app-window"
-                                data-screenshot="authentication"
-                                src="screenshots/authentication-dark.png"
-                                width="2240"
-                                height="1640"
-                                loading="lazy"
-                                alt="MCP connection settings with Streamable HTTP, explicit Bearer authentication and a masked token field."
-                        /></a>
-                    </div>
-                </details>
-            </section>
-
-            <section class="install-section wrap" id="install" aria-labelledby="install-title">
-                <div class="section-intro">
-                    <div>
-                        <p class="eyebrow">OPEN SOURCE. MAKE IT YOURS.</p>
-                        <h2 id="install-title">A place to start.</h2>
-                    </div>
-                    <a class="action-link" href="https://github.com/roomkit-live/roomkit-ui"
-                        >Explore the source <span aria-hidden="true">↗</span></a
-                    >
-                </div>
-                <div class="install-grid">
-                    <article class="source-install">
-                        <span class="install-tag">WHAT YOU SEE HERE</span>
-                        <h3>Try the development build</h3>
-                        <p>
-                            The interface above is on <code>main</code>. Start from source with
-                            Python 3.12+ and <a href="https://docs.astral.sh/uv/">uv</a>.
-                        </p>
-                        <div class="code-heading">
-                            <span>Terminal · new checkout</span
-                            ><button type="button" id="copy-install" hidden>Copy commands</button>
-                        </div>
-                        <pre><code id="install-commands">git clone https://github.com/roomkit-live/roomkit-ui.git
-cd roomkit-ui
-uv sync --extra all
-uv run --no-sync python -m roomkit_ui</code></pre>
-                        <p class="install-help">
-                            Already have a checkout? See the
-                            <a href="https://github.com/roomkit-live/roomkit-ui#run-from-source"
-                                >source setup guide</a
-                            >
-                            for optional components. <code>all</code> excludes some large local
-                            voice backends.
-                        </p>
-                        <span id="copy-feedback" class="small-note" role="status"></span>
-                    </article>
-                    <article class="stable-install">
-                        <span class="install-tag">PREFER A PACKAGED APP?</span>
-                        <h3>Download the stable release</h3>
-                        <p>
-                            Builds for macOS, Windows and Linux. The latest stable version may
-                            differ from this preview.
-                        </p>
-                        <a
-                            class="action-primary"
-                            href="https://github.com/roomkit-live/roomkit-ui/releases"
-                            >View releases <span aria-hidden="true">↗</span></a
-                        >
-                        <div class="getting-started">
-                            <h4>Once you’re in</h4>
-                            <p>
-                                Open the conversation panel → Settings. Add your provider key or
-                                select a local model, then choose your conversation setup.
-                            </p>
-                            <a
-                                class="action-link"
-                                href="https://github.com/roomkit-live/roomkit-ui#usage"
-                                >Read the quick start →</a
-                            >
-                        </div>
-                    </article>
-                </div>
-            </section>
-        </main>
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-brand">
-                        <a href="/" class="nav-logo">
-                            <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
-                                <rect
-                                    x="2"
-                                    y="2"
-                                    width="28"
-                                    height="28"
-                                    rx="6"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                />
-                                <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor" />
-                                <rect
-                                    x="17"
-                                    y="7"
-                                    width="8"
-                                    height="8"
-                                    rx="2"
-                                    fill="currentColor"
-                                    opacity="0.6"
-                                />
-                                <rect
-                                    x="7"
-                                    y="17"
-                                    width="8"
-                                    height="8"
-                                    rx="2"
-                                    fill="currentColor"
-                                    opacity="0.6"
-                                />
-                                <rect
-                                    x="17"
-                                    y="17"
-                                    width="8"
-                                    height="8"
-                                    rx="2"
-                                    fill="currentColor"
-                                    opacity="0.3"
-                                />
-                            </svg>
-                            <span>RoomKit</span>
-                        </a>
-                        <p>Pure async Python library for multi-channel conversations.</p>
-                    </div>
-                    <div class="footer-links">
-                        <div class="footer-column">
-                            <h4>Documentation</h4>
-                            <a href="/docs/">Getting Started</a>
-                            <a href="/docs/features/">Features</a>
-                            <a href="/docs/api/">API Reference</a>
-                        </div>
-                        <div class="footer-column">
-                            <h4>Resources</h4>
-                            <a href="/blog/">Blog</a>
-                            <a href="/llms.txt">llms.txt</a>
-                            <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md"
-                                >AGENTS.md</a
-                            >
-                            <a href="/docs/mcp/">MCP Integration</a>
-                            <a href="/docs/roomkit-rfc/">RFC</a>
-                        </div>
-                        <div class="footer-column">
-                            <h4>Community</h4>
-                            <a href="https://github.com/roomkit-live/">GitHub</a>
-                            <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
-                            <a href="https://pypi.org/project/roomkit/">PyPI</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2026 RoomKit. MIT License.</p>
-                </div>
+        <section class="app-faq shell" aria-labelledby="faq-title"><div><p class="eyebrow">Before you jump in</p><h2 id="faq-title">A few things<br>to know.</h2></div><div class="faq-list"><details><summary>Do I need an API key?</summary><p>For a cloud provider, yes: add your own key in Settings. An all-local setup can run without a cloud API key once its models and components are installed.</p></details><details><summary>Can I use it offline?</summary><p>Yes, with local speech recognition, a local language model and local speech synthesis. Download the models first. Cloud providers and online tools still need an internet connection.</p></details><details><summary>Where do my conversations go?</summary><p>Saved history lives on your computer. Cloud providers receive the content sent to their models; connected tools receive the data needed for their actions. You choose which ones to use.</p></details></div></section>
+        <section class="app-builder shell"><div><p class="eyebrow">For the builders among us</p><h2>Like the app?<br>Build what comes next.</h2><p>RoomKit UI is built with the RoomKit Python framework. Explore the source, report a rough edge, or build your own conversational app.</p></div><div><a class="text-link" href="/">Explore the framework <svg aria-hidden="true"><use href="#arrow"/></svg></a><a class="text-link" href="https://github.com/roomkit-live/roomkit-ui/issues">Share feedback <svg aria-hidden="true"><use href="#arrow-up"/></svg></a></div></section>
+    </main>
+    <footer class="site-footer shell">
+        <div class="footer-main">
+            <div class="footer-brand">
+                <a class="brand" href="/" aria-label="roomkit. home"><svg aria-hidden="true"><use href="#roomkit-mark"/></svg><span>roomkit<span class="brand-dot">.</span></span></a>
+                <p>Pure async Python library for multi-channel conversations.</p>
             </div>
-        </footer>
-    </body>
+            <nav class="footer-links" aria-label="Footer">
+                <div class="footer-column">
+                    <h3>documentation</h3>
+                    <a href="/docs/">getting started</a>
+                    <a href="/docs/features/">features</a>
+                    <a href="/docs/api/">api reference</a>
+                </div>
+                <div class="footer-column">
+                    <h3>resources</h3>
+                    <a href="/blog/">blog</a>
+                    <a href="/llms.txt">llms.txt</a>
+                    <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">agents.md</a>
+                    <a href="/docs/mcp/">mcp integration</a>
+                    <a href="/docs/roomkit-rfc/">rfc</a>
+                </div>
+                <div class="footer-column">
+                    <h3>community</h3>
+                    <a href="https://github.com/roomkit-live/">github</a>
+                    <a href="https://github.com/roomkit-live/roomkit/issues">issues</a>
+                    <a href="https://pypi.org/project/roomkit/">pypi</a>
+                </div>
+            </nav>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 RoomKit. MIT License.</p></div>
+    </footer>
+    <p class="sr-only" id="copy-status" role="status"></p>
+</body>
 </html>
