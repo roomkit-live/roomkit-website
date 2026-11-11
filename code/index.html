@@ -133,7 +133,7 @@ sh install.sh</code><button type="button" class="copy-button" data-copy-target="
         <section class="code-faq faq-section shell" aria-labelledby="faq-title">
             <div><p class="eyebrow">Before you install</p><h2 id="faq-title">A few things<br>to know.</h2></div>
             <div class="faq-list">
-                <details><summary>Which models work?</summary><p>Any model behind an OpenAI-compatible Chat Completions endpoint, for example a local server, as long as it supports function calling and streaming. You can also sign in with ChatGPT.</p></details>
+                <details><summary>Which models work?</summary><p>Any model behind an OpenAI-compatible Chat Completions endpoint, for example a local server, as long as it supports function calling and streaming. You can also sign in with ChatGPT. The <a href="https://roomkit-live.github.io/roomkit-models/">RoomKit model catalogue</a> shows which models declare tool calling, with their context and list prices.</p></details>
                 <details><summary>What leaves my machine?</summary><p>Model requests go to the endpoint you selected and can include the file contents its tools return. The web tools reach the sites they search or read. Update checks contact GitHub at most once a day, send no project, conversation or provider information, and can be turned off.</p></details>
                 <details><summary>Where are my API keys stored?</summary><p>In a private local file with 0600 permissions, not in an operating system keychain. They are never shown in the interface or stored in chat history.</p></details>
                 <details><summary>Is it a sandbox?</summary><p>No. Commands run with your own user permissions, and the project directory is where they start, not a limit. The modes decide what runs and when, not what a command can reach.</p></details>
@@ -161,6 +161,7 @@ sh install.sh</code><button type="button" class="copy-button" data-copy-target="
                 <div class="footer-column">
                     <h3>resources</h3>
                     <a href="/blog/">blog</a>
+                    <a href="https://roomkit-live.github.io/roomkit-models/">models</a>
                     <a href="/llms.txt">llms.txt</a>
                     <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">agents.md</a>
                     <a href="/docs/mcp/">mcp integration</a>
