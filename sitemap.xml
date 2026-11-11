@@ -66,7 +66,12 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.roomkit.live/roomkit-ui/</loc>
+        <loc>https://www.roomkit.live/assistant/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://www.roomkit.live/code/</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>

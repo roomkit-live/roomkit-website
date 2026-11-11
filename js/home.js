@@ -35,6 +35,7 @@ const scenarios = {
     },
 };
 
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const tabs = [...document.querySelectorAll('[data-scenario]')];
 const panel = document.querySelector('#conversation-demo');
 const fields = {
@@ -65,7 +66,19 @@ function selectScenario(tab, focus = false) {
     document.querySelector('#right-message').hidden = !scenario.rightMessage;
     document.querySelector('#right-icon').setAttribute('href', scenario.rightIcon);
     panel.setAttribute('aria-labelledby', tab.id);
+    animateScenarioText();
     if (focus) tab.focus();
+}
+
+function animateScenarioText() {
+    if (reducedMotion.matches) return;
+    // The cards carry their own rotation, so the entrance uses `translate`, not `transform`.
+    panel.querySelectorAll('.message-bubble:not([hidden]), .waveform:not([hidden]), .channel-caption').forEach((element) => {
+        element.animate(
+            [{ opacity: 0, translate: '0 8px' }, { opacity: 1, translate: '0 0' }],
+            { duration: 500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+        );
+    });
 }
 
 tabs.forEach((tab, index) => {
@@ -82,3 +95,22 @@ tabs.forEach((tab, index) => {
         }
     });
 });
+
+// Sections below the first screen rise into place once. Anything already on
+// screen or scrolled past stays as it is, so a deep link never lands on a blank.
+function revealSectionsOnScroll() {
+    if (reducedMotion.matches || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+        entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+        });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    document.querySelectorAll('main > section:not(.hero)').forEach((section) => {
+        if (section.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+        section.classList.add('reveal');
+        observer.observe(section);
+    });
+}
+
+revealSectionsOnScroll();

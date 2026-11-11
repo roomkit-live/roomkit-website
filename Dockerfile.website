@@ -64,6 +64,14 @@ server {
         set $redirect_scheme $http_x_forwarded_proto;
     }
 
+    # RoomKit UI became RoomKit Assistant; old links and images keep working
+    location = /roomkit-ui {
+        return 301 $redirect_scheme://$host/assistant/;
+    }
+    location ^~ /roomkit-ui/ {
+        rewrite ^/roomkit-ui/(.*)$ $redirect_scheme://$host/assistant/$1 permanent;
+    }
+
     # Enforce trailing slash on directories (prevents duplicate URLs)
     # If a URI has no extension and no trailing slash, and a directory exists, redirect
     location ~ ^([^.]*[^/])$ {

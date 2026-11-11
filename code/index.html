@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>RoomKit Code — A coding agent for your terminal</title>
+    <meta name="description" content="RoomKit Code explores, plans, edits and tests your projects from the terminal. You choose the model and how much it can do on its own. Open source, written in Rust.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preload" href="/css/fonts/space-grotesk-500-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/site.css?v=b7016b5b033d">
+    <link rel="stylesheet" href="/code/page.css?v=feb4fe1ef881">
+    <script src="/js/site.js?v=e82daae15ed8" defer></script>
+    <link rel="canonical" href="https://www.roomkit.live/code/">
+    <meta property="og:title" content="RoomKit Code — A coding agent for your terminal">
+    <meta property="og:description" content="RoomKit Code explores, plans, edits and tests your projects from the terminal. You choose the model and how much it can do on its own. Open source, written in Rust.">
+    <meta property="og:image" content="https://www.roomkit.live/og-image.png">
+    <meta property="og:url" content="https://www.roomkit.live/code/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="RoomKit">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RoomKit Code — A coding agent for your terminal">
+    <meta name="twitter:description" content="RoomKit Code explores, plans, edits and tests your projects from the terminal. You choose the model and how much it can do on its own. Open source, written in Rust.">
+    <meta name="twitter:image" content="https://www.roomkit.live/og-image.png">
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "RoomKit Code",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Linux, macOS",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+    },
+    "description": "RoomKit Code explores, plans, edits and tests your projects from the terminal. You choose the model and how much it can do on its own. Open source, written in Rust.",
+    "url": "https://www.roomkit.live/code/",
+    "author": {
+        "@type": "Person",
+        "name": "Sylvain Boily"
+    },
+    "codeRepository": "https://github.com/roomkit-live/roomkit-code",
+    "license": "https://opensource.org/licenses/MIT",
+    "programmingLanguage": "Rust"
+}
+    </script>
+</head>
+<body>
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="roomkit-mark" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/><rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/><rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/><rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".3"/></symbol>
+        <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="arrow-up" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M15 8V4H4v11h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    </svg>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header"><div class="shell header-inner">
+        <a class="brand" href="/code/" aria-label="roomkit. code home"><svg aria-hidden="true"><use href="#roomkit-mark"/></svg><span>roomkit<span class="brand-dot">.</span></span></a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>menu <span aria-hidden="true">+</span></button>
+        <nav class="main-nav" id="main-nav" aria-label="Main navigation"><a href="/">framework</a><a href="/assistant/">assistant</a><a href="#explore">explore</a><a href="https://github.com/roomkit-live/roomkit-code">github</a><a class="button button-dark nav-cta" href="#install">install <svg aria-hidden="true"><use href="#arrow"/></svg></a></nav>
+    </div></header>
+
+    <main id="main">
+        <section class="code-hero shell" aria-labelledby="code-title">
+            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A coding agent for your terminal</p>
+            <h1 id="code-title">Explore, plan, edit, test.<br><span>In your terminal.</span></h1>
+            <p class="code-lead">RoomKit Code is a coding agent built in Rust on RoomKit. You choose the model and how much it can do on its own, and the sidebar shows the files it changes.</p>
+            <div class="code-actions"><a class="button button-blue" href="#install">Install RoomKit Code <svg aria-hidden="true"><use href="#arrow"/></svg></a><a class="text-link" href="#explore">See how it works <svg aria-hidden="true"><use href="#arrow"/></svg></a></div>
+            <p class="code-footnote">Linux and macOS <span aria-hidden="true">/</span> MIT licensed <span aria-hidden="true">/</span> Written in Rust</p>
+        </section>
+        <div class="shell">
+            <figure class="code-shot code-hero-shot"><a href="/code/screenshots/done.png" aria-label="Open the full-size capture of a finished task"><img src="/code/screenshots/done.png" width="2432" height="1332" fetchpriority="high" alt="RoomKit Code after a fix: the test suite exits with 0, the plan shows two of two steps done, and the sidebar lists the one modified file and the context used."></a><figcaption>Real capture of roomkit-code 0.1.0. The tools, the files and the test run are real. The model’s replies are scripted.</figcaption></figure>
+            <div class="code-release"><span><span class="status-dot" aria-hidden="true"></span> Early version · v0.1.0</span><p>Commands and settings can still change between versions.</p><a href="https://github.com/roomkit-live/roomkit-code/releases">Release notes <svg aria-hidden="true"><use href="#arrow-up"/></svg></a></div>
+        </div>
+
+        <section class="code-explore shell" id="explore" aria-labelledby="explore-title">
+            <div class="section-heading"><p class="eyebrow">How much it does is up to you</p><h2 id="explore-title">Three modes.<br>One keystroke apart.</h2></div>
+            <article class="code-panel"><div class="code-panel-copy"><p class="eyebrow">01 / Plan</p><h3>Read first.<br>Change nothing.</h3><p>In Plan mode the agent explores the project and saves a plan you can follow in the sidebar. The application blocks file changes, commands and MCP calls, whatever the model asks for.</p><p class="code-note">Web research still asks for your approval.</p></div><figure class="code-shot"><a href="/code/screenshots/plan.png" aria-label="Open the full-size capture of Plan mode"><img src="/code/screenshots/plan.png" width="2432" height="1332" loading="lazy" alt="Plan mode: the agent has read the failing test, explained the cause and saved a two-step plan. The sidebar says no files changed."></a></figure></article>
+            <article class="code-panel"><div class="code-panel-copy"><p class="eyebrow">02 / Ask</p><h3>You see the change.<br>You decide.</h3><p>In Ask mode, a change or a command waits on a card that shows the exact arguments. Allow it once or deny it, and the agent carries on. Yolo mode runs them directly, when you trust the task.</p><p class="code-note">Shift+Tab changes the mode.</p></div><figure class="code-shot"><a href="/code/screenshots/approval.png" aria-label="Open the full-size capture of an approval card"><img src="/code/screenshots/approval.png" width="2432" height="1332" loading="lazy" alt="An approval card asks to allow an edit, showing the old text, the new text and the file path, with the choices allow once and deny."></a></figure></article>
+            <article class="code-panel"><div class="code-panel-copy"><p class="eyebrow">03 / Tools</p><h3>Give each agent<br>what it needs.</h3><p>Search and outline code, edit files, run commands and long-lived processes, read the web and keep plans. <code>/tools</code> lists the 29 tools available, and <code>/agents</code> chooses them for each agent.</p></div><figure class="code-shot"><a href="/code/screenshots/tools.png" aria-label="Open the full-size capture of the tool list"><img src="/code/screenshots/tools.png" width="2432" height="1332" loading="lazy" alt="The tools panel lists the 29 registered tools with a filter, starting with code_outline, list, glob, grep and read."></a></figure></article>
+            <article class="code-panel"><div class="code-panel-copy"><p class="eyebrow">04 / Delegate</p><h3>Hand off a task.<br>Keep working.</h3><p>An agent can hand a task to another agent of the project. That agent works in the background, in a conversation of its own, and its result comes back to the first. <code>/tasks</code> follows each task as it runs, stops it, or opens its room so you can write to its agent.</p><p class="code-note">A delegated agent works in the same mode. In Ask, its approvals come to you.</p></div><figure class="code-shot"><a href="/code/screenshots/delegate.png" aria-label="Open the full-size capture of a delegated task"><img src="/code/screenshots/delegate.png" width="2432" height="1332" loading="lazy" alt="The Code agent hands the review of its change to a Review agent. A line says the task completed in 2 seconds, then Code passes on what Review found."></a></figure></article>
+        </section>
+
+        <section class="code-features shell" aria-labelledby="features-title">
+            <div class="section-heading"><p class="eyebrow">What comes with it</p><h2 id="features-title">Your model.<br>Your project’s rules.</h2></div>
+            <div class="code-feature-grid">
+                <article class="code-feature"><h3>Any compatible model</h3><p>Use any OpenAI-compatible Chat Completions endpoint, local or in the cloud, or sign in with ChatGPT. The model must support function calling.</p></article>
+                <article class="code-feature"><h3>Your instructions</h3><p>It reads your project’s <code>AGENTS.md</code>. Skills stay off until you enable them for an agent.</p></article>
+                <article class="code-feature"><h3>MCP and hooks</h3><p>Connect MCP servers over stdio or Streamable HTTP. Run your own commands around tool calls and turns with command hooks.</p></article>
+                <article class="code-feature"><h3>Sessions that last</h3><p>Each project keeps its conversations in SQLite, and <code>/resume</code> reopens them. When the model’s window is known, a long conversation is summarized before it fills it, or at once with <code>/compact</code>.</p></article>
+                <article class="code-feature"><h3>Scripts and CI</h3><p><code>--prompt</code> sends one message without the interface and exits when the agent’s turn ends. Add <code>--json</code> to get every event as one JSON line.</p></article>
+                <article class="code-feature"><h3>You stay in the loop</h3><p>Write to the agent while it works, or press Esc to interrupt it and keep your draft. The sidebar shows the context used, the plan, the files changed and, when the model’s price is known, what the conversation cost.</p></article>
+            </div>
+        </section>
+
+        <section class="code-parts shell" aria-labelledby="parts-title">
+            <div class="section-heading"><p class="eyebrow">Take the parts you need</p><h2 id="parts-title">Built from parts<br>you can reuse.</h2></div>
+            <div class="project-list project-list-blocks">
+                <a class="project" href="https://github.com/roomkit-live/roomkit-rs"><span class="project-icon project-icon-ui" aria-hidden="true"><svg><use href="#roomkit-mark"/></svg></span><h3>RoomKit in Rust</h3><p>The conversation engine: agents, providers, MCP client, policies and persistence.</p><span class="project-meta">Explore the project</span><svg class="project-arrow" aria-hidden="true"><use href="#arrow-up"/></svg></a>
+                <a class="project" href="https://github.com/roomkit-live/roomkit-tools"><span class="project-icon project-icon-tools" aria-hidden="true">fn</span><h3>RoomKit Tools</h3><p>The tools, each one a separate component, in Rust with a Python API.</p><span class="project-meta">Explore the project</span><svg class="project-arrow" aria-hidden="true"><use href="#arrow-up"/></svg></a>
+                <a class="project" href="https://github.com/roomkit-live/roomkit-tui"><span class="project-icon project-icon-tui" aria-hidden="true">&gt;_</span><h3>RoomKit TUI</h3><p>The terminal interface, embeddable in your own application.</p><span class="project-meta">Explore the project</span><svg class="project-arrow" aria-hidden="true"><use href="#arrow-up"/></svg></a>
+                <a class="project" href="https://github.com/roomkit-live/roomkit-auth"><span class="project-icon project-icon-sandbox" aria-hidden="true">id</span><h3>RoomKit Auth</h3><p>Sign-in, account identity, credential storage and renewal.</p><span class="project-meta">Explore the project</span><svg class="project-arrow" aria-hidden="true"><use href="#arrow-up"/></svg></a>
+            </div>
+        </section>
+
+        <section class="build-section" id="install" aria-labelledby="install-title">
+            <div class="quickstart-layout shell">
+                <div class="quickstart-copy">
+                    <div class="quickstart-heading">
+                        <p class="eyebrow">No Rust needed</p>
+                        <h2 id="install-title">Install it.<br><span>Open a project.</span></h2>
+                    </div>
+                    <div class="quickstart-commands">
+                        <div class="quickstart-step">
+                            <p class="quickstart-label"><span>01</span> Download the installer and run it</p>
+                            <div class="quickstart-command"><code id="install-commands">curl -fsSLO https://github.com/roomkit-live/roomkit-code/releases/latest/download/install.sh
+sh install.sh</code><button type="button" class="copy-button" data-copy-target="#install-commands" aria-label="Copy the install commands" hidden><svg aria-hidden="true"><use href="#copy"/></svg></button></div>
+                        </div>
+                        <div class="quickstart-step">
+                            <p class="quickstart-label"><span>02</span> Open your project</p>
+                            <div class="quickstart-command"><code>roomkit-code /path/to/project</code><button type="button" class="copy-button" data-copy="roomkit-code /path/to/project" aria-label="Copy the run command" hidden><svg aria-hidden="true"><use href="#copy"/></svg></button></div>
+                        </div>
+                        <div class="quickstart-step">
+                            <p class="quickstart-label"><span>03</span> Add a provider with /providers, then an agent with /agents</p>
+                        </div>
+                    </div>
+                    <p class="code-install-note">Linux x86-64 and ARM64 with glibc 2.35 or newer. macOS 12 or newer, Intel or Apple Silicon. The installer checks the binary’s SHA-256 and installs in ~/.local/bin, without sudo. macOS builds have an ad-hoc signature and are not notarized.</p>
+                </div>
+                <figure class="code-shot code-install-shot"><a href="/code/screenshots/welcome.png" aria-label="Open the full-size capture of the welcome screen"><img src="/code/screenshots/welcome.png" width="2432" height="1332" loading="lazy" alt="The RoomKit Code welcome screen, with the roomkit. wordmark, the version and a message input."></a></figure>
+            </div>
+        </section>
+
+        <section class="code-faq faq-section shell" aria-labelledby="faq-title">
+            <div><p class="eyebrow">Before you install</p><h2 id="faq-title">A few things<br>to know.</h2></div>
+            <div class="faq-list">
+                <details><summary>Which models work?</summary><p>Any model behind an OpenAI-compatible Chat Completions endpoint, for example a local server, as long as it supports function calling and streaming. You can also sign in with ChatGPT.</p></details>
+                <details><summary>What leaves my machine?</summary><p>Model requests go to the endpoint you selected and can include the file contents its tools return. The web tools reach the sites they search or read. Update checks contact GitHub at most once a day, send no project, conversation or provider information, and can be turned off.</p></details>
+                <details><summary>Where are my API keys stored?</summary><p>In a private local file with 0600 permissions, not in an operating system keychain. They are never shown in the interface or stored in chat history.</p></details>
+                <details><summary>Is it a sandbox?</summary><p>No. Commands run with your own user permissions, and the project directory is where they start, not a limit. The modes decide what runs and when, not what a command can reach.</p></details>
+                <details><summary>Does it run on Windows?</summary><p>Not today. Linux and macOS are the supported platforms.</p></details>
+            </div>
+        </section>
+
+        <section class="closing" aria-labelledby="closing-title">
+            <div class="shell closing-inner"><div><p class="eyebrow">Open source, from the engine up</p><h2 id="closing-title">Try it on<br><span>your own project.</span></h2><p class="closing-description">Start in Plan mode. It reads your code and changes nothing until you say so.</p><div class="closing-actions"><a class="button button-light" href="#install">Install RoomKit Code <svg aria-hidden="true"><use href="#arrow"/></svg></a><a class="text-link" href="https://github.com/roomkit-live/roomkit-code">Read the source <svg aria-hidden="true"><use href="#arrow-up"/></svg></a></div></div><div class="closing-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div></div>
+        </section>
+    </main>
+    <footer class="site-footer shell">
+        <div class="footer-main">
+            <div class="footer-brand">
+                <a class="brand" href="/" aria-label="roomkit. home"><svg aria-hidden="true"><use href="#roomkit-mark"/></svg><span>roomkit<span class="brand-dot">.</span></span></a>
+                <p>Open-source framework for multi-channel conversations.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <div class="footer-column">
+                    <h3>documentation</h3>
+                    <a href="/docs/">getting started</a>
+                    <a href="/docs/features/">features</a>
+                    <a href="/docs/api/">api reference</a>
+                </div>
+                <div class="footer-column">
+                    <h3>resources</h3>
+                    <a href="/blog/">blog</a>
+                    <a href="/llms.txt">llms.txt</a>
+                    <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">agents.md</a>
+                    <a href="/docs/mcp/">mcp integration</a>
+                    <a href="/docs/roomkit-rfc/">rfc</a>
+                </div>
+                <div class="footer-column">
+                    <h3>community</h3>
+                    <a href="https://github.com/roomkit-live/">github</a>
+                    <a href="https://github.com/roomkit-live/roomkit/issues">issues</a>
+                    <a href="https://pypi.org/project/roomkit/">pypi</a>
+                    <a href="https://github.com/roomkit-live/roomkit-rs">rust</a>
+                </div>
+            </nav>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 RoomKit. MIT License.</p></div>
+    </footer>
+    <p class="sr-only" id="copy-status" role="status"></p>
+</body>
+</html>
