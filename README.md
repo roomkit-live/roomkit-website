@@ -107,8 +107,10 @@ The site is containerized and deployed to the existing Kubernetes installation:
 ./deploy.sh
 ```
 
-`make gather` pulls the sibling repositories, checks matching `llms*.txt` copies,
-assembles the static assets and documentation, and regenerates the sitemap.
+`make gather` fetches the sibling repositories and reads them at `origin/main`,
+whatever branch their checkouts are on (unpushed work in them is not deployed). It
+checks matching `llms*.txt` copies, assembles the static assets and documentation,
+and regenerates the sitemap.
 `make build` builds and pushes the image; `make deploy` applies the Kubernetes
 manifests and waits for rollout. See `Makefile`, `Dockerfile.website` and `k8s.yml`.
 

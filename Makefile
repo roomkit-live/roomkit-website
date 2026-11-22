@@ -9,6 +9,9 @@
 #   roomkit-docs/     → docs/, mkdocs.yml
 #   roomkit-specs/    → roomkit-rfc.md
 #   roomkit-website/  → this repo (index.html, css/, js/, docs-theme/, deploy.sh, …)
+#
+# The sibling repos are read at SIBLING_REF, never from their working trees:
+# their checkouts are shared with other work and may sit on any branch.
 # =============================================================================
 
 REGISTRY   := quintana
@@ -18,6 +21,7 @@ PLATFORM   := linux/arm64
 K8S_HOST   := root@192.168.50.6
 NAMESPACE  := roomkit
 BUILD_DIR  := .build
+SIBLING_REF := origin/main
 
 WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg og-image.png robots.txt sitemap.xml css js blog assistant code examples
 
@@ -27,33 +31,31 @@ WEBSITE_FILES := index.html 404.html favicon.svg og-image.svg og-image.png robot
 # gather — assemble .build/ from sibling repos + local static files
 # ---------------------------------------------------------------------------
 gather:
-	@echo "==> Pulling latest from all sibling repos…"
-	git -C ../roomkit      pull --ff-only
-	git -C ../roomkit-docs pull --ff-only
-	git -C ../roomkit-specs pull --ff-only
+	@echo "==> Fetching $(SIBLING_REF) of the sibling repos…"
+	git -C ../roomkit       fetch origin main
+	git -C ../roomkit-docs  fetch origin main
+	git -C ../roomkit-specs fetch origin main
 	git pull --ff-only
-
-	@echo "==> Checking the docs site's llms copies against roomkit's…"
-	@cmp -s ../roomkit/llms.txt ../roomkit-docs/docs/llms.txt \
-		&& cmp -s ../roomkit/llms-full.txt ../roomkit-docs/docs/llms-full.txt \
-		|| { echo "roomkit-docs/docs/llms*.txt differ from roomkit's: run 'make llms-sync' in roomkit and commit the copies"; exit 1; }
 
 	@echo "==> Checking the ?v= versions of CSS and JS…"
 	python3 scripts/update-asset-versions.py --check
 
 	@echo "==> Gathering build context into $(BUILD_DIR)/"
 	rm -rf $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/website $(BUILD_DIR)/docs
+	mkdir -p $(BUILD_DIR)/website
 
 	# Source code & metadata from roomkit
-	cp -R ../roomkit/src       $(BUILD_DIR)/src
-	cp    ../roomkit/pyproject.toml $(BUILD_DIR)/pyproject.toml
-	cp    ../roomkit/llms.txt  $(BUILD_DIR)/llms.txt
-	cp    ../roomkit/llms-full.txt $(BUILD_DIR)/llms-full.txt
+	git -C ../roomkit archive $(SIBLING_REF) src pyproject.toml llms.txt llms-full.txt \
+		| tar -x -C $(BUILD_DIR)
 
 	# Documentation from roomkit-docs
-	cp -R ../roomkit-docs/docs/. $(BUILD_DIR)/docs/
-	cp    ../roomkit-docs/mkdocs.yml $(BUILD_DIR)/mkdocs.base.yml
+	git -C ../roomkit-docs archive $(SIBLING_REF) docs mkdocs.yml | tar -x -C $(BUILD_DIR)
+	mv    $(BUILD_DIR)/mkdocs.yml $(BUILD_DIR)/mkdocs.base.yml
+
+	@echo "==> Checking the docs site's llms copies against roomkit's…"
+	@cmp -s $(BUILD_DIR)/llms.txt $(BUILD_DIR)/docs/llms.txt \
+		&& cmp -s $(BUILD_DIR)/llms-full.txt $(BUILD_DIR)/docs/llms-full.txt \
+		|| { echo "roomkit-docs/docs/llms*.txt differ from roomkit's: run 'make llms-sync' in roomkit, commit the copies and push"; exit 1; }
 
 	# The site's header, footer and colours around the documentation:
 	# docs-theme/mkdocs.yml inherits from roomkit-docs' own mkdocs.yml
@@ -63,7 +65,7 @@ gather:
 	cp    favicon.svg $(BUILD_DIR)/docs-theme/overrides/assets/favicon.svg
 
 	# RFC spec from roomkit-specs
-	cp    ../roomkit-specs/roomkit-rfc.md $(BUILD_DIR)/docs/roomkit-rfc.md
+	git -C ../roomkit-specs show $(SIBLING_REF):roomkit-rfc.md > $(BUILD_DIR)/docs/roomkit-rfc.md
 
 	# Regenerate sitemap.xml from blog/ directory
 	bash scripts/generate-sitemap.sh
