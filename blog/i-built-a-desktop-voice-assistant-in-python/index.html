@@ -28,8 +28,10 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-    <!-- Fonts -->
-    <link rel="stylesheet" href="/css/style.css">
+    <!-- Styles: shell.css comes last so the shared header and footer look the same everywhere -->
+    <link rel="stylesheet" href="/css/blog.css?v=bc9d93048d53">
+    <link rel="stylesheet" href="/css/shell.css?v=631c9c1b4812">
+    <script src="/js/site.js?v=e82daae15ed8" defer></script>
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -54,39 +56,38 @@
     </script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-container">
-            <a href="/" class="nav-logo">
-                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
-                    <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
-                    <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                    <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                    <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
-                </svg>
-                <span>RoomKit</span>
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="roomkit-mark" viewBox="0 0 32 32">
+            <rect x="2" y="2" width="28" height="28" rx="6" fill="none" stroke="currentColor" stroke-width="2"/>
+            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/>
+            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/>
+            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".3"/>
+        </symbol>
+        <symbol id="arrow" viewBox="0 0 24 24">
+            <path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </symbol>
+    </svg>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+        <div class="shell header-inner">
+            <a class="brand" href="/" aria-label="roomkit. home">
+                <svg aria-hidden="true"><use href="#roomkit-mark"/></svg>
+                <span>roomkit<span class="brand-dot">.</span></span>
             </a>
-            <div class="nav-links">
-                <a href="/docs/" class="nav-link">Documentation</a>
-                <a href="/docs/features/" class="nav-link">Features</a>
-                <a href="/docs/mcp/" class="nav-link">MCP</a>
-                <a href="/docs/api/" class="nav-link">API Reference</a>
-                <a href="/assistant/" class="nav-link">RoomKit Assistant</a>
-                <a href="/code/" class="nav-link">RoomKit Code</a>
-                <a href="/blog/" class="nav-link nav-link-active">Blog</a>
-                <a href="https://github.com/roomkit-live/" class="nav-link" target="_blank" rel="noopener">GitHub</a>
-            </div>
-            <div class="nav-actions">
-                <a href="/docs/" class="btn btn-primary">Get Started</a>
-            </div>
-            <button class="nav-toggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>menu <span aria-hidden="true">+</span></button>
+            <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+                <a href="/docs/">docs</a>
+                <a href="/assistant/">assistant</a>
+                <a href="/code/">code</a>
+                <a href="https://github.com/roomkit-live/roomkit">github</a>
+                <a class="button button-dark nav-cta" href="/#start-building">start building <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+            </nav>
         </div>
-    </nav>
+    </header>
+
+    <main id="main">
 
     <!-- Article Header -->
     <header class="blog-article-header">
@@ -209,54 +210,40 @@ uv run python -m room_ui</code></pre>
 
         </div>
     </article>
+    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <a href="/" class="nav-logo">
-                        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
-                            <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
-                            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
-                            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.6"/>
-                            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/>
-                        </svg>
-                        <span>RoomKit</span>
-                    </a>
-                    <p>Pure async Python library for multi-channel conversations.</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4>Documentation</h4>
-                        <a href="/docs/">Getting Started</a>
-                        <a href="/docs/features/">Features</a>
-                        <a href="/docs/api/">API Reference</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Resources</h4>
-                        <a href="/blog/">Blog</a>
-                        <a href="https://roomkit-live.github.io/roomkit-models/">Models</a>
-                        <a href="/llms.txt">llms.txt</a>
-                        <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">AGENTS.md</a>
-                        <a href="/docs/mcp/">MCP Integration</a>
-                        <a href="/docs/roomkit-rfc/">RFC</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Community</h4>
-                        <a href="https://github.com/roomkit-live/">GitHub</a>
-                        <a href="https://github.com/roomkit-live/roomkit/issues">Issues</a>
-                        <a href="https://pypi.org/project/roomkit/">PyPI</a>
-                    </div>
-                </div>
+    <footer class="site-footer shell">
+        <div class="footer-main">
+            <div class="footer-brand">
+                <a class="brand" href="/" aria-label="roomkit. home"><svg aria-hidden="true"><use href="#roomkit-mark"/></svg><span>roomkit<span class="brand-dot">.</span></span></a>
+                <p>Open-source framework for multi-channel conversations.</p>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 RoomKit. MIT License.</p>
-            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <div class="footer-column">
+                    <h3>documentation</h3>
+                    <a href="/docs/">getting started</a>
+                    <a href="/docs/features/">features</a>
+                    <a href="/docs/api/">api reference</a>
+                </div>
+                <div class="footer-column">
+                    <h3>resources</h3>
+                    <a href="/blog/">blog</a>
+                    <a href="https://roomkit-live.github.io/roomkit-models/">models</a>
+                    <a href="/llms.txt">llms.txt</a>
+                    <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">agents.md</a>
+                    <a href="/docs/mcp/">mcp integration</a>
+                    <a href="/docs/roomkit-rfc/">rfc</a>
+                </div>
+                <div class="footer-column">
+                    <h3>community</h3>
+                    <a href="https://github.com/roomkit-live/">github</a>
+                    <a href="https://github.com/roomkit-live/roomkit/issues">issues</a>
+                    <a href="https://pypi.org/project/roomkit/">pypi</a>
+                    <a href="https://github.com/roomkit-live/roomkit-rs">rust</a>
+                </div>
+            </nav>
         </div>
+        <div class="footer-bottom"><p>&copy; 2026 RoomKit. MIT License.</p></div>
     </footer>
-
-    <script src="/js/main.js"></script>
 </body>
 </html>

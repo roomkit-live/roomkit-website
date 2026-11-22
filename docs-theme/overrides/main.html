@@ -1,0 +1,61 @@
+{#-
+  The documentation uses the website's header (partials/header.html) and adds the website's
+  footer under Material's own. The footer markup below is a copy of the one in index.html
+  and is styled by /css/shell.css, so a change there must be made here too.
+-#}
+{% extends "base.html" %}
+
+{% block header %}
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="roomkit-mark" viewBox="0 0 32 32">
+            <rect x="2" y="2" width="28" height="28" rx="6" fill="none" stroke="currentColor" stroke-width="2"/>
+            <rect x="7" y="7" width="8" height="8" rx="2" fill="currentColor"/>
+            <rect x="17" y="7" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/>
+            <rect x="7" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".65"/>
+            <rect x="17" y="17" width="8" height="8" rx="2" fill="currentColor" opacity=".3"/>
+        </symbol>
+        <symbol id="arrow" viewBox="0 0 24 24">
+            <path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </symbol>
+    </svg>
+  {{ super() }}
+{% endblock %}
+
+{% block footer %}
+  {{ super() }}
+  <div class="docs-site-footer">
+    <footer class="site-footer shell">
+        <div class="footer-main">
+            <div class="footer-brand">
+                <a class="brand" href="/" aria-label="roomkit. home"><svg aria-hidden="true"><use href="#roomkit-mark"/></svg><span>roomkit<span class="brand-dot">.</span></span></a>
+                <p>Open-source framework for multi-channel conversations.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <div class="footer-column">
+                    <h3>documentation</h3>
+                    <a href="/docs/">getting started</a>
+                    <a href="/docs/features/">features</a>
+                    <a href="/docs/api/">api reference</a>
+                </div>
+                <div class="footer-column">
+                    <h3>resources</h3>
+                    <a href="/blog/">blog</a>
+                    <a href="https://roomkit-live.github.io/roomkit-models/">models</a>
+                    <a href="/llms.txt">llms.txt</a>
+                    <a href="https://github.com/roomkit-live/roomkit/blob/main/AGENTS.md">agents.md</a>
+                    <a href="/docs/mcp/">mcp integration</a>
+                    <a href="/docs/roomkit-rfc/">rfc</a>
+                </div>
+                <div class="footer-column">
+                    <h3>community</h3>
+                    <a href="https://github.com/roomkit-live/">github</a>
+                    <a href="https://github.com/roomkit-live/roomkit/issues">issues</a>
+                    <a href="https://pypi.org/project/roomkit/">pypi</a>
+                    <a href="https://github.com/roomkit-live/roomkit-rs">rust</a>
+                </div>
+            </nav>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 RoomKit. MIT License.</p></div>
+    </footer>
+  </div>
+{% endblock %}

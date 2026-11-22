@@ -8,13 +8,18 @@ Landing pages for [roomkit.live](https://www.roomkit.live),
 
 ```
 index.html                       Framework landing page
-css/site.css                     Shared landing-page styles and fonts
+css/shell.css                    Fonts, tokens, header and footer, shared by every page and the docs
+css/site.css                     Landing-page styles
+css/blog.css                     Blog listing and article styles
+css/docs.css                     Site fonts and colours for the documentation
 js/site.js                       Navigation and clipboard controls
 js/home.js                       Homepage conversation switcher and scroll reveals
 assistant/                       Desktop app page, gallery and real screenshots
 code/                            RoomKit Code page and real terminal captures
 examples/first_conversation.py   Downloadable, runnable framework example
-blog/                            Articles, using css/style.css and js/main.js
+blog/                            Articles, using css/blog.css, css/shell.css and js/site.js
+docs-theme/                      Website build of the docs: mkdocs.yml and the header/footer override
+scripts/update-asset-versions.py Refreshes the ?v= values of CSS and JS references
 404.html                         Custom 404 page
 favicon.svg                      Site favicon
 og-image.svg / og-image.png       Social preview image
@@ -23,7 +28,17 @@ robots.txt / sitemap.xml         Crawler directives and sitemap
 
 The landing pages use the navy, indigo and cyan RoomKit palette, a lowercase
 `roomkit.` wordmark with a white point, and self-hosted fonts. The original footer
-resources are retained. Legacy styles and scripts remain available for the blog.
+resources are retained.
+
+The header and footer are plain HTML, copied into `index.html`, `assistant/index.html`,
+`code/index.html`, every `blog/**/index.html` and, for the documentation,
+`docs-theme/overrides/partials/header.html` and `docs-theme/overrides/main.html`.
+Their styles live only in `css/shell.css`. A change to the markup has to be made in
+each copy; the assistant and code pages keep their own navigation links.
+
+`/docs/` is built from `roomkit-docs` with Material for MkDocs. `docs-theme/mkdocs.yml`
+inherits that repository's `mkdocs.yml` and adds the site's header, footer, fonts and
+colours, so `roomkit-docs` itself needs no theme files.
 
 ## Local preview
 
@@ -100,13 +115,15 @@ manifests and waits for rollout. See `Makefile`, `Dockerfile.website` and `k8s.y
 The build includes `examples/` so the downloadable Python example works in
 production. The homepage no longer uses the old generated counts/latest-post cards.
 
-CSS and JS URLs on the landing pages carry a SHA-256 content prefix in `?v=`
-because nginx caches static assets as immutable. After changing one of these files,
-update its version in both pages where referenced:
+CSS and JS URLs on every page and in `docs-theme/mkdocs.yml` carry a SHA-256 content
+prefix in `?v=` because nginx caches static assets as immutable. After changing one of
+these files, refresh the references:
 
 ```bash
-sha256sum css/site.css js/site.js js/home.js assistant/page.css assistant/page.js code/page.css
+python3 scripts/update-asset-versions.py
 ```
+
+`make gather` runs it with `--check` and stops if a reference is stale.
 
 Before deployment, check the assembled site's local links, metadata, screenshots,
 keyboard interactions, clipboard contents and responsive layouts. Run the Python

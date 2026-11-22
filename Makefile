@@ -8,7 +8,7 @@
 #   roomkit/          → src/, llms.txt, pyproject.toml
 #   roomkit-docs/     → docs/, mkdocs.yml
 #   roomkit-specs/    → roomkit-rfc.md
-#   roomkit-website/  → this repo (index.html, css/, js/, deploy.sh, …)
+#   roomkit-website/  → this repo (index.html, css/, js/, docs-theme/, deploy.sh, …)
 # =============================================================================
 
 REGISTRY   := quintana
@@ -38,6 +38,9 @@ gather:
 		&& cmp -s ../roomkit/llms-full.txt ../roomkit-docs/docs/llms-full.txt \
 		|| { echo "roomkit-docs/docs/llms*.txt differ from roomkit's: run 'make llms-sync' in roomkit and commit the copies"; exit 1; }
 
+	@echo "==> Checking the ?v= versions of CSS and JS…"
+	python3 scripts/update-asset-versions.py --check
+
 	@echo "==> Gathering build context into $(BUILD_DIR)/"
 	rm -rf $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/website $(BUILD_DIR)/docs
@@ -50,7 +53,14 @@ gather:
 
 	# Documentation from roomkit-docs
 	cp -R ../roomkit-docs/docs/. $(BUILD_DIR)/docs/
-	cp    ../roomkit-docs/mkdocs.yml $(BUILD_DIR)/mkdocs.yml
+	cp    ../roomkit-docs/mkdocs.yml $(BUILD_DIR)/mkdocs.base.yml
+
+	# The site's header, footer and colours around the documentation:
+	# docs-theme/mkdocs.yml inherits from roomkit-docs' own mkdocs.yml
+	cp -R docs-theme $(BUILD_DIR)/docs-theme
+	mv    $(BUILD_DIR)/docs-theme/mkdocs.yml $(BUILD_DIR)/mkdocs.yml
+	mkdir -p $(BUILD_DIR)/docs-theme/overrides/assets
+	cp    favicon.svg $(BUILD_DIR)/docs-theme/overrides/assets/favicon.svg
 
 	# RFC spec from roomkit-specs
 	cp    ../roomkit-specs/roomkit-rfc.md $(BUILD_DIR)/docs/roomkit-rfc.md

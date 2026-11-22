@@ -1,0 +1,45 @@
+{#-
+  The website's header, with Material's controls (drawer, search, colour scheme) in the
+  middle. Brand and links are a copy of the header in index.html, styled by /css/shell.css.
+  Based on Material 9.x partials/header.html; the data-md-component hooks are the ones its
+  JavaScript looks for.
+-#}
+<header class="md-header site-header" data-md-component="header">
+  <div class="md-header__inner shell header-inner">
+            <a class="brand" href="/" aria-label="roomkit. home">
+                <svg aria-hidden="true"><use href="#roomkit-mark"/></svg>
+                <span>roomkit<span class="brand-dot">.</span></span>
+            </a>
+    <div class="md-header__title" data-md-component="header-title" hidden>
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic"><span class="md-ellipsis">{{ config.site_name }}</span></div>
+        <div class="md-header__topic" data-md-component="header-topic"><span class="md-ellipsis">{{ page.title }}</span></div>
+      </div>
+    </div>
+    <div class="docs-tools">
+      <label class="md-header__button md-icon" for="__drawer" title="Documentation menu">
+        {% set icon = config.theme.icon.menu or "material/menu" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+      </label>
+      {% if "material/search" in config.plugins %}
+        <label class="md-header__button md-icon" for="__search">
+          {% set icon = config.theme.icon.search or "material/magnify" %}
+          {% include ".icons/" ~ icon ~ ".svg" %}
+        </label>
+        {% include "partials/search.html" %}
+      {% endif %}
+      {% if config.theme.palette and not config.theme.palette is mapping %}
+        {% include "partials/palette.html" %}
+        {% include "partials/javascripts/palette.html" %}
+      {% endif %}
+    </div>
+            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>menu <span aria-hidden="true">+</span></button>
+            <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+                <a href="/docs/" aria-current="page">docs</a>
+                <a href="/assistant/">assistant</a>
+                <a href="/code/">code</a>
+                <a href="https://github.com/roomkit-live/roomkit">github</a>
+                <a class="button button-dark nav-cta" href="/#start-building">start building <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+            </nav>
+  </div>
+</header>

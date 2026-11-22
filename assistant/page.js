@@ -36,7 +36,7 @@
         button.addEventListener('click', () => {
             appearanceButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
             document.querySelectorAll('[data-screenshot]').forEach((img) => {
-                const path = `/roomkit-ui/screenshots/${img.dataset.screenshot}-${button.dataset.theme}.png`;
+                const path = `/assistant/screenshots/${img.dataset.screenshot}-${button.dataset.theme}.png`;
                 img.src = path;
                 img.closest('a').href = path;
             });

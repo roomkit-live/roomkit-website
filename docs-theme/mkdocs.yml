@@ -1,0 +1,32 @@
+# Website build of the documentation: roomkit-docs' own mkdocs.yml, plus the site's
+# header, footer, fonts and colours. `make gather` copies that file next to this one
+# as mkdocs.base.yml. Built on its own, roomkit-docs keeps the stock Material theme.
+INHERIT: mkdocs.base.yml
+
+theme:
+  custom_dir: docs-theme/overrides
+  font: false
+  logo: assets/favicon.svg
+  favicon: assets/favicon.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+# Served by the website itself. scripts/update-asset-versions.py keeps the ?v= values current.
+extra_css:
+  - /css/shell.css?v=631c9c1b4812
+  - /css/docs.css?v=ae01835a0a00
+extra_javascript:
+  - /js/site.js?v=e82daae15ed8

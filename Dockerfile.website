@@ -16,7 +16,10 @@ RUN pip install --no-cache-dir \
 # Copy source code and docs
 COPY src/ src/
 COPY docs/ docs/
-COPY mkdocs.yml .
+# mkdocs.yml is the site's docs-theme/mkdocs.yml; it inherits from mkdocs.base.yml,
+# which is roomkit-docs' own configuration
+COPY docs-theme/ docs-theme/
+COPY mkdocs.yml mkdocs.base.yml ./
 COPY pyproject.toml .
 
 # Build documentation

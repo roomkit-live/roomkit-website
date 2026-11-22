@@ -1,0 +1,736 @@
+/* ========================================
+   RoomKit Website Styles
+   ======================================== */
+
+/* Self-hosted fonts (latin + latin-ext) */
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/css/fonts/inter-400-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/css/fonts/inter-400-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/css/fonts/inter-500-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/css/fonts/inter-500-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/css/fonts/inter-600-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/css/fonts/inter-600-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/css/fonts/inter-700-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/css/fonts/inter-700-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/css/fonts/jetbrains-mono-400-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/css/fonts/jetbrains-mono-400-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/css/fonts/jetbrains-mono-500-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/css/fonts/jetbrains-mono-500-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/css/fonts/space-grotesk-500-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/css/fonts/space-grotesk-500-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/css/fonts/space-grotesk-600-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/css/fonts/space-grotesk-600-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/css/fonts/space-grotesk-700-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/css/fonts/space-grotesk-700-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+    /* Colors */
+    --color-primary: #6366f1;
+    --color-primary-light: #818cf8;
+    --color-accent: #06b6d4;
+    --color-bg: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-text: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+    --color-border: #334155;
+    /* Code colors */
+    --code-bg: #1e293b;
+    --code-kw: #c084fc;
+    --code-fn: #22d3ee;
+    --code-st: #86efac;
+    --code-cm: #64748b;
+    --code-decorator: #fbbf24;
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+    /* Typography */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    /* Borders */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    /* Shadows */
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* Reset */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--color-bg-secondary);
+    padding: 0.125em 0.375em;
+    border-radius: var(--radius-sm);
+}
+
+/* Container */
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent);
+    pointer-events: none;
+}
+
+.code-content {
+    margin: 0;
+    padding: var(--space-lg);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.code-content code {
+    background: none;
+    padding: 0;
+}
+
+/* Syntax highlighting */
+
+.kw {
+    color: var(--code-kw);
+}
+
+.fn {
+    color: var(--code-fn);
+}
+
+.st {
+    color: var(--code-st);
+}
+
+.cm {
+    color: var(--code-cm);
+    font-style: italic;
+}
+
+.decorator {
+    color: var(--code-decorator);
+}
+
+@media (max-width: 768px) {
+    .code-content {
+        font-size: 0.8125rem;
+        padding: var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 var(--space-md);
+    }
+
+    .code-content {
+        font-size: 0.75rem;
+        padding: var(--space-sm) var(--space-md);
+        line-height: 1.6;
+    }
+}
+
+.blog-hero {
+    position: relative;
+    padding: 8rem 0 3rem;
+    text-align: center;
+}
+
+.blog-hero .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent);
+    pointer-events: none;
+}
+
+.blog-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+}
+
+.blog-hero p {
+    font-size: 1.25rem;
+    color: var(--color-text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Blog Grid */
+
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+    padding: var(--space-3xl) 0;
+}
+
+.blog-card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-xl);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s;
+}
+
+.blog-card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg), 0 0 30px rgba(99, 102, 241, 0.1);
+}
+
+.blog-card h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    line-height: 1.4;
+}
+
+.blog-card h2 a {
+    color: var(--color-text);
+    transition: color 0.2s;
+}
+
+.blog-card h2 a:hover {
+    color: var(--color-primary-light);
+}
+
+.blog-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+}
+
+.blog-meta span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.blog-card .blog-excerpt {
+    color: var(--color-text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-lg);
+    flex: 1;
+}
+
+.blog-card .blog-read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-primary-light);
+    transition: color 0.2s;
+}
+
+.blog-card .blog-read-more:hover {
+    color: var(--color-accent);
+}
+
+/* Blog Article */
+
+.blog-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xl);
+    transition: color 0.2s;
+}
+
+.blog-back-link:hover {
+    color: var(--color-text);
+}
+
+.blog-article-header {
+    padding: 8rem 0 2rem;
+}
+
+.blog-article-header .container {
+    max-width: 780px;
+}
+
+.blog-article-header h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: var(--space-md);
+}
+
+.blog-article-header .blog-meta {
+    margin-bottom: 0;
+}
+
+.blog-article {
+    padding: var(--space-2xl) 0 var(--space-3xl);
+}
+
+.blog-article .container {
+    max-width: 780px;
+    overflow-wrap: break-word;
+}
+
+.blog-article h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: var(--space-3xl);
+    margin-bottom: var(--space-lg);
+    line-height: 1.3;
+}
+
+.blog-article h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-md);
+    line-height: 1.4;
+}
+
+.blog-article p {
+    color: var(--color-text-secondary);
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    margin-bottom: var(--space-lg);
+}
+
+.blog-article a {
+    color: var(--color-primary-light);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.blog-article a:hover {
+    color: var(--color-accent);
+}
+
+.blog-article strong {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.blog-article ul,
+.blog-article ol {
+    color: var(--color-text-secondary);
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    margin-bottom: var(--space-lg);
+    padding-left: var(--space-xl);
+}
+
+.blog-article li {
+    margin-bottom: var(--space-sm);
+}
+
+.blog-article pre {
+    margin-bottom: var(--space-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--code-bg);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    padding: 0;
+}
+
+.blog-article pre .code-content {
+    display: block;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.blog-article code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--color-bg-secondary);
+    padding: 0.125em 0.375em;
+    border-radius: var(--radius-sm);
+}
+
+.blog-article pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+.blog-article pre code.code-content {
+    padding: 1.25rem 1.5rem;
+}
+
+.blog-article blockquote {
+    border-left: 3px solid var(--color-primary);
+    margin: 0 0 var(--space-lg);
+    padding: var(--space-md) var(--space-xl);
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.blog-article blockquote p {
+    margin-bottom: 0;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.blog-article hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-2xl) 0;
+}
+
+.blog-article .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: var(--space-lg);
+}
+
+.blog-article table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    margin-bottom: var(--space-lg);
+}
+
+.blog-article .table-wrapper table {
+    margin-bottom: 0;
+}
+
+.blog-article th,
+.blog-article td {
+    padding: var(--space-md);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.blog-article th {
+    font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-bg-secondary);
+}
+
+.blog-article td {
+    color: var(--color-text-secondary);
+}
+
+.blog-article tbody tr:hover {
+    background: rgba(99, 102, 241, 0.05);
+}
+
+/* A grid centres the drawing as one block, so its columns stay aligned. */
+
+.blog-article .ascii-diagram {
+    display: grid;
+    justify-content: safe center;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-lg);
+    padding: var(--space-lg);
+    background: var(--code-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    white-space: pre;
+}
+
+/* Blog Responsive */
+
+@media (max-width: 1024px) {
+    .blog-grid {
+        grid-template-columns: 1fr;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .blog-hero {
+        padding: 6rem 0 2rem;
+    }
+
+    .blog-hero h1 {
+        font-size: 2rem;
+    }
+
+    .blog-hero p {
+        font-size: 1.0625rem;
+    }
+
+    .blog-article-header {
+        padding: 6rem 0 1.5rem;
+    }
+
+    .blog-article-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .blog-article h2 {
+        font-size: 1.5rem;
+    }
+
+    .blog-article p,
+    .blog-article ul,
+    .blog-article ol {
+        font-size: 1rem;
+    }
+
+    .blog-article pre .code-content {
+        font-size: 0.8125rem;
+        padding: var(--space-md);
+    }
+
+    .blog-article table {
+        font-size: 0.8125rem;
+    }
+
+    .blog-article th,
+    .blog-article td {
+        padding: var(--space-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-hero {
+        padding: 5.5rem 0 1.5rem;
+    }
+
+    .blog-hero h1 {
+        font-size: 1.75rem;
+    }
+
+    .blog-hero p {
+        font-size: 1rem;
+    }
+
+    .blog-article-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .blog-article h2 {
+        font-size: 1.25rem;
+    }
+
+    .blog-card {
+        padding: var(--space-lg);
+    }
+
+    .blog-article pre .code-content {
+        font-size: 0.75rem;
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .blog-meta {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+}
